@@ -10,7 +10,7 @@ import java.util.Map;
 public class HealthController {
 
     @GetMapping("/health")
-    public ApiResponse<Map> health() {
+    public ApiResponse<Map<String, String>> health() {
         return ApiResponse.onSuccess(Map.of("status", "UP"));
     }
 }
