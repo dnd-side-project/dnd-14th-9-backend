@@ -9,6 +9,8 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     restart: unless-stopped
+    depends_on:
+      - my-server
 
   certbot:
     image: certbot/certbot
@@ -34,8 +36,6 @@ services:
       - REDIS_PORT=6379
     env_file:
       - .env
-    ports:
-      - "8080:8080"
     depends_on:
       my-redis:
         condition: service_healthy
