@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtProvider {
@@ -25,9 +25,8 @@ public class JwtProvider {
 	private final JwtParser jwtParser;
 
 	public JwtProvider(@Value("${jwt.secret}") String secret) {
-		this.secretKey = new SecretKeySpec(
-			secret.getBytes(StandardCharsets.UTF_8),
-			Jwts.SIG.HS256.key().build().getAlgorithm()
+		this.secretKey = Keys.hmacShaKeyFor(
+			secret.getBytes(StandardCharsets.UTF_8)
 		);
 		this.jwtParser = Jwts.parser()
 			.verifyWith(secretKey)
