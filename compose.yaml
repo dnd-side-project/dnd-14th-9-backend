@@ -32,9 +32,6 @@ services:
     environment:
       - REDIS_HOST=my-redis
       - REDIS_PORT=6379
-      - DATABASE_URL=${DATABASE_URL}
-      - DATABASE_USERNAME=${DATABASE_USERNAME}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
     env_file:
       - .env
     ports:
