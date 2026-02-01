@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 
 @Component
@@ -21,12 +22,16 @@ public class JwtProvider {
 	private static final Duration REFRESH_TOKEN_EXPIRATION_TIME = Duration.ofDays(30);
 
 	private final SecretKey secretKey;
+	private final JwtParser jwtParser;
 
 	public JwtProvider(@Value("${jwt.secret}") String secret) {
 		this.secretKey = new SecretKeySpec(
 			secret.getBytes(StandardCharsets.UTF_8),
 			Jwts.SIG.HS256.key().build().getAlgorithm()
 		);
+		this.jwtParser = Jwts.parser()
+			.verifyWith(secretKey)
+			.build();
 	}
 
 	public String createAccessToken(Long memberId, Instant now) {
@@ -46,10 +51,7 @@ public class JwtProvider {
 	}
 
 	public void validate(String token) {
-		Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token);
+		jwtParser.parseSignedClaims(token);
 	}
 
 	public Long extractMemberId(String token) {
@@ -72,10 +74,7 @@ public class JwtProvider {
 	}
 
 	private Claims parseClaims(String token) {
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
+		return jwtParser.parseSignedClaims(token)
 			.getPayload();
 	}
 }
