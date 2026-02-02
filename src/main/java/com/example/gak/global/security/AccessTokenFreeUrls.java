@@ -1,9 +1,10 @@
 package com.example.gak.global.security;
 
-public final class AccessTokenFreeUrls {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-	private AccessTokenFreeUrls() {
-	}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class AccessTokenFreeUrls {
 
 	public static final String[] PATHS = {
 		"/api/v1/auth/refresh",
