@@ -4,7 +4,11 @@ import java.time.Duration;
 
 import org.springframework.http.ResponseCookie;
 
-public class AuthCookieProvider {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class AuthCookieProvider {
 
 	public static ResponseCookie createAccessTokenCookie(String accessToken) {
 		return ResponseCookie.from("accessToken", accessToken)
