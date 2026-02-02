@@ -46,7 +46,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			registrationId
 		);
 
-		jwtService.saveRefreshToken(memberId, refreshToken, Instant.now());
+		jwtService.saveRefreshToken(memberId, refreshToken, now);
 
 		response.addHeader(
 			HttpHeaders.SET_COOKIE,
