@@ -2,7 +2,6 @@ package com.example.gak.domain.member.entity;
 
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
-import com.example.gak.domain.member.entity.enums.SocialProvider;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,12 +32,10 @@ public class Member extends BaseEntity {
 	private String bio;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	private SessionCategory interestCategory;
 
-	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private SocialProvider socialProvider;
+	private String socialProvider;
 
 	private String providerId;
 
@@ -47,7 +44,7 @@ public class Member extends BaseEntity {
 		String profileImageUrl,
 		String bio,
 		SessionCategory interestCategory,
-		SocialProvider socialProvider,
+		String socialProvider,
 		String providerId
 	) {
 		this.nickname = nickname;
