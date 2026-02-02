@@ -14,6 +14,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.gak.global.security.oauth2.CustomOAuth2UserService;
+import com.example.gak.global.security.oauth2.CustomOidcUserService;
+import com.example.gak.global.security.oauth2.CustomSuccessHandler;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -21,6 +25,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	private final CustomOAuth2UserService oAuth2UserService;
+	private final CustomOidcUserService oidcUserService;
+	private final CustomSuccessHandler successHandler;
 	private final JwtAuthFilter jwtAuthFilter;
 
 	@Bean
@@ -29,6 +36,11 @@ public class SecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
+			.oauth2Login(oauth2 -> oauth2
+				.userInfoEndpoint(userInfo -> userInfo
+					.userService(oAuth2UserService)
+					.oidcUserService(oidcUserService))
+				.successHandler(successHandler))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(AccessTokenFreeUrls.PATHS).permitAll()
 				.anyRequest().authenticated())

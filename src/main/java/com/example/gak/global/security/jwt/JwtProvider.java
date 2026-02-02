@@ -49,14 +49,17 @@ public class JwtProvider {
 		);
 	}
 
-	public void validate(String token) {
-		jwtParser.parseSignedClaims(token);
-	}
-
 	public Long extractMemberId(String token) {
 		return Long.valueOf(
 			parseClaims(token).getSubject()
 		);
+	}
+
+	public Duration getRemainExpiration(String token, Instant now) {
+		Date expiration = parseClaims(token).getExpiration();
+		Instant expirationInstant = expiration.toInstant();
+
+		return Duration.between(now, expirationInstant);
 	}
 
 	private String createToken(

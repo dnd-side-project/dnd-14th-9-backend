@@ -2,8 +2,11 @@ package com.example.gak.global.security;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -12,6 +15,7 @@ import com.example.gak.global.apiPayload.code.BaseErrorCode;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.dto.ErrorReasonDTO;
 import com.example.gak.global.security.jwt.JwtProvider;
+import com.example.gak.global.security.oauth2.CustomOAuth2User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -56,14 +60,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		/*CustomOAuth2User oAuth2User = new CustomOAuth2User(memberId);
+		CustomOAuth2User oAuth2User = new CustomOAuth2User(null, memberId);
 		SecurityContextHolder.getContext().setAuthentication(
 			new UsernamePasswordAuthenticationToken(
 				oAuth2User,
-				Optional.empty(),
+				null,
 				Collections.emptyList()
 			)
-		);*/
+		);
 
 		filterChain.doFilter(request, response);
 	}

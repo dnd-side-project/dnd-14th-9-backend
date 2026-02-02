@@ -18,6 +18,7 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	INVALID_AUTHORIZATION_HEADER(HttpStatus.UNAUTHORIZED, "AUTH401_1", "올바르지 않은 Authorization 헤더입니다."),
 	INVALID_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "AUTH401_2", "토큰 형식이 올바르지 않습니다."),
 	ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_3", "기한이 만료된 Access 토큰입니다."),
+	UNSUPPORTED_PROVIDER(HttpStatus.UNAUTHORIZED, "AUTH401_4", "지원하지 않는 소셜 로그인 제공자입니다."),
 	;
 
 	private final HttpStatus httpStatus;
