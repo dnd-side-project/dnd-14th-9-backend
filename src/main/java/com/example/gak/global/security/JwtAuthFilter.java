@@ -3,7 +3,6 @@ package com.example.gak.global.security;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -76,7 +75,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	}
 
 	private void sendErrorResponse(HttpServletResponse response, BaseErrorCode errorCode) throws IOException {
-		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		GeneralErrorCode general = (GeneralErrorCode)errorCode;
+		response.setStatus(general.getHttpStatus().value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("UTF-8");
 
