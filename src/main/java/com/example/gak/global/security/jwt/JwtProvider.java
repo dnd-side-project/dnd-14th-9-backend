@@ -59,6 +59,13 @@ public class JwtProvider {
 		);
 	}
 
+	public Duration getRemainExpiration(String token, Instant now) {
+		Date expiration = parseClaims(token).getExpiration();
+		Instant expirationInstant = expiration.toInstant();
+
+		return Duration.between(now, expirationInstant);
+	}
+
 	private String createToken(
 		Long memberId,
 		Instant now,
