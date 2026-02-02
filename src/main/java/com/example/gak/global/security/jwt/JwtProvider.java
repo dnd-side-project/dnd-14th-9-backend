@@ -49,10 +49,6 @@ public class JwtProvider {
 		);
 	}
 
-	public void validate(String token) {
-		jwtParser.parseSignedClaims(token);
-	}
-
 	public Long extractMemberId(String token) {
 		return Long.valueOf(
 			parseClaims(token).getSubject()

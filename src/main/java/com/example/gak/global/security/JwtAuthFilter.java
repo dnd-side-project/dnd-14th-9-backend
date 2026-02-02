@@ -3,7 +3,6 @@ package com.example.gak.global.security;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,7 +51,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			}
 
 			String accessToken = authorizationHeader.split(" ")[1];
-			jwtProvider.validate(accessToken);
 			memberId = jwtProvider.extractMemberId(accessToken);
 		} catch (ExpiredJwtException e) {
 			sendErrorResponse(response, GeneralErrorCode.ACCESS_TOKEN_EXPIRED);
@@ -66,7 +64,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		SecurityContextHolder.getContext().setAuthentication(
 			new UsernamePasswordAuthenticationToken(
 				oAuth2User,
-				Optional.empty(),
+				null,
 				Collections.emptyList()
 			)
 		);
