@@ -28,6 +28,6 @@ public class GoogleMemberDto implements OAuth2MemberDto {
 
 	@Override
 	public Optional<String> getProfileImage() {
-		return Optional.ofNullable(attributes.get("picture").toString());
+		return Optional.ofNullable(attributes.get("picture")).map(Object::toString);
 	}
 }
