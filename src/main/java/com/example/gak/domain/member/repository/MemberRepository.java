@@ -8,5 +8,5 @@ import com.example.gak.domain.member.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-	Optional<Member> findByProviderId(String providerId);
+	Optional<Member> findBySocialProviderAndProviderId(String socialProvider, String providerId);
 }

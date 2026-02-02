@@ -17,7 +17,10 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 
 	public Long synchronize(OAuth2MemberDto oAuth2MemberDto) {
-		return memberRepository.findByProviderId(oAuth2MemberDto.getProviderId())
+		return memberRepository.findBySocialProviderAndProviderId(
+				oAuth2MemberDto.getProvider(),
+				oAuth2MemberDto.getProviderId()
+			)
 			.map(Member::getId)
 			.orElseGet(() -> {
 					Member member = new Member(
