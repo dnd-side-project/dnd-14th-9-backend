@@ -29,9 +29,10 @@ public class AmazonS3Manager {
         try {
             amazonS3.putObject(new PutObjectRequest(amazonConfig.getBucket(), keyName, file.getInputStream(), metadata));
         } catch (IOException e) {
-            log.error("error at AmazonS3Manager uploadFile : {}", (Object) e.getStackTrace());
+            log.error("S3 업로드 실패: keyName={}", keyName, e);
             throw new RuntimeException("S3 업로드 오류 발생", e);
         }
+
         return amazonS3.getUrl(amazonConfig.getBucket(), keyName).toString();
     }
 
