@@ -3,15 +3,16 @@ package com.example.gak.global.aws;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.gak.global.apiPayload.exception.S3Exception;
 import com.example.gak.global.configuration.AmazonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
+import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
 @Slf4j
 @Component
@@ -28,9 +29,9 @@ public class AmazonS3Manager {
 
         try {
             amazonS3.putObject(new PutObjectRequest(amazonConfig.getBucket(), keyName, file.getInputStream(), metadata));
-        } catch (IOException e) {
-            log.error("S3 업로드 실패: keyName={}", keyName, e);
-            throw new RuntimeException("S3 업로드 오류 발생", e);
+        } catch (Exception e) {
+            log.error("S3 upload failed for file: keyName={}", keyName, e);
+            throw new S3Exception(S3_UPLOAD_FAIL);
         }
 
         return amazonS3.getUrl(amazonConfig.getBucket(), keyName).toString();
@@ -40,11 +41,9 @@ public class AmazonS3Manager {
         try {
             String keyName = URI.create(fileUrl).getPath().substring(1);
             amazonS3.deleteObject(amazonConfig.getBucket(), keyName);
-            log.info("Deleted S3 file: {}", keyName);
-
         } catch (Exception e) {
             log.error("S3 delete failed for file: {}", fileUrl, e);
-            throw new RuntimeException("S3 삭제 오류 발생", e);
+            throw new S3Exception(S3_DELETE_FAIL);
         }
     }
 
