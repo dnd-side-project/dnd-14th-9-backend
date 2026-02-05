@@ -19,13 +19,13 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	INVALID_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "AUTH401_2", "토큰 형식이 올바르지 않습니다."),
 	ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_3", "기한이 만료된 Access 토큰입니다."),
 	UNSUPPORTED_PROVIDER(HttpStatus.UNAUTHORIZED, "AUTH401_4", "지원하지 않는 소셜 로그인 제공자입니다."),
+	REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_5", "기한이 만료된 Refresh 토큰입니다."),
+	NOT_FOUND_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401_6", "존재하지 않는 Refresh 토큰입니다."),
 
 	// AWS S3 관련
 	S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_1", "S3 업로드에 실패했습니다."),
 	S3_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_2", "S3 파일 삭제에 실패했습니다."),
-	S3_DOWNLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_3", "S3 파일 조회에 실패했습니다.")
-	;
-
+	S3_DOWNLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_3", "S3 파일 조회에 실패했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
