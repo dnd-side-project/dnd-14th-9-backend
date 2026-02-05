@@ -22,6 +22,10 @@ public class AuthService {
 	private final JwtService jwtService;
 
 	public TokenPair refreshToken(String refreshToken, Instant now) {
+		if (refreshToken == null) {
+			throw new GeneralException(GeneralErrorCode.REFRESH_TOKEN_REQUIRED);
+		}
+
 		Long memberId;
 		try {
 			memberId = jwtProvider.extractMemberId(refreshToken);
@@ -31,15 +35,20 @@ public class AuthService {
 			throw new GeneralException(GeneralErrorCode.INVALID_TOKEN_FORMAT);
 		}
 
-		if (jwtService.getRefreshToken(memberId) == null) {
+		String storedRefreshToken = jwtService.getRefreshToken(memberId);
+		if (storedRefreshToken == null) {
 			throw new GeneralException(GeneralErrorCode.NOT_FOUND_REFRESH_TOKEN);
 		}
+		if (!storedRefreshToken.equals(refreshToken)) {
+			throw new GeneralException(GeneralErrorCode.REFRESH_TOKEN_MISMATCH);
+		}
+
 		jwtService.deleteRefreshToken(memberId);
 
 		String accessToken = jwtProvider.createAccessToken(memberId, now);
-		refreshToken = jwtProvider.createRefreshToken(memberId, now);
-		jwtService.saveRefreshToken(memberId, refreshToken, now);
+		String newRefreshToken = jwtProvider.createRefreshToken(memberId, now);
+		jwtService.saveRefreshToken(memberId, newRefreshToken, now);
 
-		return new TokenPair(accessToken, refreshToken);
+		return new TokenPair(accessToken, newRefreshToken);
 	}
 }
