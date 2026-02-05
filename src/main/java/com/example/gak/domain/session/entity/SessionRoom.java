@@ -1,11 +1,11 @@
-package com.example.gak.domain.sessionroom.entity;
+package com.example.gak.domain.session.entity;
 
 import java.time.LocalDateTime;
 
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.example.gak.domain.member.entity.Member;
-import com.example.gak.domain.sessionroom.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

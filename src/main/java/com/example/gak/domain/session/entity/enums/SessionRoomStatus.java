@@ -1,4 +1,4 @@
-package com.example.gak.domain.sessionroom.entity.enums;
+package com.example.gak.domain.session.entity.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
