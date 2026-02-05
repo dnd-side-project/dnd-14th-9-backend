@@ -28,12 +28,12 @@ public class JwtService {
 		stringRedisTemplate.opsForValue().set(key, refreshToken, ttl);
 	}
 
-	public String getRefreshToken(String memberId) {
+	public String getRefreshToken(Long memberId) {
 		String key = REFRESH_TOKEN_PREFIX + memberId;
 		return stringRedisTemplate.opsForValue().get(key);
 	}
 
-	public void deleteRefreshToken(String memberId) {
+	public void deleteRefreshToken(Long memberId) {
 		String key = REFRESH_TOKEN_PREFIX + memberId;
 		stringRedisTemplate.delete(key);
 	}
