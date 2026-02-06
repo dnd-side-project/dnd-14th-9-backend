@@ -40,4 +40,18 @@ public class AuthController {
 			)
 			.body(ApiResponse.onSuccess(null));
 	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<ApiResponse<Void>> logout(
+		@CookieValue(value = "refreshToken", required = false) String refreshToken
+	) {
+		authService.logout(refreshToken);
+
+		return ResponseEntity.ok()
+			.header(
+				HttpHeaders.SET_COOKIE,
+				AuthCookieProvider.deleteRefreshTokenCookie().toString()
+			)
+			.body(ApiResponse.onSuccess(null));
+	}
 }
