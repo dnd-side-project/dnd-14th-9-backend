@@ -1,16 +1,16 @@
 package com.example.gak.global.security.oauth2;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.example.gak.global.security.AuthCookieProvider;
 import com.example.gak.global.security.jwt.JwtProvider;
 import com.example.gak.global.security.jwt.JwtService;
 
@@ -42,20 +42,22 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String refreshToken = jwtProvider.createRefreshToken(memberId, now);
 
 		String redirectUrl = String.format(
-			"http://localhost:3000/auth/callback/%s",
-			registrationId
+			"http://localhost:3000/auth/callback/%s?accessToken=%s&refreshToken=%s",
+			registrationId,
+			URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
+			URLEncoder.encode(refreshToken, StandardCharsets.UTF_8)
 		);
 
 		jwtService.saveRefreshToken(memberId, refreshToken, now);
 
-		response.addHeader(
+		/*response.addHeader(
 			HttpHeaders.SET_COOKIE,
 			AuthCookieProvider.createAccessTokenCookie(accessToken).toString()
 		);
 		response.addHeader(
 			HttpHeaders.SET_COOKIE,
 			AuthCookieProvider.createRefreshTokenCookie(refreshToken).toString()
-		);
+		);*/
 		response.sendRedirect(redirectUrl);
 	}
 }
