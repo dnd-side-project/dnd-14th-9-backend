@@ -24,21 +24,12 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/refresh")
-	public ResponseEntity<ApiResponse<Void>> refreshToken(
+	public ResponseEntity<ApiResponse<TokenPair>> refreshToken(
 		@CookieValue(value = "refreshToken", required = false) String refreshToken
 	) {
 		TokenPair tokenPair = authService.refreshToken(refreshToken, Instant.now());
 
-		return ResponseEntity.ok()
-			.header(
-				HttpHeaders.SET_COOKIE,
-				AuthCookieProvider.createAccessTokenCookie(tokenPair.getAccessToken()).toString()
-			)
-			.header(
-				HttpHeaders.SET_COOKIE,
-				AuthCookieProvider.createRefreshTokenCookie(tokenPair.getRefreshToken()).toString()
-			)
-			.body(ApiResponse.onSuccess(null));
+		return ResponseEntity.ok(ApiResponse.onSuccess(tokenPair));
 	}
 
 	@PostMapping("/logout")
