@@ -42,7 +42,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String refreshToken = jwtProvider.createRefreshToken(memberId, now);
 
 		String redirectUrl = String.format(
-			"http://localhost:3000/auth/callback/%s?accessToken=%s&refreshToken=%s",
+			"http://localhost:3000/api/auth/callback/%s?accessToken=%s&refreshToken=%s",
 			registrationId,
 			URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
 			URLEncoder.encode(refreshToken, StandardCharsets.UTF_8)
