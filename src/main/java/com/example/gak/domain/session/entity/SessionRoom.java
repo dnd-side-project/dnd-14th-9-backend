@@ -58,6 +58,15 @@ public class SessionRoom extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private SessionRoomStatus status;
 
+	@Column(nullable = false)
+	private Integer viewCount  = 0;
+
+	@Column(nullable = false)
+	private Integer requiredFocusRate = 0;
+
+	@Column(nullable = false)
+	private Integer requiredAchievementRate = 0;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
