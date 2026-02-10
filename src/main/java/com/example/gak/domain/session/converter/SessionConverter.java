@@ -21,10 +21,10 @@ public class SessionConverter {
                 .build();
     }
 
-    public static SessionResponseDTO.sessionCardResponseListDTO toSessionCardResponseListDTO(
+    public static SessionResponseDTO.SessionCardResponseListDTO toSessionCardResponseListDTO(
             List<SessionResponseDTO.SessionCardResponseDTO> sessionCards,
             Page<SessionRoom> page) {
-        return SessionResponseDTO.sessionCardResponseListDTO.builder()
+        return SessionResponseDTO.SessionCardResponseListDTO.builder()
                 .isFirst(page.isFirst())
                 .isLast(page.isLast())
                 .totalPage(page.getTotalPages())

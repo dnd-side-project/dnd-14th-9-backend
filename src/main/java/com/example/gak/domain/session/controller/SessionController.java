@@ -24,7 +24,7 @@ public class SessionController {
 
     @Operation(summary = "세션 목록 조회 API")
     @GetMapping
-    public ApiResponse<SessionResponseDTO.sessionCardResponseListDTO> getSessions(
+    public ApiResponse<SessionResponseDTO.SessionCardResponseListDTO> getSessions(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) SessionCategory category,
             @RequestParam(required = false, defaultValue = "POPULAR") SessionSort sort,

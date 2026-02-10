@@ -23,7 +23,7 @@ public class SessionResponseDTO {
 
     @Builder
     @Getter
-    public static class sessionCardResponseListDTO {
+    public static class SessionCardResponseListDTO {
         Integer listSize;
         Integer totalPage;
         Long totalElements;

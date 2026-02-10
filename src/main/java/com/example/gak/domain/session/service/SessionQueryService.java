@@ -24,7 +24,7 @@ public class SessionQueryService {
 
     private final SessionRoomRepository sessionRoomRepository;
 
-    public SessionResponseDTO.sessionCardResponseListDTO getSessions(
+    public SessionResponseDTO.SessionCardResponseListDTO getSessions(
             String keyword,
             SessionCategory category,
             SessionSort sort,
@@ -61,7 +61,7 @@ public class SessionQueryService {
                         .map(SessionConverter::toSessionCardResponseDTO)
                         .toList();
 
-        SessionResponseDTO.sessionCardResponseListDTO result =
+        SessionResponseDTO.SessionCardResponseListDTO result =
                 SessionConverter.toSessionCardResponseListDTO(searchResult,sessionRooms);
 
         return result;
