@@ -1,9 +1,8 @@
-package com.example.gak.domain.sessionroommember.entity;
+package com.example.gak.domain.session.entity;
 
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
-import com.example.gak.domain.sessionroom.entity.SessionRoom;
-import com.example.gak.domain.sessionroommember.entity.enums.SessionParticipantRole;
+import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,11 +1,11 @@
-package com.example.gak.domain.sessionroom.entity;
+package com.example.gak.domain.session.entity;
 
 import java.time.LocalDateTime;
 
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.example.gak.domain.member.entity.Member;
-import com.example.gak.domain.sessionroom.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,6 +57,15 @@ public class SessionRoom extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	private SessionRoomStatus status;
+
+	@Column(nullable = false)
+	private Integer viewCount  = 0;
+
+	@Column(nullable = false)
+	private Integer requiredFocusRate = 0;
+
+	@Column(nullable = false)
+	private Integer requiredAchievementRate = 0;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
