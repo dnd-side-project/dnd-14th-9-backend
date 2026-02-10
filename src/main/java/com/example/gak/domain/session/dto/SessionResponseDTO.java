@@ -21,11 +21,8 @@ public class SessionResponseDTO {
         private String imageUrl;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
     @Builder
+    @Getter
     public static class sessionCardResponseListDTO {
         Integer listSize;
         Integer totalPage;
