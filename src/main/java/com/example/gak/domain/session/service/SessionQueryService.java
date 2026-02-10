@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.example.gak.domain.session.enums.SessionSort.*;
+
 @Service
 @RequiredArgsConstructor
 public class SessionQueryService {
@@ -38,7 +40,7 @@ public class SessionQueryService {
             int page,
             int size
     ){
-        Sort sortOption = createSortOption(sort.toString());
+        Sort sortOption = createSortOption(sort);
         PageRequest pageRequest = PageRequest.of(page-1, size, sortOption);
 
         Page<SessionRoom> sessionRooms = sessionRoomRepository.findAll(
@@ -67,11 +69,11 @@ public class SessionQueryService {
         return result;
     }
 
-    private Sort createSortOption(String sort) {
+    private Sort createSortOption(SessionSort sort) {
         return switch (sort) {
-            case "POPULAR" -> Sort.by(Sort.Direction.DESC, "viewCount");
-            case "LATEST" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            case "DEADLINE_APPROACHING" -> Sort.by(Sort.Direction.ASC, "startTime");
+            case POPULAR -> Sort.by(Sort.Direction.DESC, "viewCount");
+            case LATEST -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case DEADLINE_APPROACHING -> Sort.by(Sort.Direction.ASC, "startTime");
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
     }
