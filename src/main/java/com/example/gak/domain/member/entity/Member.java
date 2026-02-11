@@ -32,26 +32,43 @@ public class Member extends BaseEntity {
 	private String bio;
 
 	@Enumerated(EnumType.STRING)
-	private SessionCategory interestCategory;
+	private SessionCategory firstInterestCategory;
+
+	@Enumerated(EnumType.STRING)
+	private SessionCategory secondInterestCategory;
+
+	@Enumerated(EnumType.STRING)
+	private SessionCategory thirdInterestCategory;
 
 	@Column(nullable = false)
 	private String socialProvider;
 
 	private String providerId;
 
+	private boolean firstLogin;
+
 	public Member(
 		String nickname,
 		String profileImageUrl,
 		String bio,
-		SessionCategory interestCategory,
+		SessionCategory firstInterestCategory,
+		SessionCategory secondInterestCategory,
+		SessionCategory thirdInterestCategory,
 		String socialProvider,
 		String providerId
 	) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
 		this.bio = bio;
-		this.interestCategory = interestCategory;
+		this.firstInterestCategory = firstInterestCategory;
+		this.secondInterestCategory = secondInterestCategory;
+		this.thirdInterestCategory = thirdInterestCategory;
 		this.socialProvider = socialProvider;
 		this.providerId = providerId;
+		this.firstLogin = true;
+	}
+
+	public void markLoginDone() {
+		firstLogin = false;
 	}
 }

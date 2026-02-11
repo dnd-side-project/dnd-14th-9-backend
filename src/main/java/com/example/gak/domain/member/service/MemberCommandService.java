@@ -5,6 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.global.apiPayload.code.GeneralErrorCode;
+import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
 
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberCommandService {
 
 	private final MemberRepository memberRepository;
 
@@ -28,11 +30,22 @@ public class MemberService {
 						oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
 						null,
 						null,
+						null,
+						null,
 						oAuth2MemberDto.getProvider(),
 						oAuth2MemberDto.getProviderId()
 					);
 					return memberRepository.save(member).getId();
 				}
 			);
+	}
+
+	public void markFirstLoginComplete(Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+
+		if (member.isFirstLogin()) {
+			member.markLoginDone();
+		}
 	}
 }

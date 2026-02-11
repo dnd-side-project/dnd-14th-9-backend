@@ -24,6 +24,9 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	REFRESH_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "AUTH401_7", "Refresh 토큰이 전달되지 않았습니다."),
 	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH401_8", "Refresh 토큰 정보가 일치하지 않습니다."),
 
+	// 회원 관련
+	NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 회원입니다."),
+
 	// AWS S3 관련
 	S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_1", "S3 업로드에 실패했습니다."),
 	S3_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_2", "S3 파일 삭제에 실패했습니다."),
