@@ -33,7 +33,13 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 사용자입니다."),
 
 	// 세션 관련
-	SESSION_START_TIME_TOO_SOON(HttpStatus.BAD_REQUEST, "SESSION400_1", "세션 시작 시간은 현재 시각 기준 5분 이후로 설정해야 합니다.");
+	SESSION_START_TIME_TOO_SOON(HttpStatus.BAD_REQUEST, "SESSION400_1", "세션 시작 시간은 현재 시각 기준 5분 이후로 설정해야 합니다."),
+
+	// 파일 관련
+	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),
+	FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "FILE400_2", "이미지 파일 크기가 너무 큽니다."),
+	FILE_VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "FILE400_3", "파일 검증에 실패했습니다.");
+
 
 	private final HttpStatus httpStatus;
 	private final String code;

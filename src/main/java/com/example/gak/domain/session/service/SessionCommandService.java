@@ -9,6 +9,7 @@ import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
+import com.example.gak.global.validator.ImageFileValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class SessionCommandService {
     private final MemberRepository memberRepository;
     private final SessionRoomRepository sessionRoomRepository;
     private final AmazonS3Manager amazonS3Manager;
+    private final ImageFileValidator imageFileValidator;
 
     public SessionRoom createSession(
             SessionRequestDTO.CreateSessionRequestDTO request,
@@ -42,6 +44,8 @@ public class SessionCommandService {
 
         String imageUrl;
         if(image != null && !image.isEmpty()) {
+            imageFileValidator.validate(image);
+
             String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
             imageUrl = amazonS3Manager.uploadFile(keyName, image);
         }else{
