@@ -11,13 +11,15 @@ import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-public class SessionCommendService {
+public class SessionCommandService {
 
     private static final long MIN_START_MINUTES = 5;
 

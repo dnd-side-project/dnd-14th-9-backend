@@ -7,7 +7,7 @@ import com.example.gak.domain.session.enums.DurationRange;
 import com.example.gak.domain.session.enums.SessionSort;
 import com.example.gak.domain.session.enums.TimeSlot;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
-import com.example.gak.domain.session.service.SessionCommendService;
+import com.example.gak.domain.session.service.SessionCommandService;
 import com.example.gak.domain.session.service.SessionQueryService;
 import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.jwt.JwtProvider;
@@ -22,7 +22,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,7 +33,7 @@ import static com.example.gak.domain.session.converter.SessionConverter.toCreate
 public class SessionController {
 
     private final SessionQueryService sessionQueryService;
-    private final SessionCommendService sessionCommendService;
+    private final SessionCommandService sessionCommandService;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -86,7 +85,7 @@ public class SessionController {
             @RequestPart(value = "images", required = false) MultipartFile image
     ){
         Long memberId = oAuth2User.getMemberId();
-        SessionRoom sessionRoom = sessionCommendService.createSession(request, image, memberId);
+        SessionRoom sessionRoom = sessionCommandService.createSession(request, image, memberId);
         return ApiResponse.onSuccess(toCreateSessionResponseDTO(sessionRoom));
     }
 }
