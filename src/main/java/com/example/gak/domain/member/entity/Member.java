@@ -100,4 +100,8 @@ public class Member extends BaseEntity {
 	public void delete() {
 		this.deleted = true;
 	}
+
+	public void activate() {
+		deleted = false;
+	}
 }
