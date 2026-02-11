@@ -16,6 +16,7 @@ import com.example.gak.domain.member.service.MemberQueryService;
 import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,7 +51,7 @@ public class MemberController {
 	@PatchMapping("/me/nickname")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateNickname(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@RequestBody MemberRequestDTO.UpdateMemberNicknameRequestDTO request
+		@Valid @RequestBody MemberRequestDTO.UpdateMemberNicknameRequestDTO request
 	) {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateNickname(oAuth2User.getMemberId(), request)

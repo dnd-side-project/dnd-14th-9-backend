@@ -1,7 +1,7 @@
 package com.example.gak.domain.member.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +15,8 @@ public class MemberRequestDTO {
 	@Getter
 	public static class UpdateMemberNicknameRequestDTO {
 
-		@Min(2)
-		@Max(12)
+		@NotBlank
+		@Size(min = 2, max = 12)
 		private String nickname;
 	}
 }
