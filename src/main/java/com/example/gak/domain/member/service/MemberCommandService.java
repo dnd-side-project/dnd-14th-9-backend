@@ -5,6 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.global.apiPayload.code.GeneralErrorCode;
+import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
 
 import lombok.RequiredArgsConstructor;
@@ -36,5 +38,14 @@ public class MemberCommandService {
 					return memberRepository.save(member).getId();
 				}
 			);
+	}
+
+	public void markFirstLoginComplete(Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+
+		if (member.isFirstLogin()) {
+			member.markLoginDone();
+		}
 	}
 }

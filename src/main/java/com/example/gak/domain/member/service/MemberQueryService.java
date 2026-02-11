@@ -22,7 +22,7 @@ public class MemberQueryService {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 
-		MemberResponseDTO response = MemberResponseDTO.builder()
+		return MemberResponseDTO.builder()
 			.id(member.getId())
 			.nickname(member.getNickname())
 			.profileImageUrl(member.getProfileImageUrl())
@@ -32,11 +32,5 @@ public class MemberQueryService {
 			.thirdInterestCategory(member.getThirdInterestCategory())
 			.firstLogin(member.isFirstLogin())
 			.build();
-
-		if (member.isFirstLogin()) {
-			member.markLoginDone();
-		}
-
-		return response;
 	}
 }

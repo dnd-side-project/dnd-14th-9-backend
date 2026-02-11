@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.gak.domain.member.dto.MemberResponseDTO;
+import com.example.gak.domain.member.service.MemberCommandService;
 import com.example.gak.domain.member.service.MemberQueryService;
 import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
@@ -16,13 +17,16 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
 public class MemberController {
-	
+
 	private final MemberQueryService memberQueryService;
+	private final MemberCommandService memberCommandService;
 
 	@GetMapping("/me")
 	public ApiResponse<MemberResponseDTO> getMember(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
-		return ApiResponse.onSuccess(
-			memberQueryService.getMember(oAuth2User.getMemberId())
-		);
+		Long memberId = oAuth2User.getMemberId();
+		MemberResponseDTO response = memberQueryService.getMember(memberId);
+		memberCommandService.markFirstLoginComplete(memberId);
+
+		return ApiResponse.onSuccess(response);
 	}
 }
