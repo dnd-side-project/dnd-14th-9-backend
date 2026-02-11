@@ -28,6 +28,8 @@ public class MemberCommandService {
 						oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
 						null,
 						null,
+						null,
+						null,
 						oAuth2MemberDto.getProvider(),
 						oAuth2MemberDto.getProviderId()
 					);
