@@ -68,7 +68,29 @@ public class Member extends BaseEntity {
 		this.firstLogin = true;
 	}
 
+	public String getDisplayNickname() {
+		return nickname + " #" + id;
+	}
+
 	public void markLoginDone() {
 		firstLogin = false;
+	}
+
+	public void updateProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void updateInterestCategories(
+		SessionCategory firstInterestCategory,
+		SessionCategory secondInterestCategory,
+		SessionCategory thirdInterestCategory
+	) {
+		this.firstInterestCategory = firstInterestCategory;
+		this.secondInterestCategory = secondInterestCategory;
+		this.thirdInterestCategory = thirdInterestCategory;
 	}
 }
