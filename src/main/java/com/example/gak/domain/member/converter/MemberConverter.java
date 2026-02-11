@@ -17,4 +17,16 @@ public class MemberConverter {
 			.firstLogin(member.isFirstLogin())
 			.build();
 	}
+
+	public static MemberResponseDTO.UpdateMemberResponseDTO toUpdateMemberResponseDTO(Member member) {
+		return MemberResponseDTO.UpdateMemberResponseDTO.builder()
+			.id(member.getId())
+			.nickname(member.getNickname())
+			.profileImageUrl(member.getProfileImageUrl())
+			.bio(member.getBio())
+			.firstInterestCategory(member.getFirstInterestCategory())
+			.secondInterestCategory(member.getSecondInterestCategory())
+			.thirdInterestCategory(member.getThirdInterestCategory())
+			.build();
+	}
 }

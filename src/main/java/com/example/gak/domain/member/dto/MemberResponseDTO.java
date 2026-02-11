@@ -19,4 +19,16 @@ public class MemberResponseDTO {
 		private SessionCategory thirdInterestCategory;
 		private boolean firstLogin;
 	}
+
+	@Builder
+	@Getter
+	public static class UpdateMemberResponseDTO {
+		private Long id;
+		private String nickname;
+		private String profileImageUrl;
+		private String bio;
+		private SessionCategory firstInterestCategory;
+		private SessionCategory secondInterestCategory;
+		private SessionCategory thirdInterestCategory;
+	}
 }
