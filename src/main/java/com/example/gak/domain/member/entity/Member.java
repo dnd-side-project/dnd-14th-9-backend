@@ -67,4 +67,8 @@ public class Member extends BaseEntity {
 		this.providerId = providerId;
 		this.firstLogin = true;
 	}
+
+	public void markLoginDone() {
+		firstLogin = false;
+	}
 }
