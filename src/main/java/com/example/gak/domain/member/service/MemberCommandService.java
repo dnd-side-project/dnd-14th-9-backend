@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.gak.domain.member.converter.MemberConverter;
+import com.example.gak.domain.member.dto.MemberRequestDTO;
 import com.example.gak.domain.member.dto.MemberResponseDTO;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
@@ -46,8 +47,7 @@ public class MemberCommandService {
 	}
 
 	public void markFirstLoginComplete(Long memberId) {
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+		Member member = getMember(memberId);
 
 		if (member.isFirstLogin()) {
 			member.markLoginDone();
@@ -55,8 +55,7 @@ public class MemberCommandService {
 	}
 
 	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile profileImage) {
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+		Member member = getMember(memberId);
 
 		if (profileImage == null) {
 			return MemberConverter.toUpdateMemberResponseDTO(member);
@@ -71,5 +70,20 @@ public class MemberCommandService {
 		member.updateProfileImageUrl(profileImageUrl);
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
+	public MemberResponseDTO.UpdateMemberResponseDTO updateNickname(
+		Long memberId,
+		MemberRequestDTO.UpdateMemberNicknameRequestDTO request
+	) {
+		Member member = getMember(memberId);
+		member.updateNickname(request.getNickname());
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
+	private Member getMember(Long memberId) {
+		return memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 	}
 }
