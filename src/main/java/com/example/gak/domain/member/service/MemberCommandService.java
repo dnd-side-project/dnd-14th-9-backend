@@ -1,14 +1,24 @@
 package com.example.gak.domain.member.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.chatmessage.repository.ChatMessageRepository;
 import com.example.gak.domain.member.converter.MemberConverter;
 import com.example.gak.domain.member.dto.MemberRequestDTO;
 import com.example.gak.domain.member.dto.MemberResponseDTO;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.domain.record.repository.RecordRepository;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
+import com.example.gak.domain.session.repository.SessionRoomRepository;
+import com.example.gak.domain.subtask.repository.SubTaskRepository;
+import com.example.gak.domain.task.entity.Task;
+import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
@@ -24,12 +34,24 @@ public class MemberCommandService {
 	private final MemberRepository memberRepository;
 	private final AmazonS3Manager amazonS3Manager;
 
+	private final RecordRepository recordRepository;
+	private final ChatMessageRepository chatMessageRepository;
+	private final TaskRepository taskRepository;
+	private final SubTaskRepository subTaskRepository;
+	private final SessionRoomRepository sessionRoomRepository;
+	private final SessionRoomMemberRepository sessionRoomMemberRepository;
+
 	public Long synchronize(OAuth2MemberDto oAuth2MemberDto) {
 		return memberRepository.findBySocialProviderAndProviderId(
 				oAuth2MemberDto.getProvider(),
 				oAuth2MemberDto.getProviderId()
 			)
-			.map(Member::getId)
+			.map(member -> {
+				if (member.isDeleted()) {
+					member.activate();
+				}
+				return member.getId();
+			})
 			.orElseGet(() -> {
 					Member member = new Member(
 						oAuth2MemberDto.getNickname(),
@@ -97,6 +119,31 @@ public class MemberCommandService {
 		);
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
+	public void deleteMember(Long memberId) {
+		if (sessionRoomRepository.existsByMemberIdAndStatusNot(memberId, SessionRoomStatus.COMPLETED)) {
+			throw new GeneralException(GeneralErrorCode.HAS_ACTIVE_SESSION);
+		}
+
+		Member member = getMember(memberId);
+
+		recordRepository.deleteByMemberId(memberId);
+		chatMessageRepository.deleteByMemberId(memberId);
+		sessionRoomMemberRepository.deleteByMemberId(memberId);
+
+		List<Task> tasks = taskRepository.findByMemberId(memberId);
+		if (!tasks.isEmpty()) {
+			List<Long> taskIds = tasks.stream()
+				.map(Task::getId)
+				.toList();
+			subTaskRepository.deleteByTaskIdIn(taskIds);
+			taskRepository.deleteAllInBatch(tasks);
+		}
+
+		sessionRoomRepository.deleteByMemberId(memberId);
+
+		member.delete();
 	}
 
 	private Member getMember(Long memberId) {

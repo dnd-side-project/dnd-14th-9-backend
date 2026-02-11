@@ -26,6 +26,7 @@ public enum GeneralErrorCode implements BaseErrorCode {
 
 	// 회원 관련
 	NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 회원입니다."),
+	HAS_ACTIVE_SESSION(HttpStatus.CONFLICT, "MEMBER409_1", "완료되지 않은 세션이 존재하여 탈퇴할 수 없습니다."),
 
 	// AWS S3 관련
 	S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_1", "S3 업로드에 실패했습니다."),

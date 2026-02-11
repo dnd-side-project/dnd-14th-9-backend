@@ -1,6 +1,7 @@
 package com.example.gak.domain.member.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,5 +67,12 @@ public class MemberController {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateInterestCategories(oAuth2User.getMemberId(), request)
 		);
+	}
+
+	@DeleteMapping("/me")
+	public ApiResponse<Void> deleteMember(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+		memberCommandService.deleteMember(oAuth2User.getMemberId());
+
+		return ApiResponse.onSuccess(null);
 	}
 }

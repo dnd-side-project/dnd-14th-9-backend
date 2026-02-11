@@ -47,6 +47,8 @@ public class Member extends BaseEntity {
 
 	private boolean firstLogin;
 
+	private boolean deleted;
+
 	public Member(
 		String nickname,
 		String profileImageUrl,
@@ -66,6 +68,7 @@ public class Member extends BaseEntity {
 		this.socialProvider = socialProvider;
 		this.providerId = providerId;
 		this.firstLogin = true;
+		this.deleted = false;
 	}
 
 	public String getDisplayNickname() {
@@ -73,7 +76,7 @@ public class Member extends BaseEntity {
 	}
 
 	public void markLoginDone() {
-		firstLogin = false;
+		this.firstLogin = false;
 	}
 
 	public void updateProfileImageUrl(String profileImageUrl) {
@@ -92,5 +95,13 @@ public class Member extends BaseEntity {
 		this.firstInterestCategory = firstInterestCategory;
 		this.secondInterestCategory = secondInterestCategory;
 		this.thirdInterestCategory = thirdInterestCategory;
+	}
+
+	public void delete() {
+		this.deleted = true;
+	}
+
+	public void activate() {
+		this.deleted = false;
 	}
 }
