@@ -58,6 +58,8 @@ public class SessionCommandService {
                 request.getSessionDurationMinutes(),
                 request.getMaxParticipants(),
                 SessionRoomStatus.WAITING,
+                request.getRequiredFocusRate(),
+                request.getRequiredAchievementRate(),
                 member
         );
         sessionRoomRepository.save(newSessionRoom);

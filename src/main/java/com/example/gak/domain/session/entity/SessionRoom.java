@@ -81,6 +81,8 @@ public class SessionRoom extends BaseEntity {
 		Integer durationMinutes,
 		Integer maxCapacity,
 		SessionRoomStatus status,
+		Integer requiredFocusRate,
+		Integer requiredAchievementRate,
 		Member member
 	) {
 		this.category = category;
@@ -92,6 +94,8 @@ public class SessionRoom extends BaseEntity {
 		this.durationMinutes = durationMinutes;
 		this.maxCapacity = maxCapacity;
 		this.status = status;
+		this.requiredFocusRate = requiredFocusRate;
+		this.requiredAchievementRate = requiredAchievementRate;
 		this.member = member;
 	}
 }
