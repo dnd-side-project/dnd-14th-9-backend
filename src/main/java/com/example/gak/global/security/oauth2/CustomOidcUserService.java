@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
-import com.example.gak.domain.member.service.MemberService;
+import com.example.gak.domain.member.service.MemberCommandService;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.security.oauth2.dto.GoogleMemberDto;
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomOidcUserService extends OidcUserService {
 
-	private final MemberService memberService;
+	private final MemberCommandService memberCommandService;
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
@@ -31,7 +31,7 @@ public class CustomOidcUserService extends OidcUserService {
 
 		if (registrationId.equals("google")) {
 			GoogleMemberDto googleMemberResponse = new GoogleMemberDto(registrationId, attributes);
-			Long memberId = memberService.synchronize(googleMemberResponse);
+			Long memberId = memberCommandService.synchronize(googleMemberResponse);
 			return new CustomOidcUser(registrationId, memberId);
 		}
 

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberCommandService {
 
 	private final MemberRepository memberRepository;
 
