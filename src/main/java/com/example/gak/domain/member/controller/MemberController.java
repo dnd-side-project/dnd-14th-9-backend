@@ -2,8 +2,11 @@ package com.example.gak.domain.member.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.gak.domain.member.dto.MemberResponseDTO;
 import com.example.gak.domain.member.service.MemberCommandService;
@@ -30,5 +33,15 @@ public class MemberController {
 		memberCommandService.markFirstLoginComplete(memberId);
 
 		return ApiResponse.onSuccess(response);
+	}
+
+	@PatchMapping("/me/profile-image")
+	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateProfileImage(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+	) {
+		return ApiResponse.onSuccess(
+			memberCommandService.updateProfileImage(oAuth2User.getMemberId(), profileImage)
+		);
 	}
 }
