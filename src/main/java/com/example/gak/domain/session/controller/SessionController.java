@@ -10,13 +10,11 @@ import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.service.SessionCommandService;
 import com.example.gak.domain.session.service.SessionQueryService;
 import com.example.gak.global.apiPayload.ApiResponse;
-import com.example.gak.global.security.jwt.JwtProvider;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +32,6 @@ public class SessionController {
 
     private final SessionQueryService sessionQueryService;
     private final SessionCommandService sessionCommandService;
-
-    @Autowired
-    private JwtProvider jwtProvider;
 
     @Operation(summary = "세션 목록 조회 API")
     @GetMapping
