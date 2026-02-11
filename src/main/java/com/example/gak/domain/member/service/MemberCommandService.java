@@ -2,11 +2,15 @@ package com.example.gak.domain.member.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.member.converter.MemberConverter;
+import com.example.gak.domain.member.dto.MemberResponseDTO;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
+import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class MemberCommandService {
 
 	private final MemberRepository memberRepository;
+	private final AmazonS3Manager amazonS3Manager;
 
 	public Long synchronize(OAuth2MemberDto oAuth2MemberDto) {
 		return memberRepository.findBySocialProviderAndProviderId(
@@ -47,5 +52,24 @@ public class MemberCommandService {
 		if (member.isFirstLogin()) {
 			member.markLoginDone();
 		}
+	}
+
+	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile profileImage) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+
+		if (profileImage == null) {
+			return MemberConverter.toUpdateMemberResponseDTO(member);
+		}
+
+		String profileImageUrl = amazonS3Manager.uploadFile(
+			amazonS3Manager.generateProfileKeyName(),
+			profileImage
+		);
+
+		amazonS3Manager.deleteFile(member.getProfileImageUrl());
+		member.updateProfileImageUrl(profileImageUrl);
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
 }

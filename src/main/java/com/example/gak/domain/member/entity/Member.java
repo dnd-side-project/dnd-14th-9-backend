@@ -71,4 +71,8 @@ public class Member extends BaseEntity {
 	public void markLoginDone() {
 		firstLogin = false;
 	}
+
+	public void updateProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
 }
