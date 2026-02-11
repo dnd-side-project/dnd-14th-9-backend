@@ -76,7 +76,7 @@ public class Member extends BaseEntity {
 	}
 
 	public void markLoginDone() {
-		firstLogin = false;
+		this.firstLogin = false;
 	}
 
 	public void updateProfileImageUrl(String profileImageUrl) {
@@ -102,6 +102,6 @@ public class Member extends BaseEntity {
 	}
 
 	public void activate() {
-		deleted = false;
+		this.deleted = false;
 	}
 }
