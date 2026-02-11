@@ -82,6 +82,20 @@ public class MemberCommandService {
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
 
+	public MemberResponseDTO.UpdateMemberResponseDTO updateInterestCategories(
+		Long memberId,
+		MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
+	) {
+		Member member = getMember(memberId);
+		member.updateInterestCategories(
+			request.getFirstInterestCategory(),
+			request.getSecondInterestCategory(),
+			request.getThirdInterestCategory()
+		);
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
 	private Member getMember(Long memberId) {
 		return memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));

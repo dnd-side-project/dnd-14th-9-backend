@@ -67,7 +67,7 @@ public class Member extends BaseEntity {
 		this.providerId = providerId;
 		this.firstLogin = true;
 	}
-	
+
 	public String getDisplayNickname() {
 		return nickname + " #" + id;
 	}
@@ -82,5 +82,15 @@ public class Member extends BaseEntity {
 
 	public void updateNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public void updateInterestCategories(
+		SessionCategory firstInterestCategory,
+		SessionCategory secondInterestCategory,
+		SessionCategory thirdInterestCategory
+	) {
+		this.firstInterestCategory = firstInterestCategory;
+		this.secondInterestCategory = secondInterestCategory;
+		this.thirdInterestCategory = thirdInterestCategory;
 	}
 }
