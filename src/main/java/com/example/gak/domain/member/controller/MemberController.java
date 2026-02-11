@@ -3,11 +3,13 @@ package com.example.gak.domain.member.controller;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.member.dto.MemberRequestDTO;
 import com.example.gak.domain.member.dto.MemberResponseDTO;
 import com.example.gak.domain.member.service.MemberCommandService;
 import com.example.gak.domain.member.service.MemberQueryService;
@@ -42,6 +44,16 @@ public class MemberController {
 	) {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateProfileImage(oAuth2User.getMemberId(), profileImage)
+		);
+	}
+
+	@PatchMapping("/me/nickname")
+	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateNickname(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestBody MemberRequestDTO.UpdateMemberNicknameRequestDTO request
+	) {
+		return ApiResponse.onSuccess(
+			memberCommandService.updateNickname(oAuth2User.getMemberId(), request)
 		);
 	}
 }
