@@ -41,7 +41,7 @@ public class SessionCommandService {
         }
 
         String imageUrl;
-        if(!image.isEmpty()) {
+        if(image != null && !image.isEmpty()) {
             String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
             imageUrl = amazonS3Manager.uploadFile(keyName, image);
         }else{
