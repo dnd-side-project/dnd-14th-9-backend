@@ -46,7 +46,12 @@ public class MemberCommandService {
 				oAuth2MemberDto.getProvider(),
 				oAuth2MemberDto.getProviderId()
 			)
-			.map(Member::getId)
+			.map(member -> {
+				if (member.isDeleted()) {
+					member.activate();
+				}
+				return member.getId();
+			})
 			.orElseGet(() -> {
 					Member member = new Member(
 						oAuth2MemberDto.getNickname(),
