@@ -77,7 +77,7 @@ public class SessionController {
     public ApiResponse<SessionResponseDTO.CreateSessionResponseDTO> createSession(
             @AuthenticationPrincipal CustomOAuth2User oAuth2User,
             @RequestPart("request") @Valid SessionRequestDTO.CreateSessionRequestDTO request,
-            @RequestPart(value = "images", required = false) MultipartFile image
+            @RequestPart(value = "image", required = false) MultipartFile image
     ){
         Long memberId = oAuth2User.getMemberId();
         SessionRoom sessionRoom = sessionCommandService.createSession(request, image, memberId);
