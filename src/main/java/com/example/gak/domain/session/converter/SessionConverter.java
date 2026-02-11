@@ -10,6 +10,7 @@ public class SessionConverter {
 
     public static SessionResponseDTO.SessionCardResponseDTO toSessionCardResponseDTO(SessionRoom sessionRoom) {
         return SessionResponseDTO.SessionCardResponseDTO.builder()
+                .sessionId(sessionRoom.getId())
                 .category(sessionRoom.getCategory().getDisplayName())
                 .title(sessionRoom.getTitle())
                 .hostNickname(sessionRoom.getMember().getNickname())

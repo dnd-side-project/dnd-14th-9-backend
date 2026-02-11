@@ -10,6 +10,7 @@ public class SessionResponseDTO {
     @Builder
     @Getter
     public static class SessionCardResponseDTO{
+        private Long sessionId;
         private String category;
         private String title;
         private String hostNickname;
