@@ -67,6 +67,10 @@ public class Member extends BaseEntity {
 		this.providerId = providerId;
 		this.firstLogin = true;
 	}
+	
+	public String getDisplayNickname() {
+		return nickname + " #" + id;
+	}
 
 	public void markLoginDone() {
 		firstLogin = false;
