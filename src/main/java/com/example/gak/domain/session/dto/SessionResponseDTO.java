@@ -32,4 +32,10 @@ public class SessionResponseDTO {
         private Boolean isLast;
         private List<SessionCardResponseDTO> sessions;
     }
+
+    @Builder
+    @Getter
+    public static class CreateSessionResponseDTO {
+        Long createdSessionId;
+    }
 }

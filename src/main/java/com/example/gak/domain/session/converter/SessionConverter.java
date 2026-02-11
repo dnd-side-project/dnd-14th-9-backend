@@ -34,4 +34,12 @@ public class SessionConverter {
                 .sessions(sessionCards)
                 .build();
     }
+
+    public static SessionResponseDTO.CreateSessionResponseDTO toCreateSessionResponseDTO(
+            SessionRoom sessionRoom
+    ){
+        return SessionResponseDTO.CreateSessionResponseDTO.builder()
+                .createdSessionId(sessionRoom.getId())
+                .build();
+    }
 }
