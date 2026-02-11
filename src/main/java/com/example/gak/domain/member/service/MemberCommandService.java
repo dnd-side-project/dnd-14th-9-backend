@@ -122,6 +122,10 @@ public class MemberCommandService {
 	}
 
 	public void deleteMember(Long memberId) {
+		if (sessionRoomRepository.existsByMemberIdAndStatusNot(memberId, SessionRoomStatus.COMPLETED)) {
+			throw new GeneralException(GeneralErrorCode.HAS_ACTIVE_SESSION);
+		}
+
 		Member member = getMember(memberId);
 
 		recordRepository.deleteByMemberId(memberId);
@@ -129,15 +133,14 @@ public class MemberCommandService {
 		sessionRoomMemberRepository.deleteByMemberId(memberId);
 
 		List<Task> tasks = taskRepository.findByMemberId(memberId);
-		List<Long> taskIds = tasks.stream()
-			.map(Task::getId)
-			.toList();
-		subTaskRepository.deleteByTaskIdIn(taskIds);
-		taskRepository.deleteAllInBatch(tasks);
-
-		if (sessionRoomRepository.existsByMemberIdAndStatusNot(memberId, SessionRoomStatus.COMPLETED)) {
-			throw new GeneralException(GeneralErrorCode.HAS_ACTIVE_SESSION);
+		if (!tasks.isEmpty()) {
+			List<Long> taskIds = tasks.stream()
+				.map(Task::getId)
+				.toList();
+			subTaskRepository.deleteByTaskIdIn(taskIds);
+			taskRepository.deleteAllInBatch(tasks);
 		}
+
 		sessionRoomRepository.deleteByMemberId(memberId);
 
 		member.delete();
