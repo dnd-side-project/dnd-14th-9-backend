@@ -54,20 +54,23 @@ public class MemberCommandService {
 		}
 	}
 
-	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile profileImage) {
+	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile newProfileImage) {
 		Member member = getMember(memberId);
 
-		if (profileImage == null) {
+		if (newProfileImage == null) {
 			return MemberConverter.toUpdateMemberResponseDTO(member);
 		}
 
-		String profileImageUrl = amazonS3Manager.uploadFile(
+		String newProfileImageUrl = amazonS3Manager.uploadFile(
 			amazonS3Manager.generateProfileKeyName(),
-			profileImage
+			newProfileImage
 		);
 
-		amazonS3Manager.deleteFile(member.getProfileImageUrl());
-		member.updateProfileImageUrl(profileImageUrl);
+		String profileImageUrl = member.getProfileImageUrl();
+		if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+			amazonS3Manager.deleteFile(profileImageUrl);
+		}
+		member.updateProfileImageUrl(newProfileImageUrl);
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
