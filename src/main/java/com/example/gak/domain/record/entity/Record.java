@@ -56,35 +56,20 @@ public class Record extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false, unique = true)
 	private Member member;
 
-	public Record(
-		long participationTime,
-		long focusedTime,
-		int completedSessionCount,
-		int totalTodoCount,
-		int achievedTodoCount,
-		int devSessionCount,
-		int designSessionCount,
-		int planningPmSessionCount,
-		int careerSelfDevSessionCount,
-		int studyReadingSessionCount,
-		int creativeSessionCount,
-		int teamProjectSessionCount,
-		int etcSessionCount,
-		Member member
-	) {
-		this.participationTime = participationTime;
-		this.focusedTime = focusedTime;
-		this.completedSessionCount = completedSessionCount;
-		this.totalTodoCount = totalTodoCount;
-		this.achievedTodoCount = achievedTodoCount;
-		this.devSessionCount = devSessionCount;
-		this.designSessionCount = designSessionCount;
-		this.planningPmSessionCount = planningPmSessionCount;
-		this.careerSelfDevSessionCount = careerSelfDevSessionCount;
-		this.studyReadingSessionCount = studyReadingSessionCount;
-		this.creativeSessionCount = creativeSessionCount;
-		this.teamProjectSessionCount = teamProjectSessionCount;
-		this.etcSessionCount = etcSessionCount;
+	public Record(Member member) {
+		this.participationTime = 0;
+		this.focusedTime = 0;
+		this.completedSessionCount = 0;
+		this.totalTodoCount = 0;
+		this.achievedTodoCount = 0;
+		this.devSessionCount = 0;
+		this.designSessionCount = 0;
+		this.planningPmSessionCount = 0;
+		this.careerSelfDevSessionCount = 0;
+		this.studyReadingSessionCount = 0;
+		this.creativeSessionCount = 0;
+		this.teamProjectSessionCount = 0;
+		this.etcSessionCount = 0;
 		this.member = member;
 	}
 
