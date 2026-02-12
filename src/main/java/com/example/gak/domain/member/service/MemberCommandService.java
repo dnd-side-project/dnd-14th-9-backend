@@ -1,6 +1,7 @@
 package com.example.gak.domain.member.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import com.example.gak.domain.member.dto.MemberRequestDTO;
 import com.example.gak.domain.member.dto.MemberResponseDTO;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.domain.record.entity.Record;
 import com.example.gak.domain.record.repository.RecordRepository;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
@@ -42,30 +44,36 @@ public class MemberCommandService {
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 
 	public Long synchronize(OAuth2MemberDto oAuth2MemberDto) {
-		return memberRepository.findBySocialProviderAndProviderId(
+		Optional<Member> optionalMember = memberRepository.findBySocialProviderAndProviderId(
+			oAuth2MemberDto.getProvider(),
+			oAuth2MemberDto.getProviderId()
+		);
+
+		if (optionalMember.isEmpty()) {
+			Member member = new Member(
+				oAuth2MemberDto.getNickname(),
+				oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
+				null,
+				null,
+				null,
+				null,
 				oAuth2MemberDto.getProvider(),
 				oAuth2MemberDto.getProviderId()
-			)
-			.map(member -> {
-				if (member.isDeleted()) {
-					member.activate();
-				}
-				return member.getId();
-			})
-			.orElseGet(() -> {
-					Member member = new Member(
-						oAuth2MemberDto.getNickname(),
-						oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
-						null,
-						null,
-						null,
-						null,
-						oAuth2MemberDto.getProvider(),
-						oAuth2MemberDto.getProviderId()
-					);
-					return memberRepository.save(member).getId();
-				}
 			);
+			Member persisted = memberRepository.save(member);
+
+			Record record = new Record(persisted);
+			recordRepository.save(record);
+
+			return persisted.getId();
+		}
+
+		Member member = optionalMember.get();
+		if (member.isDeleted()) {
+			member.activate();
+		}
+
+		return member.getId();
 	}
 
 	public void markFirstLoginComplete(Long memberId) {
