@@ -83,4 +83,12 @@ public class SessionController {
         SessionRoom sessionRoom = sessionCommandService.createSession(request, image, memberId);
         return ApiResponse.onSuccess(toCreateSessionResponseDTO(sessionRoom));
     }
+
+    @Operation(summary = "세션 상세 조회 API")
+    @GetMapping("/{sessionId}")
+    public ApiResponse<SessionResponseDTO.SessionDetailResponseDTO> getSessionDetail(
+            @PathVariable Long sessionId
+    ){
+        return ApiResponse.onSuccess(sessionQueryService.getSessionDetail(sessionId));
+    }
 }
