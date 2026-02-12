@@ -38,4 +38,21 @@ public class SessionResponseDTO {
     public static class CreateSessionResponseDTO {
         Long createdSessionId;
     }
+
+    @Builder
+    @Getter
+    public static class SessionDetailResponseDTO{
+        private Long sessionId;
+        private String category;
+        private String title;
+        private String hostNickname;
+        private String status;
+        private int currentParticipants;
+        private int maxParticipants;
+        private int sessionDurationMinutes;
+        private LocalDateTime startTime;
+        private String imageUrl;
+        private String summary;
+        private String notice;
+    }
 }

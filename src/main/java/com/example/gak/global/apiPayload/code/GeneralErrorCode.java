@@ -42,6 +42,7 @@ public enum GeneralErrorCode implements BaseErrorCode {
 
 	// 세션 관련
 	SESSION_START_TIME_TOO_SOON(HttpStatus.BAD_REQUEST, "SESSION400_1", "세션 시작 시간은 현재 시각 기준 5분 이후로 설정해야 합니다."),
+	NOT_FOUND_SESSION(HttpStatus.NOT_FOUND, "SESSION404_1", "존재하지 않는 세션입니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),
