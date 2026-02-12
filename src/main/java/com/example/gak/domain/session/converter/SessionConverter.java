@@ -18,6 +18,7 @@ public class SessionConverter {
                 .currentParticipants(0) // TODO: 실시간 통신 구현 이후 실제 카운트로 수정
                 .maxParticipants(sessionRoom.getMaxCapacity())
                 .startTime(sessionRoom.getStartTime())
+                .sessionDurationMinutes(sessionRoom.getDurationMinutes())
                 .status(sessionRoom.getStatus().getDisplayName())
                 .build();
     }
@@ -40,6 +41,26 @@ public class SessionConverter {
     ){
         return SessionResponseDTO.CreateSessionResponseDTO.builder()
                 .createdSessionId(sessionRoom.getId())
+                .build();
+    }
+
+    public static SessionResponseDTO.SessionDetailResponseDTO toSessionDetailResponseDTO(
+            SessionRoom sessionRoom
+    ){
+        return SessionResponseDTO.SessionDetailResponseDTO.builder()
+                .sessionId(sessionRoom.getId())
+                .category(sessionRoom.getCategory().getDisplayName())
+                .title(sessionRoom.getTitle())
+                .hostNickname(sessionRoom.getMember().getNickname())
+                .imageUrl(sessionRoom.getThumbnailImageUrl())
+                .currentParticipants(0) // TODO: 실시간 통신 구현 이후 실제 카운트로 수정
+                .maxParticipants(sessionRoom.getMaxCapacity())
+                .sessionDurationMinutes(sessionRoom.getDurationMinutes())
+                .startTime(sessionRoom.getStartTime())
+                .status(sessionRoom.getStatus().getDisplayName())
+
+                .summary(sessionRoom.getSummary())
+                .notice(sessionRoom.getNotice())
                 .build();
     }
 }

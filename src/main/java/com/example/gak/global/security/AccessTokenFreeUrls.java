@@ -11,6 +11,7 @@ public final class AccessTokenFreeUrls {
             "/health",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/v1/sessions"
+            "/api/v1/sessions",
+            "/api/v1/sessions/{sessionId}",
     };
 }
