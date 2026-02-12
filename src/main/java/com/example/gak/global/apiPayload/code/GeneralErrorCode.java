@@ -14,15 +14,22 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 처리 중 오류가 발생했습니다."),
 	_BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400_1", "잘못된 요청입니다."),
 
+	// OAuth2 관련
+	OAUTH2_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "OAUTH401_1", "OAuth2 로그인에 실패했습니다."),
+	OAUTH2_ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "OAUTH401_2", "소셜 로그인 인증이 거부되었습니다."),
+	OAUTH2_PROVIDER_ERROR(HttpStatus.UNAUTHORIZED, "OAUTH401_3", "소셜 로그인 제공자 처리 중 오류가 발생했습니다."),
+	OAUTH2_INVALID_REQUEST(HttpStatus.UNAUTHORIZED, "OAUTH401_4", "OAuth2 요청이 올바르지 않습니다."),
+	OAUTH2_UNSUPPORTED_PROVIDER(HttpStatus.UNAUTHORIZED, "OAUTH401_5", "지원하지 않는 소셜 로그인 제공자입니다."),
+	OAUTH2_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OAUTH500_1", "예상치 못한 오류가 발생했습니다."),
+
 	// 인증 관련
 	INVALID_AUTHORIZATION_HEADER(HttpStatus.UNAUTHORIZED, "AUTH401_1", "올바르지 않은 Authorization 헤더입니다."),
 	INVALID_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "AUTH401_2", "토큰 형식이 올바르지 않습니다."),
 	ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_3", "기한이 만료된 Access 토큰입니다."),
-	UNSUPPORTED_PROVIDER(HttpStatus.UNAUTHORIZED, "AUTH401_4", "지원하지 않는 소셜 로그인 제공자입니다."),
-	REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_5", "기한이 만료된 Refresh 토큰입니다."),
-	NOT_FOUND_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401_6", "존재하지 않는 Refresh 토큰입니다."),
-	REFRESH_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "AUTH401_7", "Refresh 토큰이 전달되지 않았습니다."),
-	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH401_8", "Refresh 토큰 정보가 일치하지 않습니다."),
+	REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_4", "기한이 만료된 Refresh 토큰입니다."),
+	NOT_FOUND_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401_5", "존재하지 않는 Refresh 토큰입니다."),
+	REFRESH_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "AUTH401_6", "Refresh 토큰이 전달되지 않았습니다."),
+	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH401_7", "Refresh 토큰 정보가 일치하지 않습니다."),
 
 	// 회원 관련
 	NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 회원입니다."),
@@ -43,7 +50,6 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),
 	FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "FILE400_2", "이미지 파일 크기가 너무 큽니다."),
 	FILE_VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "FILE400_3", "파일 검증에 실패했습니다.");
-
 
 	private final HttpStatus httpStatus;
 	private final String code;
