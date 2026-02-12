@@ -1,10 +1,13 @@
 package com.example.gak.domain.session.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+
+import java.util.Optional;
 
 public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 	JpaSpecificationExecutor<SessionRoom> {
@@ -12,4 +15,7 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 	void deleteByMemberId(Long memberId);
 
 	boolean existsByMemberIdAndStatusNot(Long memberId, SessionRoomStatus status);
+
+	@EntityGraph(attributePaths = {"member"})
+	Optional<SessionRoom> findWithMemberById(Long id);
 }

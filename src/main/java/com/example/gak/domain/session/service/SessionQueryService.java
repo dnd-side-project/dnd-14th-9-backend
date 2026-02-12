@@ -74,7 +74,7 @@ public class SessionQueryService {
     }
 
     public SessionResponseDTO.SessionDetailResponseDTO getSessionDetail(Long sessionId){
-        SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+        SessionRoom sessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
                 .orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
         return toSessionDetailResponseDTO(sessionRoom);
     }
