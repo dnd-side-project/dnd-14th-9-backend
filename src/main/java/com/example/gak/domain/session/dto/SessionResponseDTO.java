@@ -10,6 +10,7 @@ public class SessionResponseDTO {
     @Builder
     @Getter
     public static class SessionCardResponseDTO{
+        private Long sessionId;
         private String category;
         private String title;
         private String hostNickname;
@@ -24,11 +25,17 @@ public class SessionResponseDTO {
     @Builder
     @Getter
     public static class SessionCardResponseListDTO {
-        Integer listSize;
-        Integer totalPage;
-        Long totalElements;
-        Boolean isFirst;
-        Boolean isLast;
-        List<SessionCardResponseDTO> sessions;
+        private Integer listSize;
+        private Integer totalPage;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+        private List<SessionCardResponseDTO> sessions;
+    }
+
+    @Builder
+    @Getter
+    public static class CreateSessionResponseDTO {
+        Long createdSessionId;
     }
 }
