@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.gak.global.security.oauth2.CustomFailureHandler;
 import com.example.gak.global.security.oauth2.CustomOAuth2UserService;
 import com.example.gak.global.security.oauth2.CustomOidcUserService;
 import com.example.gak.global.security.oauth2.CustomSuccessHandler;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 	private final CustomOAuth2UserService oAuth2UserService;
 	private final CustomOidcUserService oidcUserService;
 	private final CustomSuccessHandler successHandler;
+	private final CustomFailureHandler failureHandler;
 	private final JwtAuthFilter jwtAuthFilter;
 
 	@Bean
@@ -40,7 +42,8 @@ public class SecurityConfig {
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(oAuth2UserService)
 					.oidcUserService(oidcUserService))
-				.successHandler(successHandler))
+				.successHandler(successHandler)
+				.failureHandler(failureHandler))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(AccessTokenFreeUrls.PATHS).permitAll()
 				.anyRequest().authenticated())

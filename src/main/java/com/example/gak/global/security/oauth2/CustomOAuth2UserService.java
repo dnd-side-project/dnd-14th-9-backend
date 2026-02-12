@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import com.example.gak.domain.member.service.MemberCommandService;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
-import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.security.oauth2.dto.KakaoMemberDto;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +33,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return new CustomOAuth2User(registrationId, memberId);
 		}
 
-		throw new GeneralException(GeneralErrorCode.UNSUPPORTED_PROVIDER);
+		throw new OAuth2AuthenticationException(GeneralErrorCode.OAUTH2_UNSUPPORTED_PROVIDER.name());
 	}
 }

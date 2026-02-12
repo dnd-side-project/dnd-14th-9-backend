@@ -21,7 +21,7 @@ public class MemberQueryService {
 
 	public MemberResponseDTO.GetMemberResponseDTO getMember(Long memberId) {
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.MEMBER_NOT_FOUND));
 
 		return MemberConverter.toGetMemberResponseDTO(member);
 	}
