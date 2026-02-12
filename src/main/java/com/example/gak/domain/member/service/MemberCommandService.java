@@ -131,7 +131,7 @@ public class MemberCommandService {
 
 	public void deleteMember(Long memberId) {
 		if (sessionRoomRepository.existsByMemberIdAndStatusNot(memberId, SessionRoomStatus.COMPLETED)) {
-			throw new GeneralException(GeneralErrorCode.HAS_ACTIVE_SESSION);
+			throw new GeneralException(GeneralErrorCode.MEMBER_HAS_ACTIVE_SESSION);
 		}
 
 		Member member = getMember(memberId);
@@ -156,6 +156,6 @@ public class MemberCommandService {
 
 	private Member getMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.MEMBER_NOT_FOUND));
 	}
 }

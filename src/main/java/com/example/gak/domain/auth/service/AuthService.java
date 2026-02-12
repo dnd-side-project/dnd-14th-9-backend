@@ -55,7 +55,7 @@ public class AuthService {
 
 		String storedRefreshToken = jwtService.getRefreshToken(memberId);
 		if (storedRefreshToken == null) {
-			throw new GeneralException(GeneralErrorCode.NOT_FOUND_REFRESH_TOKEN);
+			throw new GeneralException(GeneralErrorCode.REFRESH_TOKEN_NOT_FOUND);
 		}
 		if (!storedRefreshToken.equals(refreshToken)) {
 			throw new GeneralException(GeneralErrorCode.REFRESH_TOKEN_MISMATCH);
