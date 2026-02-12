@@ -9,6 +9,7 @@ import com.example.gak.domain.session.enums.SessionSort;
 import com.example.gak.domain.session.enums.TimeSlot;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.session.repository.SessionSpecification;
+import com.example.gak.global.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static com.example.gak.domain.session.converter.SessionConverter.toSessionDetailResponseDTO;
+import static com.example.gak.global.apiPayload.code.GeneralErrorCode.NOT_FOUND_SESSION;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +71,12 @@ public class SessionQueryService {
                 SessionConverter.toSessionCardResponseListDTO(searchResult,sessionRooms);
 
         return result;
+    }
+
+    public SessionResponseDTO.SessionDetailResponseDTO getSessionDetail(Long sessionId){
+        SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+                .orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+        return toSessionDetailResponseDTO(sessionRoom);
     }
 
     private Sort createSortOption(SessionSort sort) {
