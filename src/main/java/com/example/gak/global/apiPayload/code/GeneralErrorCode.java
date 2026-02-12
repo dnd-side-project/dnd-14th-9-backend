@@ -33,9 +33,6 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	S3_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_2", "S3 파일 삭제에 실패했습니다."),
 	S3_DOWNLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_3", "S3 파일 조회에 실패했습니다."),
 
-	// 회원 관련
-	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 사용자입니다."),
-
 	// 세션 관련
 	SESSION_START_TIME_TOO_SOON(HttpStatus.BAD_REQUEST, "SESSION400_1", "세션 시작 시간은 현재 시각 기준 5분 이후로 설정해야 합니다."),
 
