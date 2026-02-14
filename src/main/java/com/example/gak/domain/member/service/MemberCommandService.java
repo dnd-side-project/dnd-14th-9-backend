@@ -156,6 +156,6 @@ public class MemberCommandService {
 
 	private Member getMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 	}
 }
