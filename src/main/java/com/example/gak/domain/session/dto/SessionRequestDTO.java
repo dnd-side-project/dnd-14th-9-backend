@@ -11,6 +11,7 @@ import lombok.Getter;
 
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SessionRequestDTO {
 
@@ -50,5 +51,12 @@ public class SessionRequestDTO {
 
         @Min(0)
         private Integer requiredAchievementRate = 0;
+    }
+
+    @Getter
+    @Builder
+    public static class SessionJoinRequestDTO{
+        private String goal;
+        private List<String> todos;
     }
 }

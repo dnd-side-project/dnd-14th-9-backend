@@ -1,7 +1,10 @@
 package com.example.gak.domain.session.converter;
 
+import com.example.gak.domain.member.entity.Member;
+import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
+import com.example.gak.domain.session.entity.SessionRoomMember;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -61,6 +64,21 @@ public class SessionConverter {
 
                 .summary(sessionRoom.getSummary())
                 .notice(sessionRoom.getNotice())
+                .build();
+    }
+
+    public static SessionResponseDTO.joinSessionResponseDTO tojoinSessionResponseDTO(
+            SessionRoomMember sessionRoomMember,
+            Member member,
+            SessionRoom sessionRoom,
+            SessionRequestDTO.SessionJoinRequestDTO request
+    ){
+        return SessionResponseDTO.joinSessionResponseDTO.builder()
+                .memberId(member.getId())
+                .sessionId(sessionRoom.getId())
+                .role(sessionRoomMember.getRole())
+                .gole(request.getGoal())
+                .todos(request.getTodos())
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.gak.domain.session.dto;
 
+import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -54,5 +55,15 @@ public class SessionResponseDTO {
         private String imageUrl;
         private String summary;
         private String notice;
+    }
+
+    @Builder
+    @Getter
+    public static class joinSessionResponseDTO{
+        private Long sessionId;
+        private Long memberId;
+        private String gole;
+        private List<String> todos;
+        private SessionParticipantRole role;
     }
 }
