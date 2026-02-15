@@ -96,7 +96,7 @@ public class SessionController {
     @PostMapping("/{sessionId}/join")
     public ApiResponse<SessionResponseDTO.joinSessionResponseDTO> joinSession(
             @AuthenticationPrincipal CustomOAuth2User oAuth2User,
-            @RequestBody SessionRequestDTO.SessionJoinRequestDTO request,
+            @RequestBody @Valid SessionRequestDTO.SessionJoinRequestDTO request,
             @PathVariable Long sessionId
     ){
         return ApiResponse.onSuccess(

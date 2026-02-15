@@ -55,7 +55,12 @@ public class SessionRequestDTO {
     @Getter
     @Builder
     public static class SessionJoinRequestDTO{
+
+        @NotNull
+        @Size(max = 50)
         private String goal;
-        private List<String> todos;
+
+        @NotNull
+        private List<@Size(max = 50) String> todos;
     }
 }
