@@ -13,11 +13,11 @@ public class MemberResponseDTO {
 		private Long id;
 		private String nickname;
 		private String profileImageUrl;
+		private String email;
 		private String bio;
 		private SessionCategory firstInterestCategory;
 		private SessionCategory secondInterestCategory;
 		private SessionCategory thirdInterestCategory;
-		private boolean firstLogin;
 	}
 
 	@Builder

@@ -10,11 +10,11 @@ public class MemberConverter {
 			.id(member.getId())
 			.nickname(member.getNickname())
 			.profileImageUrl(member.getProfileImageUrl())
+			.email(member.getEmail())
 			.bio(member.getBio())
 			.firstInterestCategory(member.getFirstInterestCategory())
 			.secondInterestCategory(member.getSecondInterestCategory())
 			.thirdInterestCategory(member.getThirdInterestCategory())
-			.firstLogin(member.isFirstLogin())
 			.build();
 	}
 
