@@ -18,7 +18,7 @@ public class SessionConverter {
                 .title(sessionRoom.getTitle())
                 .hostNickname(sessionRoom.getMember().getNickname())
                 .imageUrl(sessionRoom.getThumbnailImageUrl())
-                .currentParticipants(0) // TODO: 실시간 통신 구현 이후 실제 카운트로 수정
+                .currentParticipants(sessionRoom.getCurrentCount())
                 .maxParticipants(sessionRoom.getMaxCapacity())
                 .startTime(sessionRoom.getStartTime())
                 .sessionDurationMinutes(sessionRoom.getDurationMinutes())
@@ -56,7 +56,7 @@ public class SessionConverter {
                 .title(sessionRoom.getTitle())
                 .hostNickname(sessionRoom.getMember().getNickname())
                 .imageUrl(sessionRoom.getThumbnailImageUrl())
-                .currentParticipants(0) // TODO: 실시간 통신 구현 이후 실제 카운트로 수정
+                .currentParticipants(sessionRoom.getCurrentCount())
                 .maxParticipants(sessionRoom.getMaxCapacity())
                 .sessionDurationMinutes(sessionRoom.getDurationMinutes())
                 .startTime(sessionRoom.getStartTime())
