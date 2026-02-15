@@ -26,7 +26,7 @@ public class Record extends BaseEntity {
 	@Column(name = "record_id")
 	private Long id;
 
-	private long participationTime;
+	private long totalParticipationTime;
 
 	private long focusedTime;
 
@@ -34,7 +34,7 @@ public class Record extends BaseEntity {
 
 	private int totalTodoCount;
 
-	private int achievedTodoCount;
+	private int completedTodoCount;
 
 	private int devSessionCount;
 
@@ -57,11 +57,11 @@ public class Record extends BaseEntity {
 	private Member member;
 
 	public Record(Member member) {
-		this.participationTime = 0;
+		this.totalParticipationTime = 0;
 		this.focusedTime = 0;
 		this.completedSessionCount = 0;
 		this.totalTodoCount = 0;
-		this.achievedTodoCount = 0;
+		this.completedTodoCount = 0;
 		this.devSessionCount = 0;
 		this.designSessionCount = 0;
 		this.planningPmSessionCount = 0;
@@ -74,7 +74,7 @@ public class Record extends BaseEntity {
 	}
 
 	public void increaseParticipationTime(long seconds) {
-		this.participationTime += seconds;
+		this.totalParticipationTime += seconds;
 	}
 
 	public void increaseFocusedTime(long seconds) {
@@ -90,7 +90,7 @@ public class Record extends BaseEntity {
 	}
 
 	public void increaseAchievedTodoCount(int count) {
-		this.achievedTodoCount += count;
+		this.completedTodoCount += count;
 	}
 
 	public void increaseSessionCategoryCount(SessionCategory category) {
@@ -104,5 +104,21 @@ public class Record extends BaseEntity {
 			case TEAM_PROJECT -> teamProjectSessionCount++;
 			case FREE -> etcSessionCount++;
 		}
+	}
+
+	public int getFocusRate() {
+		if (totalParticipationTime == 0) {
+			return 0;
+		}
+
+		return (int)((focusedTime * 100.0) / totalParticipationTime);
+	}
+
+	public int getTodoCompletionRate() {
+		if (totalTodoCount == 0) {
+			return 0;
+		}
+
+		return (int)((completedTodoCount * 100.0) / totalTodoCount);
 	}
 }
