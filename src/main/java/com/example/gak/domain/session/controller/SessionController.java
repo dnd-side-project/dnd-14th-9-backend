@@ -91,4 +91,16 @@ public class SessionController {
     ){
         return ApiResponse.onSuccess(sessionQueryService.getSessionDetail(sessionId));
     }
+
+    @Operation(summary = "세션 참여 API")
+    @PostMapping("/{sessionId}/join")
+    public ApiResponse<SessionResponseDTO.joinSessionResponseDTO> joinSession(
+            @AuthenticationPrincipal CustomOAuth2User oAuth2User,
+            @RequestBody @Valid SessionRequestDTO.SessionJoinRequestDTO request,
+            @PathVariable Long sessionId
+    ){
+        return ApiResponse.onSuccess(
+                sessionCommandService.joinSession(oAuth2User.getMemberId(), sessionId, request)
+        );
+    }
 }
