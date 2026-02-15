@@ -10,16 +10,19 @@ import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.service.SessionCommandService;
 import com.example.gak.domain.session.service.SessionQueryService;
 import com.example.gak.global.apiPayload.ApiResponse;
+import com.example.gak.global.security.jwt.JwtProvider;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -90,5 +93,17 @@ public class SessionController {
             @PathVariable Long sessionId
     ){
         return ApiResponse.onSuccess(sessionQueryService.getSessionDetail(sessionId));
+    }
+
+    @Operation(summary = "세션 참여 API")
+    @PostMapping("/{sessionId}/join")
+    public ApiResponse<SessionResponseDTO.joinSessionResponseDTO> joinSession(
+            @AuthenticationPrincipal CustomOAuth2User oAuth2User,
+            @RequestBody SessionRequestDTO.SessionJoinRequestDTO request,
+            @PathVariable Long sessionId
+    ){
+        return ApiResponse.onSuccess(
+                sessionCommandService.joinSession(oAuth2User.getMemberId(), sessionId, request)
+        );
     }
 }
