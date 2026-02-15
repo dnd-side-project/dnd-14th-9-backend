@@ -36,4 +36,9 @@ public class KakaoMemberDto implements OAuth2MemberDto {
 	public Optional<String> getProfileImage() {
 		return Optional.ofNullable(profile.get("profile_image_url"));
 	}
+
+	@Override
+	public Optional<String> getEmail() {
+		return Optional.ofNullable(kakaoAccount.get("email").toString());
+	}
 }

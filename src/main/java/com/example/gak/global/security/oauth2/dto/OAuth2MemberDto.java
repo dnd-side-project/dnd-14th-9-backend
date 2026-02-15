@@ -11,4 +11,6 @@ public interface OAuth2MemberDto {
 	String getNickname();
 
 	Optional<String> getProfileImage();
+
+	Optional<String> getEmail();
 }
