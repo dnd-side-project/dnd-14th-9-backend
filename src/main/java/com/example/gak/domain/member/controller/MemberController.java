@@ -28,6 +28,17 @@ public class MemberController {
 	private final MemberQueryService memberQueryService;
 	private final MemberCommandService memberCommandService;
 
+	@GetMapping("/me/profile")
+	public ApiResponse<MemberResponseDTO.GetProfileResponseDTO> getProfile(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		Long memberId = oAuth2User.getMemberId();
+		MemberResponseDTO.GetProfileResponseDTO response = memberQueryService.getProfile(memberId);
+		memberCommandService.markFirstLoginComplete(memberId);
+
+		return ApiResponse.onSuccess(response);
+	}
+
 	@GetMapping("/me/edit")
 	public ApiResponse<MemberResponseDTO.GetMemberResponseDTO> getMember(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User
