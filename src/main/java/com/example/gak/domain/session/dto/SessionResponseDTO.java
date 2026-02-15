@@ -62,7 +62,7 @@ public class SessionResponseDTO {
     public static class joinSessionResponseDTO{
         private Long sessionId;
         private Long memberId;
-        private String gole;
+        private String goal;
         private List<String> todos;
         private SessionParticipantRole role;
     }

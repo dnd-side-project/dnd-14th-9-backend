@@ -77,7 +77,7 @@ public class SessionConverter {
                 .memberId(member.getId())
                 .sessionId(sessionRoom.getId())
                 .role(sessionRoomMember.getRole())
-                .gole(request.getGoal())
+                .goal(request.getGoal())
                 .todos(request.getTodos())
                 .build();
     }
