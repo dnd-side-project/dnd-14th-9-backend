@@ -72,6 +72,9 @@ public class MemberCommandService {
 		Member member = optionalMember.get();
 		if (member.isDeleted()) {
 			member.activate();
+
+			Record record = new Record(member);
+			recordRepository.save(record);
 		}
 
 		return member.getId();
