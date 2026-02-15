@@ -117,8 +117,9 @@ public class SessionCommandService {
     private void increaseCountOrThrow(SessionRoom targetSessionRoom) {
         int updated = sessionRoomRepository.increaseCountIfAvailable(targetSessionRoom.getId());
         if (updated == 0) {
-            SessionRoomStatus status = targetSessionRoom.getStatus();
-            if (status == SessionRoomStatus.COMPLETED) {
+            SessionRoom currentSessionRoom = sessionRoomRepository.findById(targetSessionRoom.getId())
+                    .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+            if (currentSessionRoom.getStatus() == SessionRoomStatus.COMPLETED) {
                 throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_COMPLETED);
             } else {
                 throw new GeneralException(GeneralErrorCode.SESSION_CAPACITY_EXCEEDED);
