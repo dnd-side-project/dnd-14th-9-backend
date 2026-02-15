@@ -106,6 +106,14 @@ public class Record extends BaseEntity {
 		}
 	}
 
+	public int getTotalParticipationMinutes() {
+		return (int)Math.round(totalParticipationTime / 60.0);
+	}
+
+	public int getFocusedMinutes() {
+		return (int)Math.round(focusedTime / 60.0);
+	}
+
 	public int getFocusRate() {
 		if (totalParticipationTime == 0) {
 			return 0;
