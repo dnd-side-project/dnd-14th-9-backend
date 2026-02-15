@@ -140,12 +140,7 @@ public class SessionCommandService {
         try {
             return sessionRoomMemberRepository.save(newMember);
         } catch (DataIntegrityViolationException e) {
-            String msg = e.getMostSpecificCause().getMessage();
-            if (msg != null && msg.contains("uk_session_room_member_member_session")) {
-                throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_JOINED);
-            }else {
-                throw e;
-            }
+            throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_JOINED);
         }
     }
 }
