@@ -29,6 +29,8 @@ public class Member extends BaseEntity {
 
 	private String profileImageUrl;
 
+	private String email;
+
 	private String bio;
 
 	@Enumerated(EnumType.STRING)
@@ -52,6 +54,7 @@ public class Member extends BaseEntity {
 	public Member(
 		String nickname,
 		String profileImageUrl,
+		String email,
 		String bio,
 		SessionCategory firstInterestCategory,
 		SessionCategory secondInterestCategory,
@@ -61,6 +64,7 @@ public class Member extends BaseEntity {
 	) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
+		this.email = email;
 		this.bio = bio;
 		this.firstInterestCategory = firstInterestCategory;
 		this.secondInterestCategory = secondInterestCategory;

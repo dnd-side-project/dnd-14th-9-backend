@@ -53,6 +53,7 @@ public class MemberCommandService {
 			Member member = new Member(
 				oAuth2MemberDto.getNickname(),
 				oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
+				oAuth2MemberDto.getEmail().orElse(null),
 				null,
 				null,
 				null,
@@ -71,6 +72,9 @@ public class MemberCommandService {
 		Member member = optionalMember.get();
 		if (member.isDeleted()) {
 			member.activate();
+
+			Record record = new Record(member);
+			recordRepository.save(record);
 		}
 
 		return member.getId();

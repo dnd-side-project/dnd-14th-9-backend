@@ -7,4 +7,6 @@ import com.example.gak.domain.record.entity.Record;
 public interface RecordRepository extends JpaRepository<Record, Long> {
 
 	void deleteByMemberId(Long memberId);
+
+	Record findByMemberId(Long memberId);
 }
