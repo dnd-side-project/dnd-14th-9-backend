@@ -23,10 +23,6 @@ public class TaskCommandService {
 		SubTask subTask = subTaskRepository.findById(subTaskId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SUBTASK_NOT_FOUND));
 
-		if (subTask.getTask().getSessionRoom().getStatus() != SessionRoomStatus.IN_PROGRESS) {
-			throw new GeneralException(GeneralErrorCode.SUBTASK_COMPLETION_NOT_ALLOWED);
-		}
-
 		if (!subTask.getTask().getMember().getId().equals(memberId)) {
 			throw new GeneralException(GeneralErrorCode.SUBTASK_ACCESS_DENIED);
 		}
