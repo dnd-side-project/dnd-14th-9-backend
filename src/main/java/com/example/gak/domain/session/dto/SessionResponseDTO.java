@@ -65,7 +65,14 @@ public class SessionResponseDTO {
 		private Long sessionId;
 		private Long memberId;
 		private String goal;
-		private List<String> todos;
+		private List<todoResponseDTO> todos;
 		private SessionParticipantRole role;
+	}
+
+	@Builder
+	@Getter
+	public static class todoResponseDTO {
+		private Long subtaskId;
+		private String content;
 	}
 }
