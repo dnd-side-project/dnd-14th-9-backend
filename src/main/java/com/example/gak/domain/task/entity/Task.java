@@ -5,6 +5,7 @@ import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
 
 import com.example.gak.domain.subtask.entity.SubTask;
+import com.example.gak.domain.task.entity.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,6 +43,10 @@ public class Task extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private TaskStatus taskStatus = TaskStatus.IN_PROGRESS;
 
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<SubTask> subTasks = new ArrayList<>();
