@@ -1,30 +1,42 @@
 package com.example.gak.domain.task.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
-
-import com.example.gak.domain.subtask.entity.SubTask;
 import com.example.gak.domain.task.entity.enums.TaskStatus;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-		name = "task",
-		uniqueConstraints = {
-				@UniqueConstraint(
-						name = "task_member_session",
-						columnNames = {"member_id", "session_room_id"}
-				)
-		}
+	name = "task",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "task_member_session",
+			columnNames = {"member_id", "session_room_id"}
+		)
+	}
 )
 public class Task extends BaseEntity {
 
@@ -52,9 +64,9 @@ public class Task extends BaseEntity {
 	private List<SubTask> subTasks = new ArrayList<>();
 
 	public Task(
-			String goal,
-			SessionRoom sessionRoom,
-			Member member
+		String goal,
+		SessionRoom sessionRoom,
+		Member member
 	) {
 		this.goal = goal;
 		this.sessionRoom = sessionRoom;

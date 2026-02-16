@@ -1,7 +1,6 @@
-package com.example.gak.domain.subtask.entity;
+package com.example.gak.domain.task.entity;
 
 import com.example.gak.domain.common.entity.BaseEntity;
-import com.example.gak.domain.task.entity.Task;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
