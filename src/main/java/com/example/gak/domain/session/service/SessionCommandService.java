@@ -3,6 +3,8 @@ package com.example.gak.domain.session.service;
 import static com.example.gak.domain.session.converter.SessionConverter.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,9 @@ import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
-import com.example.gak.domain.subtask.entity.SubTask;
-import com.example.gak.domain.subtask.repository.SubTaskRepository;
+import com.example.gak.domain.task.entity.SubTask;
 import com.example.gak.domain.task.entity.Task;
+import com.example.gak.domain.task.repository.SubTaskRepository;
 import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
@@ -101,9 +103,14 @@ public class SessionCommandService {
 		increaseCountOrThrow(targetSessionRoom);
 		SessionParticipantRole role = determineRole(member, targetSessionRoom);
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
-		saveGoalTask(targetSessionRoom, member, request);
+		List<SubTask> todos = saveGoalTask(targetSessionRoom, member, request);
 
-		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, request);
+		List<SessionResponseDTO.todoResponseDTO> list = new ArrayList<>();
+		for (SubTask s : todos) {
+			list.add(toTodoResponseDTO(s));
+		}
+
+		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, request, list);
 	}
 
 	public void leaveSession(Long sessionId, Long memberId) {
@@ -124,14 +131,16 @@ public class SessionCommandService {
 		}
 	}
 
-	private void saveGoalTask(SessionRoom sessionRoom, Member member, SessionRequestDTO.SessionJoinRequestDTO request) {
+	private List<SubTask> saveGoalTask(SessionRoom sessionRoom, Member member,
+		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);
 		taskRepository.save(newTask);
 
-		request.getTodos().forEach(todo -> {
-			SubTask subTask = new SubTask(todo, newTask);
-			subTaskRepository.save(subTask);
-		});
+		List<SubTask> subTasks = request.getTodos().stream()
+			.map(todo -> new SubTask(todo, newTask))
+			.toList();
+
+		return subTaskRepository.saveAll(subTasks);
 	}
 
 	private void increaseCountOrThrow(SessionRoom targetSessionRoom) {

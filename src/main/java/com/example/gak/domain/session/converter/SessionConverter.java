@@ -9,6 +9,7 @@ import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
+import com.example.gak.domain.task.entity.SubTask;
 
 public class SessionConverter {
 
@@ -72,14 +73,24 @@ public class SessionConverter {
 		SessionRoomMember sessionRoomMember,
 		Member member,
 		SessionRoom sessionRoom,
-		SessionRequestDTO.SessionJoinRequestDTO request
+		SessionRequestDTO.SessionJoinRequestDTO request,
+		List<SessionResponseDTO.todoResponseDTO> todos
 	) {
 		return SessionResponseDTO.joinSessionResponseDTO.builder()
 			.memberId(member.getId())
 			.sessionId(sessionRoom.getId())
 			.role(sessionRoomMember.getRole())
 			.goal(request.getGoal())
-			.todos(request.getTodos())
+			.todos(todos)
+			.build();
+	}
+
+	public static SessionResponseDTO.todoResponseDTO toTodoResponseDTO(
+		SubTask subTask
+	) {
+		return SessionResponseDTO.todoResponseDTO.builder()
+			.subtaskId(subTask.getId())
+			.content(subTask.getSubTaskTitle())
 			.build();
 	}
 }
