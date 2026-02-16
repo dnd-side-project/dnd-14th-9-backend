@@ -2,6 +2,7 @@ package com.example.gak.domain.member.dto;
 
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 public class MemberRequestDTO {
 
+	@Schema(name = "회원 닉네임 수정 요청")
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Builder
@@ -27,13 +29,20 @@ public class MemberRequestDTO {
 		private String nickname;
 	}
 
+	@Schema(name = "회원 관심카테고리 수정 요청")
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Builder
 	@Getter
 	public static class UpdateMemberInterestCategoriesRequestDTO {
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
 		private SessionCategory firstInterestCategory;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
 		private SessionCategory secondInterestCategory;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
 		private SessionCategory thirdInterestCategory;
 	}
 }
