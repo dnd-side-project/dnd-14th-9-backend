@@ -31,10 +31,12 @@ import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "세션 API")
 @RestController
 @RequestMapping("/api/v1/sessions")
 @RequiredArgsConstructor
