@@ -2,7 +2,6 @@ package com.example.gak.domain.session.dto;
 
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -11,6 +10,7 @@ import lombok.Getter;
 
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SessionRequestDTO {
 
@@ -50,5 +50,17 @@ public class SessionRequestDTO {
 
         @Min(0)
         private Integer requiredAchievementRate = 0;
+    }
+
+    @Getter
+    @Builder
+    public static class SessionJoinRequestDTO{
+
+        @NotNull
+        @Size(max = 50)
+        private String goal;
+
+        @NotNull
+        private List<@Size(max = 50) String> todos;
     }
 }

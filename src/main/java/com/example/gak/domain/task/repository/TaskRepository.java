@@ -9,4 +9,6 @@ import com.example.gak.domain.task.entity.Task;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
 	List<Task> findByMemberId(Long memberId);
+
+	List<Task> findBySessionRoomIdAndMemberId(Long sessionRoomId, Long memberId);
 }

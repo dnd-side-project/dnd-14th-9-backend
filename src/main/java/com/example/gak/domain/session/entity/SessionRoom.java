@@ -55,6 +55,9 @@ public class SessionRoom extends BaseEntity {
 	@Column(nullable = false)
 	private Integer maxCapacity;
 
+	@Column(nullable = false)
+	private Integer currentCount = 0;
+
 	@Enumerated(EnumType.STRING)
 	private SessionRoomStatus status;
 

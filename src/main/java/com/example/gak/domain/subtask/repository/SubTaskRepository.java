@@ -16,4 +16,6 @@ public interface SubTaskRepository extends JpaRepository<SubTask, Long> {
 		DELETE FROM SubTask s WHERE s.task.id IN :taskIds
 		""")
 	void deleteByTaskIdIn(@Param("taskIds") List<Long> taskIds);
+
+	List<SubTask> findByTaskId(Long taskId);
 }

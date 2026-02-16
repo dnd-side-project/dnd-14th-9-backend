@@ -1,7 +1,10 @@
 package com.example.gak.domain.session.converter;
 
+import com.example.gak.domain.member.entity.Member;
+import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
+import com.example.gak.domain.session.entity.SessionRoomMember;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,7 +18,7 @@ public class SessionConverter {
                 .title(sessionRoom.getTitle())
                 .hostNickname(sessionRoom.getMember().getNickname())
                 .imageUrl(sessionRoom.getThumbnailImageUrl())
-                .currentParticipants(0) // TODO: 실시간 통신 구현 이후 실제 카운트로 수정
+                .currentParticipants(sessionRoom.getCurrentCount())
                 .maxParticipants(sessionRoom.getMaxCapacity())
                 .startTime(sessionRoom.getStartTime())
                 .sessionDurationMinutes(sessionRoom.getDurationMinutes())
@@ -53,7 +56,7 @@ public class SessionConverter {
                 .title(sessionRoom.getTitle())
                 .hostNickname(sessionRoom.getMember().getNickname())
                 .imageUrl(sessionRoom.getThumbnailImageUrl())
-                .currentParticipants(0) // TODO: 실시간 통신 구현 이후 실제 카운트로 수정
+                .currentParticipants(sessionRoom.getCurrentCount())
                 .maxParticipants(sessionRoom.getMaxCapacity())
                 .sessionDurationMinutes(sessionRoom.getDurationMinutes())
                 .startTime(sessionRoom.getStartTime())
@@ -61,6 +64,21 @@ public class SessionConverter {
 
                 .summary(sessionRoom.getSummary())
                 .notice(sessionRoom.getNotice())
+                .build();
+    }
+
+    public static SessionResponseDTO.joinSessionResponseDTO tojoinSessionResponseDTO(
+            SessionRoomMember sessionRoomMember,
+            Member member,
+            SessionRoom sessionRoom,
+            SessionRequestDTO.SessionJoinRequestDTO request
+    ){
+        return SessionResponseDTO.joinSessionResponseDTO.builder()
+                .memberId(member.getId())
+                .sessionId(sessionRoom.getId())
+                .role(sessionRoomMember.getRole())
+                .goal(request.getGoal())
+                .todos(request.getTodos())
                 .build();
     }
 }
