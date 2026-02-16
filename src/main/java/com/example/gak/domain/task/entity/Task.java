@@ -4,10 +4,14 @@ import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
 
+import com.example.gak.domain.subtask.entity.SubTask;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -39,10 +43,13 @@ public class Task extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
+	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<SubTask> subTasks = new ArrayList<>();
+
 	public Task(
-		String goal,
-		SessionRoom sessionRoom,
-		Member member
+			String goal,
+			SessionRoom sessionRoom,
+			Member member
 	) {
 		this.goal = goal;
 		this.sessionRoom = sessionRoom;
