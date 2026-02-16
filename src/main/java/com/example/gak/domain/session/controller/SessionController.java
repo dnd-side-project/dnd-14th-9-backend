@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -94,23 +95,23 @@ public class SessionController {
 		return ApiResponse.onSuccess(toCreateSessionResponseDTO(sessionRoom));
 	}
 
-    @Operation(summary = "세션 상세 조회 API")
-    @GetMapping("/{sessionId}")
-    public ApiResponse<SessionResponseDTO.SessionDetailResponseDTO> getSessionDetail(
-            @PathVariable Long sessionId
-    ){
-        return ApiResponse.onSuccess(sessionQueryService.getSessionDetail(sessionId));
-    }
+	@Operation(summary = "세션 상세 조회 API")
+	@GetMapping("/{sessionId}")
+	public ApiResponse<SessionResponseDTO.SessionDetailResponseDTO> getSessionDetail(
+		@PathVariable Long sessionId
+	) {
+		return ApiResponse.onSuccess(sessionQueryService.getSessionDetail(sessionId));
+	}
 
-    @Operation(summary = "세션 참여 API")
-    @PostMapping("/{sessionId}/join")
-    public ApiResponse<SessionResponseDTO.joinSessionResponseDTO> joinSession(
-            @AuthenticationPrincipal CustomOAuth2User oAuth2User,
-            @RequestBody @Valid SessionRequestDTO.SessionJoinRequestDTO request,
-            @PathVariable Long sessionId
-    ){
-        return ApiResponse.onSuccess(
-                sessionCommandService.joinSession(oAuth2User.getMemberId(), sessionId, request)
-        );
-    }
+	@Operation(summary = "세션 참여 API")
+	@PostMapping("/{sessionId}/join")
+	public ApiResponse<SessionResponseDTO.joinSessionResponseDTO> joinSession(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestBody @Valid SessionRequestDTO.SessionJoinRequestDTO request,
+		@PathVariable Long sessionId
+	) {
+		return ApiResponse.onSuccess(
+			sessionCommandService.joinSession(oAuth2User.getMemberId(), sessionId, request)
+		);
+	}
 }
