@@ -42,7 +42,7 @@ public class SubTask extends BaseEntity {
 		this.task = task;
 	}
 
-	public void complete() {
-		this.isCompleted = true;
+	public void toggleCompletion() {
+		this.isCompleted = !this.isCompleted;
 	}
 }
