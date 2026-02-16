@@ -59,7 +59,7 @@ public class MemberController {
 	@PatchMapping("/me/profile-image")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateProfileImage(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED) @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
 	) {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateProfileImage(oAuth2User.getMemberId(), profileImage)
