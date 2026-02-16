@@ -104,6 +104,24 @@ public class SessionCommandService {
         return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, request);
     }
 
+    public void leaveSession(Long sessionId, Long memberId) {
+        int deleted = sessionRoomMemberRepository
+                .deleteByMemberIdAndSessionRoomId(memberId, sessionId);
+        if (deleted == 0) {
+            throw new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED);
+        }
+
+        Task task = taskRepository.findBySessionRoomIdAndMemberId(sessionId, memberId)
+                .orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+        taskRepository.delete(task);
+        taskRepository.flush();
+
+        int updated = sessionRoomRepository.decreaseCount(sessionId);
+        if (updated == 0) {
+            throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
+        }
+    }
+
     private void saveGoalTask(SessionRoom sessionRoom, Member member, SessionRequestDTO.SessionJoinRequestDTO request) {
         Task newTask = new Task(request.getGoal(), sessionRoom, member);
         taskRepository.save(newTask);

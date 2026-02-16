@@ -46,6 +46,8 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	SESSION_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "SESSION400_2", "세션 정원이 초과되었습니다."),
 	SESSION_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "SESSION400_3", "이미 참여한 세션입니다."),
 	SESSION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "SESSION400_4", "이미 종료된 세션입니다."),
+	SESSION_NOT_JOINED(HttpStatus.BAD_REQUEST, "SESSION400_5", "참여 중인 세션이 아닙니다."),
+	SESSION_INVALID_STATE(HttpStatus.BAD_REQUEST, "SESSION400_4", "세션 상태가 올바르지 않습니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),
