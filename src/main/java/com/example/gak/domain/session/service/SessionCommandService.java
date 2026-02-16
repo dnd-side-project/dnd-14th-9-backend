@@ -1,5 +1,14 @@
 package com.example.gak.domain.session.service;
 
+import static com.example.gak.domain.session.converter.SessionConverter.*;
+
+import java.time.LocalDateTime;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
 import com.example.gak.domain.session.dto.SessionRequestDTO;
@@ -18,147 +27,141 @@ import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.validator.ImageFileValidator;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-
-import static com.example.gak.domain.session.converter.SessionConverter.tojoinSessionResponseDTO;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class SessionCommandService {
 
-    private static final long MIN_START_MINUTES = 5;
+	private static final long MIN_START_MINUTES = 5;
 
-    private final MemberRepository memberRepository;
-    private final SessionRoomRepository sessionRoomRepository;
-    private final SessionRoomMemberRepository sessionRoomMemberRepository;
-    private final SubTaskRepository subTaskRepository;
-    private final TaskRepository taskRepository;
+	private final MemberRepository memberRepository;
+	private final SessionRoomRepository sessionRoomRepository;
+	private final SessionRoomMemberRepository sessionRoomMemberRepository;
+	private final SubTaskRepository subTaskRepository;
+	private final TaskRepository taskRepository;
 
-    private final AmazonS3Manager amazonS3Manager;
-    private final ImageFileValidator imageFileValidator;
+	private final AmazonS3Manager amazonS3Manager;
+	private final ImageFileValidator imageFileValidator;
 
-    public SessionRoom createSession(
-            SessionRequestDTO.CreateSessionRequestDTO request,
-            MultipartFile image,
-            Long memberId
-    ){
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+	public SessionRoom createSession(
+		SessionRequestDTO.CreateSessionRequestDTO request,
+		MultipartFile image,
+		Long memberId
+	) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 
-        LocalDateTime minAllowedStartTime  = LocalDateTime.now().plusMinutes(MIN_START_MINUTES);
-        if (request.getStartTime().isBefore(minAllowedStartTime )) {
-            throw new GeneralException(GeneralErrorCode.SESSION_START_TIME_TOO_SOON);
-        }
+		LocalDateTime minAllowedStartTime = LocalDateTime.now().plusMinutes(MIN_START_MINUTES);
+		if (request.getStartTime().isBefore(minAllowedStartTime)) {
+			throw new GeneralException(GeneralErrorCode.SESSION_START_TIME_TOO_SOON);
+		}
 
-        String imageUrl;
-        if(image != null && !image.isEmpty()) {
-            imageFileValidator.validate(image);
+		String imageUrl;
+		if (image != null && !image.isEmpty()) {
+			imageFileValidator.validate(image);
 
-            String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
-            imageUrl = amazonS3Manager.uploadFile(keyName, image);
-        }else{
-            imageUrl = ""; // 기본 이미지 디자인 완성 시 URL 추가
-        }
+			String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
+			imageUrl = amazonS3Manager.uploadFile(keyName, image);
+		} else {
+			imageUrl = ""; // 기본 이미지 디자인 완성 시 URL 추가
+		}
 
-        SessionRoom newSessionRoom =  new SessionRoom(
-                request.getCategory(),
-                request.getTitle(),
-                request.getSummary(),
-                request.getNotice(),
-                imageUrl,
-                request.getStartTime(),
-                request.getSessionDurationMinutes(),
-                request.getMaxParticipants(),
-                SessionRoomStatus.WAITING,
-                request.getRequiredFocusRate(),
-                request.getRequiredAchievementRate(),
-                member
-        );
-        sessionRoomRepository.save(newSessionRoom);
-        return newSessionRoom;
-    }
+		SessionRoom newSessionRoom = new SessionRoom(
+			request.getCategory(),
+			request.getTitle(),
+			request.getSummary(),
+			request.getNotice(),
+			imageUrl,
+			request.getStartTime(),
+			request.getSessionDurationMinutes(),
+			request.getMaxParticipants(),
+			SessionRoomStatus.WAITING,
+			request.getRequiredFocusRate(),
+			request.getRequiredAchievementRate(),
+			member
+		);
+		sessionRoomRepository.save(newSessionRoom);
+		return newSessionRoom;
+	}
 
-    public SessionResponseDTO.joinSessionResponseDTO joinSession(
-            Long memberId,
-            Long sessionId,
-            SessionRequestDTO.SessionJoinRequestDTO request
-    ) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
+	public SessionResponseDTO.joinSessionResponseDTO joinSession(
+		Long memberId,
+		Long sessionId,
+		SessionRequestDTO.SessionJoinRequestDTO request
+	) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 
-        SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
-                .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
-        increaseCountOrThrow(targetSessionRoom);
-        SessionParticipantRole role = determineRole(member, targetSessionRoom);
-        SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
-        saveGoalTask(targetSessionRoom, member, request);
+		increaseCountOrThrow(targetSessionRoom);
+		SessionParticipantRole role = determineRole(member, targetSessionRoom);
+		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
+		saveGoalTask(targetSessionRoom, member, request);
 
-        return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, request);
-    }
+		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, request);
+	}
 
-    public void leaveSession(Long sessionId, Long memberId) {
-        int deleted = sessionRoomMemberRepository
-                .deleteByMemberIdAndSessionRoomId(memberId, sessionId);
-        if (deleted == 0) {
-            throw new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED);
-        }
+	public void leaveSession(Long sessionId, Long memberId) {
+		int deleted = sessionRoomMemberRepository
+			.deleteByMemberIdAndSessionRoomId(memberId, sessionId);
+		if (deleted == 0) {
+			throw new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED);
+		}
 
-        Task task = taskRepository.findBySessionRoomIdAndMemberId(sessionId, memberId)
-                .orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
-        taskRepository.delete(task);
-        taskRepository.flush();
+		Task task = taskRepository.findBySessionRoomIdAndMemberId(sessionId, memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+		taskRepository.delete(task);
+		taskRepository.flush();
 
-        int updated = sessionRoomRepository.decreaseCount(sessionId);
-        if (updated == 0) {
-            throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
-        }
-    }
+		int updated = sessionRoomRepository.decreaseCount(sessionId);
+		if (updated == 0) {
+			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
+		}
+	}
 
-    private void saveGoalTask(SessionRoom sessionRoom, Member member, SessionRequestDTO.SessionJoinRequestDTO request) {
-        Task newTask = new Task(request.getGoal(), sessionRoom, member);
-        taskRepository.save(newTask);
+	private void saveGoalTask(SessionRoom sessionRoom, Member member, SessionRequestDTO.SessionJoinRequestDTO request) {
+		Task newTask = new Task(request.getGoal(), sessionRoom, member);
+		taskRepository.save(newTask);
 
-        request.getTodos().forEach(todo -> {
-            SubTask subTask = new SubTask(todo, newTask);
-            subTaskRepository.save(subTask);
-        });
-    }
+		request.getTodos().forEach(todo -> {
+			SubTask subTask = new SubTask(todo, newTask);
+			subTaskRepository.save(subTask);
+		});
+	}
 
-    private void increaseCountOrThrow(SessionRoom targetSessionRoom) {
-        int updated = sessionRoomRepository.increaseCountIfAvailable(targetSessionRoom.getId());
-        if (updated == 0) {
-            SessionRoom currentSessionRoom = sessionRoomRepository.findById(targetSessionRoom.getId())
-                    .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
-            if (currentSessionRoom.getStatus() == SessionRoomStatus.COMPLETED) {
-                throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_COMPLETED);
-            } else {
-                throw new GeneralException(GeneralErrorCode.SESSION_CAPACITY_EXCEEDED);
-            }
-        }
-    }
+	private void increaseCountOrThrow(SessionRoom targetSessionRoom) {
+		int updated = sessionRoomRepository.increaseCountIfAvailable(targetSessionRoom.getId());
+		if (updated == 0) {
+			SessionRoom currentSessionRoom = sessionRoomRepository.findById(targetSessionRoom.getId())
+				.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+			if (currentSessionRoom.getStatus() == SessionRoomStatus.COMPLETED) {
+				throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_COMPLETED);
+			} else {
+				throw new GeneralException(GeneralErrorCode.SESSION_CAPACITY_EXCEEDED);
+			}
+		}
+	}
 
-    private SessionParticipantRole determineRole(Member member, SessionRoom sessionRoom) {
-        if (member.getId().equals(sessionRoom.getMember().getId()) &&
-                sessionRoom.getStatus() == SessionRoomStatus.WAITING) {
-            return SessionParticipantRole.HOST;
-        }
-        return SessionParticipantRole.PARTICIPANT;
-    }
+	private SessionParticipantRole determineRole(Member member, SessionRoom sessionRoom) {
+		if (member.getId().equals(sessionRoom.getMember().getId()) &&
+			sessionRoom.getStatus() == SessionRoomStatus.WAITING) {
+			return SessionParticipantRole.HOST;
+		}
+		return SessionParticipantRole.PARTICIPANT;
+	}
 
-    private SessionRoomMember saveSessionRoomMember(SessionRoom sessionRoom, Member member, SessionParticipantRole role) {
-        SessionRoomMember newMember = new SessionRoomMember(role, sessionRoom, member);
-        try {
-            return sessionRoomMemberRepository.save(newMember);
-        } catch (DataIntegrityViolationException e) {
-            throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_JOINED);
-        }
-    }
+	private SessionRoomMember saveSessionRoomMember(SessionRoom sessionRoom, Member member,
+		SessionParticipantRole role) {
+		SessionRoomMember newMember = new SessionRoomMember(role, sessionRoom, member);
+		try {
+			return sessionRoomMemberRepository.save(newMember);
+		} catch (DataIntegrityViolationException e) {
+			throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_JOINED);
+		}
+	}
 }

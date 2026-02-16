@@ -62,7 +62,7 @@ public class SessionRoom extends BaseEntity {
 	private SessionRoomStatus status;
 
 	@Column(nullable = false)
-	private Integer viewCount  = 0;
+	private Integer viewCount = 0;
 
 	@Column(nullable = false)
 	private Integer requiredFocusRate = 0;

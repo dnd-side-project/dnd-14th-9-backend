@@ -1,25 +1,26 @@
 package com.example.gak.domain.session.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.example.gak.domain.session.entity.SessionRoomMember;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.gak.domain.session.entity.SessionRoomMember;
+
 public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMember, Long> {
 
-    void deleteByMemberId(Long memberId);
+	void deleteByMemberId(Long memberId);
 
-    boolean existsBySessionRoomIdAndMemberId(Long sessionId, Long memberId);
+	boolean existsBySessionRoomIdAndMemberId(Long sessionId, Long memberId);
 
-    @Modifying(clearAutomatically = true)
-    @Query("""
-        DELETE FROM SessionRoomMember srm
-        WHERE srm.member.id = :memberId
-          AND srm.sessionRoom.id = :sessionId
-    """)
-    int deleteByMemberIdAndSessionRoomId(
-            @Param("memberId") Long memberId,
-            @Param("sessionId") Long sessionId
-    );
+	@Modifying(clearAutomatically = true)
+	@Query("""
+		    DELETE FROM SessionRoomMember srm
+		    WHERE srm.member.id = :memberId
+		      AND srm.sessionRoom.id = :sessionId
+		""")
+	int deleteByMemberIdAndSessionRoomId(
+		@Param("memberId") Long memberId,
+		@Param("sessionId") Long sessionId
+	);
 }
