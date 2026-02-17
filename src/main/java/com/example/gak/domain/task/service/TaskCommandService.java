@@ -5,8 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.task.dto.SubTaskRequestDTO;
+import com.example.gak.domain.task.dto.TaskRequestDTO;
 import com.example.gak.domain.task.entity.SubTask;
+import com.example.gak.domain.task.entity.Task;
 import com.example.gak.domain.task.repository.SubTaskRepository;
+import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class TaskCommandService {
 
 	private final SubTaskRepository subTaskRepository;
+	private final TaskRepository taskRepository;
 
 	public void toggleSubTaskCompletion(Long subTaskId, Long memberId) {
 
@@ -52,5 +56,24 @@ public class TaskCommandService {
 		}
 
 		subTask.updateSubTaskTitle(request.getTodoContent());
+	}
+
+	public void updateTask(
+		Long taskId,
+		Long memberId,
+		TaskRequestDTO.UpdateTaskDTO request
+	) {
+		Task task = taskRepository.findById(taskId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND));
+
+		if (!task.getMember().getId().equals(memberId)) {
+			throw new GeneralException(GeneralErrorCode.TASK_ACCESS_DENIED);
+		}
+
+		if (task.getSessionRoom().getStatus() != SessionRoomStatus.WAITING) {
+			throw new GeneralException(GeneralErrorCode.TASK_UPDATE_NOT_ALLOWED);
+		}
+
+		task.updateGoal(request.getGoalContent());
 	}
 }

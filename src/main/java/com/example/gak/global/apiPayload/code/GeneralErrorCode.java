@@ -56,8 +56,12 @@ public enum GeneralErrorCode implements BaseErrorCode {
 
 	// 목표 관련
 	SUBTASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "TASK400_1", "존재하지 않는 TODO입니다."),
-	SUBTASK_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "TASK400_2", "완료 상태를 변경 권한이 없습니다."),
-	SUBTASK_COMPLETION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "TASK400_3", "해당 TODO의 완료 상태를 변경할 수 없습니다.");
+	SUBTASK_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "TASK400_2", "변경 권한이 없습니다."),
+	SUBTASK_COMPLETION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "TASK400_3", "해당 TODO의 완료 상태를 변경할 수 없습니다."),
+
+	TASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "TASK400_4", "존재하지 않는 목표입니다."),
+	TASK_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "TASK400_5", "변경 권한이 없습니다."),
+	TASK_UPDATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "TASK400_6", "세션 시작 이후에는 목표를 변경할 수 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
