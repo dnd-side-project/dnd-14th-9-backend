@@ -6,6 +6,7 @@ import java.util.List;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ import lombok.Getter;
 
 public class SessionRequestDTO {
 
+	@Schema(name = "세션 생성 요청")
 	@Getter
 	@Builder
 	public static class CreateSessionRequestDTO {
@@ -55,6 +57,7 @@ public class SessionRequestDTO {
 		private Integer requiredAchievementRate = 0;
 	}
 
+	@Schema(name = "세션 참여 요청")
 	@Getter
 	@Builder
 	public static class SessionJoinRequestDTO {

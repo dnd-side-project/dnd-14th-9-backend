@@ -31,6 +31,7 @@ import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -48,23 +49,23 @@ public class SessionController {
 	@Operation(summary = "세션 목록 조회 API")
 	@GetMapping
 	public ApiResponse<SessionResponseDTO.SessionCardResponseListDTO> getSessions(
-		@RequestParam(required = false) String keyword,
-		@RequestParam(required = false) SessionCategory category,
-		@RequestParam(required = false, defaultValue = "POPULAR") SessionSort sort,
+		@Parameter(description = "검색 키워드") @RequestParam(required = false) String keyword,
+		@Parameter(description = "카테고리") @RequestParam(required = false) SessionCategory category,
+		@Parameter(description = "정렬 조건") @RequestParam(required = false, defaultValue = "POPULAR") SessionSort sort,
 
-		@RequestParam(required = false) LocalDate startDate,
-		@RequestParam(required = false) LocalDate endDate,
+		@Parameter(description = "시작일") @RequestParam(required = false) LocalDate startDate,
+		@Parameter(description = "종료일") @RequestParam(required = false) LocalDate endDate,
 
-		@RequestParam(required = false) List<TimeSlot> timeSlots,
-		@RequestParam(required = false) DurationRange durationRange,
+		@Parameter(description = "세션 진행 시간대") @RequestParam(required = false) List<TimeSlot> timeSlots,
+		@Parameter(description = "세션 소요 시간") @RequestParam(required = false) DurationRange durationRange,
 
-		@RequestParam(required = false) Integer participants,
+		@Parameter(description = "참여자 수") @RequestParam(required = false) Integer participants,
 
-		@RequestParam(required = false) Integer requiredFocusRate,
-		@RequestParam(required = false) Integer requiredAchievementRate,
+		@Parameter(description = "필요 집중도") @RequestParam(required = false) Integer requiredFocusRate,
+		@Parameter(description = "필요 성취도") @RequestParam(required = false) Integer requiredAchievementRate,
 
-		@RequestParam(name = "page", defaultValue = "1") @Min(1) Integer page,
-		@RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size
+		@Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") @Min(1) Integer page,
+		@Parameter(description = "페이지 크기") @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size
 	) {
 		return ApiResponse.onSuccess(
 			sessionQueryService.getSessions(
