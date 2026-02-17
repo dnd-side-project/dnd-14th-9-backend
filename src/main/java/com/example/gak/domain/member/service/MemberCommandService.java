@@ -153,6 +153,12 @@ public class MemberCommandService {
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
 
+	public void deleteProfileImage(Long memberId) {
+		Member member = getMember(memberId);
+
+		member.deleteProfileImageUrl();
+	}
+
 	public void deleteMember(Long memberId) {
 		if (sessionRoomRepository.existsByMemberIdAndStatusNot(memberId, SessionRoomStatus.COMPLETED)) {
 			throw new GeneralException(GeneralErrorCode.MEMBER_HAS_ACTIVE_SESSION);

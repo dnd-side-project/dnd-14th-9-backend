@@ -99,6 +99,14 @@ public class MemberController {
 		);
 	}
 
+	@Operation(summary = "내 프로필 이미지 삭제 API")
+	@DeleteMapping("/me/profile-image")
+	public ApiResponse<Void> deleteProfileImage(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+		memberCommandService.deleteProfileImage(oAuth2User.getMemberId());
+
+		return ApiResponse.onSuccess(null);
+	}
+
 	@Operation(summary = "회원 탈퇴 API")
 	@DeleteMapping("/me")
 	public ApiResponse<Void> deleteMember(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
