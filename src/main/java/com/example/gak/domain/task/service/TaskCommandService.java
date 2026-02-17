@@ -33,7 +33,7 @@ public class TaskCommandService {
 		}
 
 		if (subTask.getTask().getSessionRoom().getStatus() != SessionRoomStatus.IN_PROGRESS) {
-			throw new GeneralException(GeneralErrorCode.SUBTASK_COMPLETION_NOT_ALLOWED);
+			throw new GeneralException(GeneralErrorCode.SUBTASK_UPDATE_NOT_ALLOWED);
 		}
 
 		subTask.toggleCompletion();
@@ -52,7 +52,7 @@ public class TaskCommandService {
 		}
 
 		if (subTask.getTask().getSessionRoom().getStatus() != SessionRoomStatus.WAITING) {
-			throw new GeneralException(GeneralErrorCode.SUBTASK_COMPLETION_NOT_ALLOWED);
+			throw new GeneralException(GeneralErrorCode.SUBTASK_UPDATE_NOT_ALLOWED);
 		}
 
 		subTask.updateSubTaskTitle(request.getTodoContent());
