@@ -119,6 +119,21 @@ public class MemberCommandService {
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
 
+	public MemberResponseDTO.UpdateMemberResponseDTO updateEmail(
+		Long memberId,
+		MemberRequestDTO.UpdateMemberEmailRequestDTO request
+	) {
+		Member member = getMember(memberId);
+
+		if (request == null) {
+			return MemberConverter.toUpdateMemberResponseDTO(member);
+		}
+
+		member.updateEmail(request.getEmail());
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
 	public MemberResponseDTO.UpdateMemberResponseDTO updateInterestCategories(
 		Long memberId,
 		MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request

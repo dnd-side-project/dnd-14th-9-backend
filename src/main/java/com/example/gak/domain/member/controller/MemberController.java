@@ -77,6 +77,17 @@ public class MemberController {
 		);
 	}
 
+	@Operation(summary = "내 이메일 수정 API")
+	@PatchMapping("/me/email")
+	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateEmail(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@Valid @RequestBody(required = false) MemberRequestDTO.UpdateMemberEmailRequestDTO request
+	) {
+		return ApiResponse.onSuccess(
+			memberCommandService.updateEmail(oAuth2User.getMemberId(), request)
+		);
+	}
+
 	@Operation(summary = "내 관심 카테고리 수정 API")
 	@PatchMapping("/me/interest-categories")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateInterestCategories(
