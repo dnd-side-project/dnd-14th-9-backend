@@ -95,6 +95,9 @@ public class MemberResponseDTO {
 		private String profileImageUrl;
 
 		@Schema(nullable = true)
+		private String email;
+
+		@Schema(nullable = true)
 		private String bio;
 
 		@Schema(nullable = true)
