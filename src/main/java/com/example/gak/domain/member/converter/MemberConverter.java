@@ -40,6 +40,7 @@ public class MemberConverter {
 		return MemberResponseDTO.UpdateMemberResponseDTO.builder()
 			.id(member.getId())
 			.nickname(member.getNickname())
+			.email(member.getEmail())
 			.profileImageUrl(member.getProfileImageUrl())
 			.bio(member.getBio())
 			.firstInterestCategory(member.getFirstInterestCategory())

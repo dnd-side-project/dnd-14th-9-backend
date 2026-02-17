@@ -91,6 +91,10 @@ public class Member extends BaseEntity {
 		this.nickname = nickname;
 	}
 
+	public void updateEmail(String email) {
+		this.email = email;
+	}
+
 	public void updateInterestCategories(
 		SessionCategory firstInterestCategory,
 		SessionCategory secondInterestCategory,
@@ -99,6 +103,10 @@ public class Member extends BaseEntity {
 		this.firstInterestCategory = firstInterestCategory;
 		this.secondInterestCategory = secondInterestCategory;
 		this.thirdInterestCategory = thirdInterestCategory;
+	}
+
+	public void deleteProfileImageUrl() {
+		this.profileImageUrl = null;
 	}
 
 	public void delete() {

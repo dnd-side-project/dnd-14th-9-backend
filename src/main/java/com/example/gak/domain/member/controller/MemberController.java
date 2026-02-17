@@ -77,15 +77,34 @@ public class MemberController {
 		);
 	}
 
+	@Operation(summary = "내 이메일 수정 API")
+	@PatchMapping("/me/email")
+	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateEmail(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@Valid @RequestBody(required = false) MemberRequestDTO.UpdateMemberEmailRequestDTO request
+	) {
+		return ApiResponse.onSuccess(
+			memberCommandService.updateEmail(oAuth2User.getMemberId(), request)
+		);
+	}
+
 	@Operation(summary = "내 관심 카테고리 수정 API")
 	@PatchMapping("/me/interest-categories")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateInterestCategories(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@RequestBody MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
+		@RequestBody(required = false) MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
 	) {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateInterestCategories(oAuth2User.getMemberId(), request)
 		);
+	}
+
+	@Operation(summary = "내 프로필 이미지 삭제 API")
+	@DeleteMapping("/me/profile-image")
+	public ApiResponse<Void> deleteProfileImage(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+		memberCommandService.deleteProfileImage(oAuth2User.getMemberId());
+
+		return ApiResponse.onSuccess(null);
 	}
 
 	@Operation(summary = "회원 탈퇴 API")

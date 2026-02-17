@@ -91,20 +91,18 @@ public class MemberCommandService {
 	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile newProfileImage) {
 		Member member = getMember(memberId);
 
-		if (newProfileImage == null) {
-			return MemberConverter.toUpdateMemberResponseDTO(member);
-		}
+		if (newProfileImage != null) {
+			String newProfileImageUrl = amazonS3Manager.uploadFile(
+				amazonS3Manager.generateProfileKeyName(),
+				newProfileImage
+			);
 
-		String newProfileImageUrl = amazonS3Manager.uploadFile(
-			amazonS3Manager.generateProfileKeyName(),
-			newProfileImage
-		);
-
-		String profileImageUrl = member.getProfileImageUrl();
-		if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-			amazonS3Manager.deleteFile(profileImageUrl);
+			String profileImageUrl = member.getProfileImageUrl();
+			if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+				amazonS3Manager.deleteFile(profileImageUrl);
+			}
+			member.updateProfileImageUrl(newProfileImageUrl);
 		}
-		member.updateProfileImageUrl(newProfileImageUrl);
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
@@ -119,18 +117,46 @@ public class MemberCommandService {
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
 
+	public MemberResponseDTO.UpdateMemberResponseDTO updateEmail(
+		Long memberId,
+		MemberRequestDTO.UpdateMemberEmailRequestDTO request
+	) {
+		Member member = getMember(memberId);
+
+		if (request != null) {
+			member.updateEmail(request.getEmail());
+		}
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
 	public MemberResponseDTO.UpdateMemberResponseDTO updateInterestCategories(
 		Long memberId,
 		MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
 	) {
 		Member member = getMember(memberId);
-		member.updateInterestCategories(
-			request.getFirstInterestCategory(),
-			request.getSecondInterestCategory(),
-			request.getThirdInterestCategory()
-		);
+
+		if (request != null) {
+			member.updateInterestCategories(
+				request.getFirstInterestCategory(),
+				request.getSecondInterestCategory(),
+				request.getThirdInterestCategory()
+			);
+		}
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
+	public void deleteProfileImage(Long memberId) {
+		Member member = getMember(memberId);
+
+		String profileImageUrl = member.getProfileImageUrl();
+		if (profileImageUrl == null || profileImageUrl.isEmpty()) {
+			return;
+		}
+
+		amazonS3Manager.deleteFile(profileImageUrl);
+		member.deleteProfileImageUrl();
 	}
 
 	public void deleteMember(Long memberId) {
