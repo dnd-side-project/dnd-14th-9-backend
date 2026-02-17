@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.gak.domain.task.dto.SubTaskRequestDTO;
+import com.example.gak.domain.task.dto.TaskRequestDTO;
 import com.example.gak.domain.task.service.TaskCommandService;
 import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
@@ -16,32 +16,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "TODO API")
+@Tag(name = "목표 API")
 @RestController
-@RequestMapping("/api/v1/subtasks")
+@RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor
-public class SubTaskController {
+public class TaskController {
 
 	private final TaskCommandService taskCommandService;
 
-	@Operation(summary = "TODO 완료 상태 토글 API")
-	@PatchMapping("/{subTaskId}/completion")
-	public ApiResponse<Void> toggleSubTaskCompletion(
+	@Operation(summary = "목표 수정 API")
+	@PatchMapping("/{taskId}")
+	public ApiResponse<Void> updateTask(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@PathVariable Long subTaskId
+		@PathVariable Long taskId,
+		@RequestBody TaskRequestDTO.UpdateTaskDTO request
 	) {
-		taskCommandService.toggleSubTaskCompletion(subTaskId, oAuth2User.getMemberId());
-		return ApiResponse.onSuccess(null);
-	}
-
-	@Operation(summary = "TODO 수정 API")
-	@PatchMapping("/{subTaskId}")
-	public ApiResponse<Void> updateSubTask(
-		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@PathVariable Long subTaskId,
-		@RequestBody SubTaskRequestDTO.UpdateSubTaskDTO request
-	) {
-		taskCommandService.updateSubtask(subTaskId, oAuth2User.getMemberId(), request);
+		taskCommandService.updateTask(taskId, oAuth2User.getMemberId(), request);
 		return ApiResponse.onSuccess(null);
 	}
 }

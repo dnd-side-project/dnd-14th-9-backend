@@ -72,4 +72,8 @@ public class Task extends BaseEntity {
 		this.sessionRoom = sessionRoom;
 		this.member = member;
 	}
+
+	public void updateGoal(String goal) {
+		this.goal = goal;
+	}
 }
