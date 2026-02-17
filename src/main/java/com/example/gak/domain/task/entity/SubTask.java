@@ -45,4 +45,8 @@ public class SubTask extends BaseEntity {
 	public void toggleCompletion() {
 		this.isCompleted = !this.isCompleted;
 	}
+
+	public void updateSubTaskTitle(String subTaskTitle) {
+		this.subTaskTitle = subTaskTitle;
+	}
 }
