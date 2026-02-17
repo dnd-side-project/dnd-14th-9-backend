@@ -1,5 +1,6 @@
 package com.example.gak.domain.member.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,7 @@ import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,10 +57,13 @@ public class MemberController {
 	}
 
 	@Operation(summary = "내 프로필 이미지 수정 API")
-	@PatchMapping("/me/profile-image")
+	@PatchMapping(
+		value = "/me/profile-image",
+		consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+	)
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateProfileImage(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED) @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+		@Parameter(description = "회원 프로필 이미지 파일") @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
 	) {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateProfileImage(oAuth2User.getMemberId(), profileImage)

@@ -5,11 +5,13 @@ import java.util.List;
 
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 public class SessionResponseDTO {
 
+	@Schema(name = "세션 단건 응답")
 	@Builder
 	@Getter
 	public static class SessionCardResponseDTO {
@@ -25,6 +27,7 @@ public class SessionResponseDTO {
 		private String imageUrl;
 	}
 
+	@Schema(name = "세션 목록 조회 응답")
 	@Builder
 	@Getter
 	public static class SessionCardResponseListDTO {
@@ -36,12 +39,14 @@ public class SessionResponseDTO {
 		private List<SessionCardResponseDTO> sessions;
 	}
 
+	@Schema(name = "세션 생성 응답")
 	@Builder
 	@Getter
 	public static class CreateSessionResponseDTO {
 		Long createdSessionId;
 	}
 
+	@Schema(name = "세션 상세 조회 응답")
 	@Builder
 	@Getter
 	public static class SessionDetailResponseDTO {
@@ -59,6 +64,7 @@ public class SessionResponseDTO {
 		private String notice;
 	}
 
+	@Schema(name = "세션 참여 응답")
 	@Builder
 	@Getter
 	public static class joinSessionResponseDTO {
@@ -69,6 +75,7 @@ public class SessionResponseDTO {
 		private SessionParticipantRole role;
 	}
 
+	@Schema(name = "TODO 단건 응답")
 	@Builder
 	@Getter
 	public static class todoResponseDTO {
