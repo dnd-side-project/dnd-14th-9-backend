@@ -36,7 +36,7 @@ public class SubTaskController {
 
 	@Operation(summary = "TODO 수정 API")
 	@PatchMapping("/{subTaskId}")
-	public ApiResponse<Void> modifySubtask(
+	public ApiResponse<Void> updateSubTask(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
 		@PathVariable Long subTaskId,
 		@RequestBody SubTaskRequestDTO.UpdateSubTaskDTO request

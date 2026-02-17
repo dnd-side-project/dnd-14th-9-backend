@@ -26,7 +26,7 @@ public class TaskController {
 
 	@Operation(summary = "목표 수정 API")
 	@PatchMapping("/{taskId}")
-	public ApiResponse<Void> modifySubtask(
+	public ApiResponse<Void> updateTask(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
 		@PathVariable Long taskId,
 		@RequestBody TaskRequestDTO.UpdateTaskDTO request
