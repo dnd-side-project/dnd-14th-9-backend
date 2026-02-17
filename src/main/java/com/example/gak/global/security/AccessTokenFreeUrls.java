@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AccessTokenFreeUrls {
 
-    public static final String[] PATHS = {
-            "/api/v1/auth/refresh",
-            "/health",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/api/v1/sessions",
-            "/api/v1/sessions/{sessionId}",
-    };
+	public static final String[] PATHS = {
+		"/api/v1/auth/refresh",
+		"/health",
+		"/swagger-ui/**",
+		"/v3/api-docs/**",
+		"/api/v1/sessions",
+		"/api/v1/sessions/{sessionId:\\d+}"
+	};
 }
