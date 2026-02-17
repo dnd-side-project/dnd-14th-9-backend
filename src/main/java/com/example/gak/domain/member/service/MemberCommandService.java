@@ -150,6 +150,12 @@ public class MemberCommandService {
 	public void deleteProfileImage(Long memberId) {
 		Member member = getMember(memberId);
 
+		String profileImageUrl = member.getProfileImageUrl();
+		if (profileImageUrl == null || profileImageUrl.isEmpty()) {
+			return;
+		}
+
+		amazonS3Manager.deleteFile(profileImageUrl);
 		member.deleteProfileImageUrl();
 	}
 
