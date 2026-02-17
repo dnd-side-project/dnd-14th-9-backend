@@ -91,20 +91,18 @@ public class MemberCommandService {
 	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile newProfileImage) {
 		Member member = getMember(memberId);
 
-		if (newProfileImage == null) {
-			return MemberConverter.toUpdateMemberResponseDTO(member);
-		}
+		if (newProfileImage != null) {
+			String newProfileImageUrl = amazonS3Manager.uploadFile(
+				amazonS3Manager.generateProfileKeyName(),
+				newProfileImage
+			);
 
-		String newProfileImageUrl = amazonS3Manager.uploadFile(
-			amazonS3Manager.generateProfileKeyName(),
-			newProfileImage
-		);
-
-		String profileImageUrl = member.getProfileImageUrl();
-		if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-			amazonS3Manager.deleteFile(profileImageUrl);
+			String profileImageUrl = member.getProfileImageUrl();
+			if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+				amazonS3Manager.deleteFile(profileImageUrl);
+			}
+			member.updateProfileImageUrl(newProfileImageUrl);
 		}
-		member.updateProfileImageUrl(newProfileImageUrl);
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
@@ -125,11 +123,9 @@ public class MemberCommandService {
 	) {
 		Member member = getMember(memberId);
 
-		if (request == null) {
-			return MemberConverter.toUpdateMemberResponseDTO(member);
+		if (request != null) {
+			member.updateEmail(request.getEmail());
 		}
-
-		member.updateEmail(request.getEmail());
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
@@ -140,15 +136,13 @@ public class MemberCommandService {
 	) {
 		Member member = getMember(memberId);
 
-		if (request == null) {
-			return MemberConverter.toUpdateMemberResponseDTO(member);
+		if (request != null) {
+			member.updateInterestCategories(
+				request.getFirstInterestCategory(),
+				request.getSecondInterestCategory(),
+				request.getThirdInterestCategory()
+			);
 		}
-
-		member.updateInterestCategories(
-			request.getFirstInterestCategory(),
-			request.getSecondInterestCategory(),
-			request.getThirdInterestCategory()
-		);
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
