@@ -139,6 +139,11 @@ public class MemberCommandService {
 		MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
 	) {
 		Member member = getMember(memberId);
+
+		if (request == null) {
+			return MemberConverter.toUpdateMemberResponseDTO(member);
+		}
+
 		member.updateInterestCategories(
 			request.getFirstInterestCategory(),
 			request.getSecondInterestCategory(),

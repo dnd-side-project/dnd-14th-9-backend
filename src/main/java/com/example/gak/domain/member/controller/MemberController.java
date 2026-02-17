@@ -92,7 +92,7 @@ public class MemberController {
 	@PatchMapping("/me/interest-categories")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateInterestCategories(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@RequestBody MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
+		@RequestBody(required = false) MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
 	) {
 		return ApiResponse.onSuccess(
 			memberCommandService.updateInterestCategories(oAuth2User.getMemberId(), request)
