@@ -105,6 +105,10 @@ public class Member extends BaseEntity {
 		this.thirdInterestCategory = thirdInterestCategory;
 	}
 
+	public void deleteProfileImageUrl() {
+		this.profileImageUrl = null;
+	}
+
 	public void delete() {
 		this.deleted = true;
 	}
