@@ -89,8 +89,8 @@ public class SessionController {
 	@PostMapping(path = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ApiResponse<SessionResponseDTO.CreateSessionResponseDTO> createSession(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@RequestPart("request") @Valid SessionRequestDTO.CreateSessionRequestDTO request,
-		@RequestPart(value = "image", required = false) MultipartFile image
+		@Parameter(description = "세션 생성 요청(JSON)") @RequestPart("request") @Valid SessionRequestDTO.CreateSessionRequestDTO request,
+		@Parameter(description = "세션 썸네일 이미지 파일") @RequestPart(value = "image", required = false) MultipartFile image
 	) {
 		Long memberId = oAuth2User.getMemberId();
 		SessionRoom sessionRoom = sessionCommandService.createSession(request, image, memberId);
