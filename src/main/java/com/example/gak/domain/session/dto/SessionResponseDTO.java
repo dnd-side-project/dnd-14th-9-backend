@@ -90,4 +90,25 @@ public class SessionResponseDTO {
 		private String goal;
 		private List<todoResponseDTO> todos;
 	}
+
+	@Schema(name = "세션 대기방 참여자 목록 단일 응답")
+	@Builder
+	@Getter
+	public static class WaitingMemberResponseDTO {
+		private String nickname;
+		private Long memberId;
+		private String profileImageUrl;
+		private Integer focusRate;
+		private Integer achievementRate;
+		private SessionParticipantRole role;
+		private taskResponseDTO task;
+	}
+
+	@Schema(name = "세션 대기방 참여자 목록 응답")
+	@Builder
+	@Getter
+	public static class WaitingResponseDTO {
+		private Integer participantCount;
+		private List<WaitingMemberResponseDTO> members;
+	}
 }

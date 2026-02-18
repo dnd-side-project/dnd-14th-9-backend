@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.example.gak.domain.member.entity.Member;
+import com.example.gak.domain.record.entity.Record;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
@@ -100,6 +101,33 @@ public class SessionConverter {
 			.goal(task.getGoal())
 			.taskId(task.getId())
 			.todos(todos)
+			.build();
+	}
+
+	public static SessionResponseDTO.WaitingMemberResponseDTO toWaitingMemberResponseDTO(
+		Member member,
+		SessionRoomMember sessionRoomMember,
+		SessionResponseDTO.taskResponseDTO task,
+		Record record
+	) {
+		return SessionResponseDTO.WaitingMemberResponseDTO.builder()
+			.nickname(member.getNickname())
+			.memberId(member.getId())
+			.profileImageUrl(member.getProfileImageUrl())
+			.achievementRate(record.getTodoCompletionRate())
+			.focusRate(record.getFocusRate())
+			.role(sessionRoomMember.getRole())
+			.task(task)
+			.build();
+	}
+
+	public static SessionResponseDTO.WaitingResponseDTO toWaitingResponseDTO(
+		int participantCount,
+		List<SessionResponseDTO.WaitingMemberResponseDTO> members
+	) {
+		return SessionResponseDTO.WaitingResponseDTO.builder()
+			.participantCount(participantCount)
+			.members(members)
 			.build();
 	}
 }

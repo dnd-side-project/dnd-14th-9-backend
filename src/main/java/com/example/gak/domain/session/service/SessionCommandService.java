@@ -28,6 +28,7 @@ import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
+import com.example.gak.global.redis.RedisPublisher;
 import com.example.gak.global.validator.ImageFileValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,8 @@ public class SessionCommandService {
 
 	private final AmazonS3Manager amazonS3Manager;
 	private final ImageFileValidator imageFileValidator;
+
+	private final RedisPublisher redisPublisher;
 
 	public SessionRoom createSession(
 		SessionRequestDTO.CreateSessionRequestDTO request,
@@ -105,6 +108,8 @@ public class SessionCommandService {
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
 		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
 
+		redisPublisher.waitingRoomPublish(sessionId);
+
 		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, taskResponseDTO);
 	}
 
@@ -124,6 +129,8 @@ public class SessionCommandService {
 		if (updated == 0) {
 			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
 		}
+
+		redisPublisher.waitingRoomPublish(sessionId);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
