@@ -70,8 +70,7 @@ public class SessionResponseDTO {
 	public static class joinSessionResponseDTO {
 		private Long sessionId;
 		private Long memberId;
-		private String goal;
-		private List<todoResponseDTO> todos;
+		private taskResponseDTO task;
 		private SessionParticipantRole role;
 	}
 
@@ -81,5 +80,14 @@ public class SessionResponseDTO {
 	public static class todoResponseDTO {
 		private Long subtaskId;
 		private String content;
+	}
+
+	@Schema(name = "세션 목표,TODO 응답")
+	@Builder
+	@Getter
+	public static class taskResponseDTO {
+		private Long taskId;
+		private String goal;
+		private List<todoResponseDTO> todos;
 	}
 }

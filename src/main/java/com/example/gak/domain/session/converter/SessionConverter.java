@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.example.gak.domain.member.entity.Member;
-import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 import com.example.gak.domain.task.entity.SubTask;
+import com.example.gak.domain.task.entity.Task;
 
 public class SessionConverter {
 
@@ -73,15 +73,13 @@ public class SessionConverter {
 		SessionRoomMember sessionRoomMember,
 		Member member,
 		SessionRoom sessionRoom,
-		SessionRequestDTO.SessionJoinRequestDTO request,
-		List<SessionResponseDTO.todoResponseDTO> todos
+		SessionResponseDTO.taskResponseDTO task
 	) {
 		return SessionResponseDTO.joinSessionResponseDTO.builder()
 			.memberId(member.getId())
 			.sessionId(sessionRoom.getId())
 			.role(sessionRoomMember.getRole())
-			.goal(request.getGoal())
-			.todos(todos)
+			.task(task)
 			.build();
 	}
 
@@ -91,6 +89,17 @@ public class SessionConverter {
 		return SessionResponseDTO.todoResponseDTO.builder()
 			.subtaskId(subTask.getId())
 			.content(subTask.getSubTaskTitle())
+			.build();
+	}
+
+	public static SessionResponseDTO.taskResponseDTO toTaskResponseDTO(
+		List<SessionResponseDTO.todoResponseDTO> todos,
+		Task task
+	) {
+		return SessionResponseDTO.taskResponseDTO.builder()
+			.goal(task.getGoal())
+			.taskId(task.getId())
+			.todos(todos)
 			.build();
 	}
 }

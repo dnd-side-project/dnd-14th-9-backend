@@ -103,14 +103,9 @@ public class SessionCommandService {
 		increaseCountOrThrow(targetSessionRoom);
 		SessionParticipantRole role = determineRole(member, targetSessionRoom);
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
-		List<SubTask> todos = saveGoalTask(targetSessionRoom, member, request);
+		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
 
-		List<SessionResponseDTO.todoResponseDTO> list = new ArrayList<>();
-		for (SubTask s : todos) {
-			list.add(toTodoResponseDTO(s));
-		}
-
-		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, request, list);
+		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, taskResponseDTO);
 	}
 
 	public void leaveSession(Long sessionId, Long memberId) {
@@ -131,7 +126,7 @@ public class SessionCommandService {
 		}
 	}
 
-	private List<SubTask> saveGoalTask(SessionRoom sessionRoom, Member member,
+	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
 		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);
 		taskRepository.save(newTask);
@@ -140,7 +135,15 @@ public class SessionCommandService {
 			.map(todo -> new SubTask(todo, newTask))
 			.toList();
 
-		return subTaskRepository.saveAll(subTasks);
+		subTaskRepository.saveAll(subTasks);
+		subTaskRepository.flush();
+
+		List<SessionResponseDTO.todoResponseDTO> list = new ArrayList<>();
+		for (SubTask s : subTasks) {
+			list.add(toTodoResponseDTO(s));
+		}
+
+		return toTaskResponseDTO(list, newTask);
 	}
 
 	private void increaseCountOrThrow(SessionRoom targetSessionRoom) {
