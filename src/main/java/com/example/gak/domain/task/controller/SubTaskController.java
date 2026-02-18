@@ -1,6 +1,7 @@
 package com.example.gak.domain.task.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +43,16 @@ public class SubTaskController {
 		@RequestBody SubTaskRequestDTO.UpdateSubTaskDTO request
 	) {
 		taskCommandService.updateSubtask(subTaskId, oAuth2User.getMemberId(), request);
+		return ApiResponse.onSuccess(null);
+	}
+
+	@Operation(summary = "TODO 삭제 API")
+	@DeleteMapping("/{subTaskId}")
+	public ApiResponse<Void> updateSubTask(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@PathVariable Long subTaskId
+	) {
+		taskCommandService.deleteSubtask(subTaskId, oAuth2User.getMemberId());
 		return ApiResponse.onSuccess(null);
 	}
 }
