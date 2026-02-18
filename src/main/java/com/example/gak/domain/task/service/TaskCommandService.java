@@ -76,4 +76,22 @@ public class TaskCommandService {
 
 		task.updateGoal(request.getGoalContent());
 	}
+
+	public void deleteSubtask(
+		Long subtaskId,
+		Long memberId
+	) {
+		SubTask subTask = subTaskRepository.findById(subtaskId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SUBTASK_NOT_FOUND));
+
+		if (!subTask.getTask().getMember().getId().equals(memberId)) {
+			throw new GeneralException(GeneralErrorCode.SUBTASK_ACCESS_DENIED);
+		}
+
+		if (subTask.getTask().getSessionRoom().getStatus() != SessionRoomStatus.WAITING) {
+			throw new GeneralException(GeneralErrorCode.SUBTASK_UPDATE_NOT_ALLOWED);
+		}
+		
+		subTaskRepository.delete(subTask);
+	}
 }
