@@ -72,4 +72,12 @@ public class SessionRoomMember extends BaseEntity {
 	public void markAsAbnormalExit() {
 		this.isAbnormalExit = true;
 	}
+
+	public void toggleStatus() {
+		if (this.status == SessionParticipantStatus.FOCUSED) {
+			this.status = SessionParticipantStatus.REST;
+		} else {
+			this.status = SessionParticipantStatus.FOCUSED;
+		}
+	}
 }
