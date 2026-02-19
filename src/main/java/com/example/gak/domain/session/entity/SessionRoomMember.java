@@ -3,6 +3,7 @@ package com.example.gak.domain.session.entity;
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
+import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,6 +43,10 @@ public class SessionRoomMember extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private SessionParticipantRole role;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private SessionParticipantStatus status = SessionParticipantStatus.FOCUSED;
 
 	private boolean isAbnormalExit;
 
