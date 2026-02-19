@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Set;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -47,7 +46,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String accessToken = jwtProvider.createAccessToken(memberId, now);
 		String refreshToken = jwtProvider.createRefreshToken(memberId, now);
 
-		String baseUrl = resolveRedirectBase(request);
+		String origin = (String)request.getSession().getAttribute("CLIENT_ORIGIN");
+		String baseUrl = (origin != null && ALLOWED_ORIGINS.contains(origin))
+			? origin
+			: "http://localhost:3000";
 		String redirectUrl = UriComponentsBuilder
 			.fromUriString(baseUrl + "/api/auth/callback/" + registrationId)
 			.queryParam("accessToken", accessToken)
@@ -66,23 +68,5 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			AuthCookieProvider.createRefreshTokenCookie(refreshToken).toString()
 		);*/
 		response.sendRedirect(redirectUrl);
-	}
-
-	private String resolveRedirectBase(HttpServletRequest request) {
-		String origin = request.getHeader(HttpHeaders.ORIGIN);
-		if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
-			return origin;
-		}
-
-		String referer = request.getHeader(HttpHeaders.REFERER);
-		if (referer != null) {
-			for (String allowed : ALLOWED_ORIGINS) {
-				if (referer.startsWith(allowed)) {
-					return allowed;
-				}
-			}
-		}
-
-		return "http://localhost:3000";
 	}
 }
