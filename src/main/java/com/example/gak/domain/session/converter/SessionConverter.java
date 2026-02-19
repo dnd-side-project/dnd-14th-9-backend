@@ -130,4 +130,12 @@ public class SessionConverter {
 			.members(members)
 			.build();
 	}
+
+	public static SessionResponseDTO.ToggleSessionMemberStatusResponseDTO toToggleSessionMemberStatusResponseDTO(
+		SessionRoomMember sessionRoomMember
+	) {
+		return SessionResponseDTO.ToggleSessionMemberStatusResponseDTO.builder()
+			.currentStatus(sessionRoomMember.getStatus())
+			.build();
+	}
 }

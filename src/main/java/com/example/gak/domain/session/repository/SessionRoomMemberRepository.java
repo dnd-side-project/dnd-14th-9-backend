@@ -1,12 +1,14 @@
 package com.example.gak.domain.session.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 
@@ -28,4 +30,8 @@ public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMe
 	);
 
 	List<SessionRoomMember> findBySessionRoom(SessionRoom sessionRoom);
+
+	Optional<SessionRoomMember> findByMemberIdAndSessionRoomId(Long memberId, Long sessionId);
+
+	Long member(Member member);
 }

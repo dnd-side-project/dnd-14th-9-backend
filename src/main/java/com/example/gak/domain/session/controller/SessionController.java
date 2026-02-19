@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -129,9 +130,19 @@ public class SessionController {
 
 	@Operation(summary = "[대기방] 세션 진입 초기 참여자 목록 조회")
 	@GetMapping("/{sessionId}/waiting-room")
-	public SessionResponseDTO.WaitingResponseDTO getWaitingRoomMembers(
+	public ApiResponse<SessionResponseDTO.WaitingResponseDTO> getWaitingRoomMembers(
 		@PathVariable Long sessionId
 	) {
-		return sessionQueryService.getCurrentWaitingRoom(sessionId);
+		return ApiResponse.onSuccess(sessionQueryService.getCurrentWaitingRoom(sessionId));
+	}
+
+	@Operation(summary = "세션 진행 중 참여자 상태 (집중/자리비움) 토글")
+	@PatchMapping("/{sessionId}/me/status")
+	public ApiResponse<SessionResponseDTO.ToggleSessionMemberStatusResponseDTO> toggleParticipantStatus(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		return ApiResponse.onSuccess(
+			sessionCommandService.toggleSessionRoomMemberStatus(sessionId, oAuth2User.getMemberId()));
 	}
 }

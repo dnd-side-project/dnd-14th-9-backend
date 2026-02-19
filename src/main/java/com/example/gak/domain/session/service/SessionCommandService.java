@@ -133,6 +133,20 @@ public class SessionCommandService {
 		redisPublisher.waitingRoomPublish(sessionId);
 	}
 
+	public SessionResponseDTO.ToggleSessionMemberStatusResponseDTO toggleSessionRoomMemberStatus(Long sessionId,
+		Long memberId) {
+		SessionRoomMember sessionRoomMember = sessionRoomMemberRepository.findByMemberIdAndSessionRoomId(memberId,
+				sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		if (sessionRoomMember.getSessionRoom().getStatus() != SessionRoomStatus.IN_PROGRESS) {
+			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
+		}
+
+		sessionRoomMember.toggleStatus();
+		return toToggleSessionMemberStatusResponseDTO(sessionRoomMember);
+	}
+
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
 		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);
