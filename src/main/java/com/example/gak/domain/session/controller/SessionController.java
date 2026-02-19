@@ -130,10 +130,10 @@ public class SessionController {
 
 	@Operation(summary = "[대기방] 세션 진입 초기 참여자 목록 조회")
 	@GetMapping("/{sessionId}/waiting-room")
-	public SessionResponseDTO.WaitingResponseDTO getWaitingRoomMembers(
+	public ApiResponse<SessionResponseDTO.WaitingResponseDTO> getWaitingRoomMembers(
 		@PathVariable Long sessionId
 	) {
-		return sessionQueryService.getCurrentWaitingRoom(sessionId);
+		return ApiResponse.onSuccess(sessionQueryService.getCurrentWaitingRoom(sessionId));
 	}
 
 	@Operation(summary = "세션 진행 중 참여자 상태 (집중/자리비움) 토글")
