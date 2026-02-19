@@ -13,14 +13,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.gak.domain.common.entity.enums.SessionCategory;
+import com.example.gak.domain.member.entity.Member;
+import com.example.gak.domain.record.entity.Record;
+import com.example.gak.domain.record.repository.RecordRepository;
 import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
+import com.example.gak.domain.session.entity.SessionRoomMember;
 import com.example.gak.domain.session.enums.DurationRange;
 import com.example.gak.domain.session.enums.SessionSort;
 import com.example.gak.domain.session.enums.TimeSlot;
+import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.session.repository.SessionSpecification;
+import com.example.gak.domain.task.entity.Task;
+import com.example.gak.domain.task.repository.TaskRepository;
+import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +39,9 @@ import lombok.RequiredArgsConstructor;
 public class SessionQueryService {
 
 	private final SessionRoomRepository sessionRoomRepository;
+	private final SessionRoomMemberRepository sessionRoomMemberRepository;
+	private final RecordRepository recordRepository;
+	private final TaskRepository taskRepository;
 
 	public SessionResponseDTO.SessionCardResponseListDTO getSessions(
 		String keyword,
@@ -88,5 +99,49 @@ public class SessionQueryService {
 			case DEADLINE_APPROACHING -> Sort.by(Sort.Direction.ASC, "startTime");
 			default -> Sort.by(Sort.Direction.DESC, "createdAt");
 		};
+	}
+
+	public SessionResponseDTO.WaitingResponseDTO getCurrentWaitingRoom(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		List<SessionResponseDTO.WaitingMemberResponseDTO> members =
+			sessionRoomMemberRepository.findBySessionRoom(sessionRoom)
+				.stream()
+				.map(srm -> toWaitingMember(sessionId, srm))
+				.toList();
+
+		return SessionConverter.toWaitingResponseDTO(
+			members.size(),
+			members
+		);
+	}
+
+	private SessionResponseDTO.WaitingMemberResponseDTO toWaitingMember(
+		Long sessionId,
+		SessionRoomMember srm
+	) {
+		Member member = srm.getMember();
+
+		Record record = recordRepository.findByMember(member);
+
+		Task task = taskRepository
+			.findBySessionRoomIdAndMemberId(sessionId, member.getId())
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		List<SessionResponseDTO.todoResponseDTO> todos =
+			task.getSubTasks().stream()
+				.map(SessionConverter::toTodoResponseDTO)
+				.toList();
+
+		SessionResponseDTO.taskResponseDTO taskDTO =
+			SessionConverter.toTaskResponseDTO(todos, task);
+
+		return SessionConverter.toWaitingMemberResponseDTO(
+			member,
+			srm,
+			taskDTO,
+			record
+		);
 	}
 }
