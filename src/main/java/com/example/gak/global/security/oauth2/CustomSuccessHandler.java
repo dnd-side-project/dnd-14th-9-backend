@@ -1,15 +1,15 @@
 package com.example.gak.global.security.oauth2;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Set;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.gak.global.security.jwt.JwtProvider;
 import com.example.gak.global.security.jwt.JwtService;
@@ -21,6 +21,11 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+	private static final Set<String> ALLOWED_ORIGINS = Set.of(
+		"http://localhost:3000",
+		"https://gak.today"
+	);
 
 	private final JwtProvider jwtProvider;
 	private final JwtService jwtService;
@@ -41,12 +46,16 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String accessToken = jwtProvider.createAccessToken(memberId, now);
 		String refreshToken = jwtProvider.createRefreshToken(memberId, now);
 
-		String redirectUrl = String.format(
-			"http://localhost:3000/api/auth/callback/%s?accessToken=%s&refreshToken=%s",
-			registrationId,
-			URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
-			URLEncoder.encode(refreshToken, StandardCharsets.UTF_8)
-		);
+		String origin = (String)request.getSession().getAttribute("CLIENT_ORIGIN");
+		String baseUrl = (origin != null && ALLOWED_ORIGINS.contains(origin))
+			? origin
+			: "http://localhost:3000";
+		String redirectUrl = UriComponentsBuilder
+			.fromUriString(baseUrl + "/api/auth/callback/" + registrationId)
+			.queryParam("accessToken", accessToken)
+			.queryParam("refreshToken", refreshToken)
+			.build()
+			.toUriString();
 
 		jwtService.saveRefreshToken(memberId, refreshToken, now);
 

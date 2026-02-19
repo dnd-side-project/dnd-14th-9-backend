@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.gak.global.security.oauth2.CustomAuthorizationRequestResolver;
 import com.example.gak.global.security.oauth2.CustomFailureHandler;
 import com.example.gak.global.security.oauth2.CustomOAuth2UserService;
 import com.example.gak.global.security.oauth2.CustomOidcUserService;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 	private final CustomSuccessHandler successHandler;
 	private final CustomFailureHandler failureHandler;
 	private final JwtAuthFilter jwtAuthFilter;
+	private final CustomAuthorizationRequestResolver authorizationRequestResolver;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,6 +41,8 @@ public class SecurityConfig {
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.oauth2Login(oauth2 -> oauth2
+				.authorizationEndpoint(endpoint -> endpoint
+					.authorizationRequestResolver(authorizationRequestResolver))
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(oAuth2UserService)
 					.oidcUserService(oidcUserService))
@@ -59,7 +63,7 @@ public class SecurityConfig {
 		configuration.setAllowedOrigins(List.of(
 			"https://localhost:3000",
 			"http://localhost:3000",
-			"https://api.gak.today"
+			"https://gak.today"
 		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
