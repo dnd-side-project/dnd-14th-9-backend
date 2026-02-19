@@ -119,4 +119,45 @@ public class SessionResponseDTO {
 	public static class ToggleSessionMemberStatusResponseDTO {
 		private SessionParticipantStatus currentStatus;
 	}
+
+	@Schema(name = "세션 진행 중 참여자 목록 응답")
+	@Builder
+	@Getter
+	public static class InProgressResponseDTO {
+		private Integer participantCount;
+		private Integer averageAchievementRate;
+		private List<InProgressMemberResponseDTO> members;
+	}
+
+	@Schema(name = "세션 진행 중 참여자 목록 단일 응답")
+	@Builder
+	@Getter
+	public static class InProgressMemberResponseDTO {
+		private String nickname;
+		private Long memberId;
+		private String profileImageUrl;
+		private SessionParticipantRole role;
+		private Integer achievementRate;
+		private SessionParticipantStatus status;
+
+		private SessionTaskResponseDTO task;
+	}
+
+	@Schema(name = "세션 목표,TODO 응답 - 세션 진행중")
+	@Builder
+	@Getter
+	public static class SessionTaskResponseDTO {
+		private Long taskId;
+		private String goal;
+		private List<SessionTodoResponseDTO> todos;
+	}
+
+	@Schema(name = "TODO 단건 응답 - 세션 진행중")
+	@Builder
+	@Getter
+	public static class SessionTodoResponseDTO {
+		private Long subtaskId;
+		private String content;
+		private Boolean isCompleted;
+	}
 }

@@ -144,4 +144,61 @@ public class SessionQueryService {
 			record
 		);
 	}
+
+	public SessionResponseDTO.InProgressResponseDTO getCurrentSessionRoom(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		List<SessionResponseDTO.InProgressMemberResponseDTO> members =
+			sessionRoomMemberRepository.findBySessionRoom(sessionRoom)
+				.stream()
+				.map(srm -> toSessionMember(sessionId, srm))
+				.toList();
+
+		int averageAchievementRate = members.isEmpty()
+			? 0
+			: (int)members.stream()
+			.mapToInt(SessionResponseDTO.InProgressMemberResponseDTO::getAchievementRate)
+			.average()
+			.orElse(0);
+
+		return SessionConverter.toInProgressResponseDTO(
+			members.size(),
+			averageAchievementRate,
+			members
+		);
+	}
+
+	private SessionResponseDTO.InProgressMemberResponseDTO toSessionMember(
+		Long sessionId,
+		SessionRoomMember srm
+	) {
+		Member member = srm.getMember();
+
+		Task task = taskRepository
+			.findBySessionRoomIdAndMemberId(sessionId, member.getId())
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		List<SessionResponseDTO.SessionTodoResponseDTO> todos =
+			task.getSubTasks().stream()
+				.map(SessionConverter::toSessionTodoResponseDTO)
+				.toList();
+
+		int total = todos.size();
+		int completed = (int)todos.stream()
+			.filter(SessionResponseDTO.SessionTodoResponseDTO::getIsCompleted)
+			.count();
+
+		Integer achievementRate = (total == 0) ? 0 : (int)((completed * 100.0) / total);
+
+		SessionResponseDTO.SessionTaskResponseDTO taskDTO =
+			SessionConverter.toSessionTaskResponseDTO(task, todos);
+
+		return SessionConverter.toInProgressMemberResponseDTO(
+			member,
+			srm,
+			taskDTO,
+			achievementRate
+		);
+	}
 }
