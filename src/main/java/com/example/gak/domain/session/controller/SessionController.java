@@ -126,4 +126,12 @@ public class SessionController {
 		sessionCommandService.leaveSession(sessionId, oAuth2User.getMemberId());
 		return ApiResponse.onSuccess(null);
 	}
+
+	@Operation(summary = "[대기방] 세션 진입 초기 참여자 목록 조회")
+	@GetMapping("/{sessionId}/waiting-room")
+	public SessionResponseDTO.WaitingResponseDTO getWaitingRoomMembers(
+		@PathVariable Long sessionId
+	) {
+		return sessionQueryService.getCurrentWaitingRoom(sessionId);
+	}
 }

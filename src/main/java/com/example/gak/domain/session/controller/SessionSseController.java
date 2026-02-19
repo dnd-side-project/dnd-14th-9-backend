@@ -24,7 +24,7 @@ public class SessionSseController {
 	private final SessionQueryService sessionQueryService;
 
 	@Operation(summary = "[SSE] 대기방 참여자 목록 조회")
-	@GetMapping(value = "/sse/waiting/{sessionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "/{sessionId}/waiting-room/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter subscribeWaitingRoom(@PathVariable Long sessionId) {
 
 		SseEmitter emitter = sseService.subscribeWaiting(sessionId);
