@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
+import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -110,5 +111,12 @@ public class SessionResponseDTO {
 	public static class WaitingResponseDTO {
 		private Integer participantCount;
 		private List<WaitingMemberResponseDTO> members;
+	}
+
+	@Schema(name = "세션 진행 중 참여자 상태 토글 응답")
+	@Builder
+	@Getter
+	public static class ToggleSessionMemberStatusResponseDTO {
+		private SessionParticipantStatus currentStatus;
 	}
 }
