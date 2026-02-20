@@ -111,6 +111,7 @@ public class Member extends BaseEntity {
 
 	public void delete() {
 		this.deleted = true;
+		this.firstLogin = true;
 	}
 
 	public void activate() {
