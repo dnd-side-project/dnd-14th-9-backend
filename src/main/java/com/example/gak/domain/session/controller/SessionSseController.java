@@ -38,4 +38,20 @@ public class SessionSseController {
 
 		return emitter;
 	}
+
+	@Operation(summary = "[SSE] 세션 진행 중 참여자 목록 조회")
+	@GetMapping(value = "/{sessionId}/in-progress/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeInProgressSession(@PathVariable Long sessionId) {
+
+		SseEmitter emitter = sseService.subscribeInProgress(sessionId);
+
+		try {
+			sseService.sendInProgress(sessionId,
+				sessionQueryService.getCurrentSessionRoom(sessionId));
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
 }
