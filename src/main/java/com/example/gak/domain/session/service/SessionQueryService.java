@@ -155,12 +155,10 @@ public class SessionQueryService {
 				.map(srm -> toSessionMember(sessionId, srm))
 				.toList();
 
-		int averageAchievementRate = members.isEmpty()
-			? 0
-			: (int)members.stream()
+		int averageAchievementRate = (int)members.stream()
 			.mapToInt(SessionResponseDTO.InProgressMemberResponseDTO::getAchievementRate)
 			.average()
-			.orElse(0);
+			.orElse(0.0);
 
 		return SessionConverter.toInProgressResponseDTO(
 			members.size(),
