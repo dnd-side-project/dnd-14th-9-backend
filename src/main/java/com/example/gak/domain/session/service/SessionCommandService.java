@@ -112,11 +112,9 @@ public class SessionCommandService {
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
 		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
 
-		applicationEventPublisher.publishEvent(
-			new WaitingRoomUpdateEvent(sessionId)
-		);
-		applicationEventPublisher.publishEvent(
-			new InProgressRoomUpdateEvent(sessionId)
+		publishSessionRoomUpdateEvent(
+			sessionRoomMember.getSessionRoom().getStatus(),
+			sessionId
 		);
 
 		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, taskResponseDTO);
@@ -134,11 +132,9 @@ public class SessionCommandService {
 		taskRepository.delete(task);
 		taskRepository.flush();
 
-		applicationEventPublisher.publishEvent(
-			new WaitingRoomUpdateEvent(sessionId)
-		);
-		applicationEventPublisher.publishEvent(
-			new InProgressRoomUpdateEvent(sessionId)
+		publishSessionRoomUpdateEvent(
+			task.getSessionRoom().getStatus(),
+			sessionId
 		);
 	}
 
@@ -207,6 +203,18 @@ public class SessionCommandService {
 			return sessionRoomMemberRepository.save(newMember);
 		} catch (DataIntegrityViolationException e) {
 			throw new GeneralException(GeneralErrorCode.SESSION_ALREADY_JOINED);
+		}
+	}
+
+	private void publishSessionRoomUpdateEvent(SessionRoomStatus status, Long sessionId) {
+		if (status == SessionRoomStatus.IN_PROGRESS) {
+			applicationEventPublisher.publishEvent(
+				new InProgressRoomUpdateEvent(sessionId)
+			);
+		} else if (status == SessionRoomStatus.WAITING) {
+			applicationEventPublisher.publishEvent(
+				new WaitingRoomUpdateEvent(sessionId)
+			);
 		}
 	}
 }
