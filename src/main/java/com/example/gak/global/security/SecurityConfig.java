@@ -63,6 +63,7 @@ public class SecurityConfig {
 		configuration.setAllowedOrigins(List.of(
 			"https://localhost:3000",
 			"http://localhost:3000",
+			"https://api.gak.today",
 			"https://gak.today"
 		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
