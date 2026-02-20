@@ -132,6 +132,11 @@ public class SessionCommandService {
 		taskRepository.delete(task);
 		taskRepository.flush();
 
+		int updated = sessionRoomRepository.decreaseCount(sessionId);
+		if (updated == 0) {
+			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
+		}
+
 		publishSessionRoomUpdateEvent(
 			task.getSessionRoom().getStatus(),
 			sessionId
