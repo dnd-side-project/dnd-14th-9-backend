@@ -138,4 +138,54 @@ public class SessionConverter {
 			.currentStatus(sessionRoomMember.getStatus())
 			.build();
 	}
+
+	public static SessionResponseDTO.SessionTodoResponseDTO toSessionTodoResponseDTO(
+		SubTask subTask
+	) {
+		return SessionResponseDTO.SessionTodoResponseDTO.builder()
+			.subtaskId(subTask.getId())
+			.content(subTask.getSubTaskTitle())
+			.isCompleted(subTask.isCompleted())
+			.build();
+	}
+
+	public static SessionResponseDTO.SessionTaskResponseDTO toSessionTaskResponseDTO(
+		Task task,
+		List<SessionResponseDTO.SessionTodoResponseDTO> sessionTodoResponseDTOS
+	) {
+		return SessionResponseDTO.SessionTaskResponseDTO.builder()
+			.taskId(task.getId())
+			.goal(task.getGoal())
+			.todos(sessionTodoResponseDTOS)
+			.build();
+	}
+
+	public static SessionResponseDTO.InProgressMemberResponseDTO toInProgressMemberResponseDTO(
+		Member member,
+		SessionRoomMember sessionRoomMember,
+		SessionResponseDTO.SessionTaskResponseDTO task,
+		Integer achievementRate
+	) {
+		return SessionResponseDTO.InProgressMemberResponseDTO.builder()
+			.memberId(member.getId())
+			.nickname(member.getNickname())
+			.role(sessionRoomMember.getRole())
+			.profileImageUrl(member.getProfileImageUrl())
+			.achievementRate(achievementRate)
+			.status(sessionRoomMember.getStatus())
+			.task(task)
+			.build();
+	}
+
+	public static SessionResponseDTO.InProgressResponseDTO toInProgressResponseDTO(
+		int participantCount,
+		int averageAchievementRate,
+		List<SessionResponseDTO.InProgressMemberResponseDTO> members
+	) {
+		return SessionResponseDTO.InProgressResponseDTO.builder()
+			.participantCount(participantCount)
+			.averageAchievementRate(averageAchievementRate)
+			.members(members)
+			.build();
+	}
 }

@@ -136,6 +136,14 @@ public class SessionController {
 		return ApiResponse.onSuccess(sessionQueryService.getCurrentWaitingRoom(sessionId));
 	}
 
+	@Operation(summary = "[진행중] 세션 진입 시 초기 참여자 목록 조회")
+	@GetMapping("/{sessionId}/in-progress")
+	public ApiResponse<SessionResponseDTO.InProgressResponseDTO> getInProgressSessionMembers(
+		@PathVariable Long sessionId
+	) {
+		return ApiResponse.onSuccess(sessionQueryService.getCurrentSessionRoom(sessionId));
+	}
+
 	@Operation(summary = "세션 진행 중 참여자 상태 (집중/자리비움) 토글")
 	@PatchMapping("/{sessionId}/me/status")
 	public ApiResponse<SessionResponseDTO.ToggleSessionMemberStatusResponseDTO> toggleParticipantStatus(
