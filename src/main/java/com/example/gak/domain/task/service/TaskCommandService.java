@@ -1,5 +1,6 @@
 package com.example.gak.domain.task.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import com.example.gak.domain.task.repository.SubTaskRepository;
 import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
+import com.example.gak.global.redis.InProgressRoomUpdateEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,7 @@ public class TaskCommandService {
 
 	private final SubTaskRepository subTaskRepository;
 	private final TaskRepository taskRepository;
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	public void toggleSubTaskCompletion(Long subTaskId, Long memberId) {
 
@@ -37,6 +40,10 @@ public class TaskCommandService {
 		}
 
 		subTask.toggleCompletion();
+
+		applicationEventPublisher.publishEvent(
+			new InProgressRoomUpdateEvent(subTask.getTask().getSessionRoom().getId())
+		);
 	}
 
 	public void updateSubtask(
@@ -91,7 +98,7 @@ public class TaskCommandService {
 		if (subTask.getTask().getSessionRoom().getStatus() != SessionRoomStatus.WAITING) {
 			throw new GeneralException(GeneralErrorCode.SUBTASK_UPDATE_NOT_ALLOWED);
 		}
-		
+
 		subTaskRepository.delete(subTask);
 	}
 }

@@ -18,6 +18,7 @@ public class RedisConfig {
 
 		container.setConnectionFactory(connectionFactory);
 		container.addMessageListener(redisSubscriber, new PatternTopic("waiting/*"));
+		container.addMessageListener(redisSubscriber, new PatternTopic("in-progress/*"));
 
 		return container;
 	}
