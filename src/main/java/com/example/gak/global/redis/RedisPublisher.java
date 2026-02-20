@@ -17,4 +17,11 @@ public class RedisPublisher {
 		String channel = "waiting/" + sessionId;
 		redisTemplate.convertAndSend(channel, "UPDATE");
 	}
+
+	public void inProgressRoomPublish(
+		Long sessionId
+	) {
+		String channel = "in-progress/" + sessionId;
+		redisTemplate.convertAndSend(channel, "UPDATE");
+	}
 }
