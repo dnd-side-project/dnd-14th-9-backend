@@ -1,5 +1,7 @@
 package com.example.gak.global.security.oauth2;
 
+import java.net.URI;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
@@ -23,28 +25,38 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
 	@Override
 	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
 		OAuth2AuthorizationRequest authRequest = defaultResolver.resolve(request);
-		if (authRequest == null) {
-			return null;
-		}
 
-		String origin = request.getHeader(HttpHeaders.ORIGIN);
-		if (origin != null) {
-			request.getSession().setAttribute("CLIENT_ORIGIN", origin);
-		}
-		return authRequest;
+		return customize(authRequest, request);
 	}
 
 	@Override
 	public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
 		OAuth2AuthorizationRequest authRequest = defaultResolver.resolve(request, clientRegistrationId);
+
+		return customize(authRequest, request);
+	}
+
+	private OAuth2AuthorizationRequest customize(
+		OAuth2AuthorizationRequest authRequest,
+		HttpServletRequest request
+	) {
 		if (authRequest == null) {
 			return null;
 		}
 
-		String origin = request.getHeader(HttpHeaders.ORIGIN);
-		if (origin != null) {
-			request.getSession().setAttribute("CLIENT_ORIGIN", origin);
+		String referer = request.getHeader(HttpHeaders.REFERER);
+		if (referer == null) {
+			return authRequest;
 		}
-		return authRequest;
+
+		String origin = URI.create(referer).getScheme()
+			+ "://"
+			+ URI.create(referer).getAuthority();
+
+		String newState = origin + "|" + authRequest.getState();
+
+		return OAuth2AuthorizationRequest.from(authRequest)
+			.state(newState)
+			.build();
 	}
 }
