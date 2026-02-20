@@ -141,9 +141,7 @@ public class SessionController {
 	public ApiResponse<SessionResponseDTO.InProgressResponseDTO> getInProgressSessionMembers(
 		@PathVariable Long sessionId
 	) {
-		SessionResponseDTO.InProgressResponseDTO response =
-			sessionQueryService.getCurrentSessionRoom(sessionId);
-		return ApiResponse.onSuccess(response);
+		return ApiResponse.onSuccess(sessionQueryService.getCurrentSessionRoom(sessionId));
 	}
 
 	@Operation(summary = "세션 진행 중 참여자 상태 (집중/자리비움) 토글")
