@@ -106,7 +106,7 @@ public class TaskCommandService {
 		subTaskRepository.delete(subTask);
 	}
 
-	public List<SessionResponseDTO.todoResponseDTO> addSubtask(
+	public List<SessionResponseDTO.todoResponseDTO> addSubtasks(
 		Long taskId,
 		Long memberId,
 		List<SubTaskRequestDTO.AddSubTaskDTO> request
