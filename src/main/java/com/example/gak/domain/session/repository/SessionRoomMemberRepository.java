@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 
@@ -33,5 +32,12 @@ public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMe
 
 	Optional<SessionRoomMember> findByMemberIdAndSessionRoomId(Long memberId, Long sessionId);
 
-	Long member(Member member);
+	@Modifying
+	@Query("""
+		DELETE FROM SessionRoomMember srm
+		WHERE srm.member.id IN :memberIds
+		AND srm.sessionRoom.id = :sessionRoomId
+		""")
+	int deleteByMemberIdInAndSessionRoomId(@Param("memberIds") List<Long> memberIds,
+		@Param("sessionRoomId") Long sessionRoomId);
 }

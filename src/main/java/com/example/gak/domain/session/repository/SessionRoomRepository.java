@@ -41,4 +41,14 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 		      AND s.status <> com.example.gak.domain.session.entity.enums.SessionRoomStatus.COMPLETED
 		""")
 	int decreaseCount(@Param("sessionId") Long sessionId);
+
+	@Modifying(clearAutomatically = true)
+	@Query("""
+		    UPDATE SessionRoom s
+		    SET s.currentCount = s.currentCount - :count
+		    WHERE s.id = :sessionRoomId
+		      AND s.currentCount >= :count
+		      AND s.status = com.example.gak.domain.session.entity.enums.SessionRoomStatus.WAITING
+		""")
+	int decreaseCountBy(@Param("sessionRoomId") Long sessionRoomId, @Param("count") int count);
 }

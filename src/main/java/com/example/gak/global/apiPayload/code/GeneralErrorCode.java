@@ -48,6 +48,11 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	SESSION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "SESSION400_4", "이미 종료된 세션입니다."),
 	SESSION_NOT_JOINED(HttpStatus.BAD_REQUEST, "SESSION400_5", "참여 중인 세션이 아닙니다."),
 	SESSION_INVALID_STATE(HttpStatus.BAD_REQUEST, "SESSION400_6", "세션 상태가 올바르지 않습니다."),
+	SESSION_KICK_ALLOWED_ONLY_IN_WAITING(HttpStatus.BAD_REQUEST, "SESSION400_7", "세션이 대기 중일 때만 강퇴할 수 있습니다."),
+	SESSION_KICK_HOST_ONLY(HttpStatus.FORBIDDEN, "SESSION403_1", "HOST만 강퇴할 수 있습니다."),
+	SESSION_KICK_SELF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "SESSION400_8", "자기 자신은 강퇴할 수 없습니다."),
+	SESSION_MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION400_9", "사용자가 세션에 존재하지 않습니다."),
+	TASK_NOT_FOUND_IN_SESSION(HttpStatus.INTERNAL_SERVER_ERROR, "TASK500_1", "세션에 대한 작업(Task) 정보가 존재하지 않습니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),

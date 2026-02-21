@@ -128,7 +128,7 @@ public class SessionCommandService {
 		}
 
 		Task task = taskRepository.findBySessionRoomIdAndMemberId(sessionId, memberId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
 		taskRepository.delete(task);
 		taskRepository.flush();
 
@@ -158,6 +158,55 @@ public class SessionCommandService {
 		redisPublisher.inProgressRoomPublish(sessionId);
 
 		return toToggleSessionMemberStatusResponseDTO(sessionRoomMember);
+	}
+
+	@Transactional
+	public void forceExitMembers(
+		Long sessionId,
+		Long memberId,
+		SessionRequestDTO.ForceExitMemberRequestDTO request
+	) {
+		SessionRoom sessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.WAITING) {
+			throw new GeneralException(GeneralErrorCode.SESSION_KICK_ALLOWED_ONLY_IN_WAITING);
+		}
+
+		SessionRoomMember host = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(memberId, sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		if (host.getRole() != SessionParticipantRole.HOST) {
+			throw new GeneralException(GeneralErrorCode.SESSION_KICK_HOST_ONLY);
+		}
+
+		List<Long> targetMemberIds = request.getMemberIds();
+
+		if (targetMemberIds.contains(memberId)) {
+			throw new GeneralException(GeneralErrorCode.SESSION_KICK_SELF_NOT_ALLOWED);
+		}
+
+		int deletedCount = sessionRoomMemberRepository.deleteByMemberIdInAndSessionRoomId(targetMemberIds, sessionId);
+		if (deletedCount != targetMemberIds.size()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_MEMBER_NOT_FOUND);
+		}
+
+		List<Task> tasks = taskRepository.findAllBySessionRoomIdAndMemberIdIn(sessionId, targetMemberIds);
+		for (Task task : tasks) {
+			taskRepository.delete(task);
+			taskRepository.flush();
+		}
+
+		int updated = sessionRoomRepository.decreaseCountBy(sessionId, targetMemberIds.size());
+		if (updated == 0) {
+			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
+		}
+
+		publishSessionRoomUpdateEvent(
+			sessionRoom.getStatus(),
+			sessionId
+		);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
