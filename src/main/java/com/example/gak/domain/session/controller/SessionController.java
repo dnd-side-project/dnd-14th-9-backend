@@ -153,4 +153,15 @@ public class SessionController {
 		return ApiResponse.onSuccess(
 			sessionCommandService.toggleSessionRoomMemberStatus(sessionId, oAuth2User.getMemberId()));
 	}
+
+	@Operation(summary = "사용자 강제 퇴장 API")
+	@DeleteMapping("/{sessionId}/members")
+	public ApiResponse<SessionResponseDTO.ToggleSessionMemberStatusResponseDTO> forceExitParticipant(
+		@PathVariable Long sessionId,
+		@RequestBody SessionRequestDTO.ForceExitMemberRequestDTO request,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		sessionCommandService.forceExitMembers(sessionId, oAuth2User.getMemberId(), request);
+		return ApiResponse.onSuccess(null);
+	}
 }
