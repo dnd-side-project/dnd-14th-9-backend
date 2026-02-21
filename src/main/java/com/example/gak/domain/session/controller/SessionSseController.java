@@ -1,6 +1,8 @@
 package com.example.gak.domain.session.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,11 @@ public class SessionSseController {
 	@GetMapping(value = "/{sessionId}/waiting-room/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter subscribeWaitingRoom(@PathVariable Long sessionId) {
 
+		if (SecurityContextHolder.getContext().getAuthentication() == null ||
+			!SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+			throw new AccessDeniedException("인증되지 않은 사용자입니다.");
+		}
+
 		SseEmitter emitter = sseService.subscribeWaiting(sessionId);
 
 		try {
@@ -42,6 +49,11 @@ public class SessionSseController {
 	@Operation(summary = "[SSE] 세션 진행 중 참여자 목록 조회")
 	@GetMapping(value = "/{sessionId}/in-progress/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter subscribeInProgressSession(@PathVariable Long sessionId) {
+
+		if (SecurityContextHolder.getContext().getAuthentication() == null ||
+			!SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+			throw new AccessDeniedException("인증되지 않은 사용자입니다.");
+		}
 
 		SseEmitter emitter = sseService.subscribeInProgress(sessionId);
 
