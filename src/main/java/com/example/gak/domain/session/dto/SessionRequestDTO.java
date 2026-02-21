@@ -69,4 +69,11 @@ public class SessionRequestDTO {
 		@NotNull
 		private List<@Size(max = 50) String> todos;
 	}
+
+	@Schema(name = "사용자 강퇴 요청")
+	@Getter
+	@Builder
+	public static class ForceExitMemberRequestDTO {
+		private List<Long> memberIds;
+	}
 }

@@ -12,4 +12,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	List<Task> findByMemberId(Long memberId);
 
 	Optional<Task> findBySessionRoomIdAndMemberId(Long sessionRoomId, Long memberId);
+
+	List<Task> findAllBySessionRoomIdAndMemberIdIn(Long sessionRoomId, List<Long> memberIds);
 }

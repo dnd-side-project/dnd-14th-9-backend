@@ -128,7 +128,7 @@ public class SessionController {
 		return ApiResponse.onSuccess(null);
 	}
 
-	@Operation(summary = "[대기방] 세션 진입 초기 참여자 목록 조회")
+	@Operation(summary = "[대기방] 세션 진입 초기 참여자 목록 조회 API")
 	@GetMapping("/{sessionId}/waiting-room")
 	public ApiResponse<SessionResponseDTO.WaitingResponseDTO> getWaitingRoomMembers(
 		@PathVariable Long sessionId
@@ -136,7 +136,7 @@ public class SessionController {
 		return ApiResponse.onSuccess(sessionQueryService.getCurrentWaitingRoom(sessionId));
 	}
 
-	@Operation(summary = "[진행중] 세션 진입 시 초기 참여자 목록 조회")
+	@Operation(summary = "[진행중] 세션 진입 시 초기 참여자 목록 조회 API")
 	@GetMapping("/{sessionId}/in-progress")
 	public ApiResponse<SessionResponseDTO.InProgressResponseDTO> getInProgressSessionMembers(
 		@PathVariable Long sessionId
@@ -144,7 +144,7 @@ public class SessionController {
 		return ApiResponse.onSuccess(sessionQueryService.getCurrentSessionRoom(sessionId));
 	}
 
-	@Operation(summary = "세션 진행 중 참여자 상태 (집중/자리비움) 토글")
+	@Operation(summary = "세션 진행 중 참여자 상태 (집중/자리비움) 토글 API")
 	@PatchMapping("/{sessionId}/me/status")
 	public ApiResponse<SessionResponseDTO.ToggleSessionMemberStatusResponseDTO> toggleParticipantStatus(
 		@PathVariable Long sessionId,
@@ -152,5 +152,16 @@ public class SessionController {
 	) {
 		return ApiResponse.onSuccess(
 			sessionCommandService.toggleSessionRoomMemberStatus(sessionId, oAuth2User.getMemberId()));
+	}
+
+	@Operation(summary = "사용자 강제 퇴장 API")
+	@DeleteMapping("/{sessionId}/members")
+	public ApiResponse<Void> forceExitParticipant(
+		@PathVariable Long sessionId,
+		@RequestBody SessionRequestDTO.ForceExitMemberRequestDTO request,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		sessionCommandService.forceExitMembers(sessionId, oAuth2User.getMemberId(), request);
+		return ApiResponse.onSuccess(null);
 	}
 }
