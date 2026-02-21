@@ -14,6 +14,39 @@ import lombok.NoArgsConstructor;
 
 public class MemberRequestDTO {
 
+	@Schema(name = "회원 마이페이지 정보 수정 요청")
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Builder
+	@Getter
+	public static class UpdateMemberRequestDTO {
+
+		@Pattern(
+			regexp = "^[a-zA-Z0-9가-힣]+$",
+			message = "닉네임은 한글, 영어, 숫자만 가능합니다."
+		)
+		@NotBlank
+		@Size(min = 2, max = 10)
+		private String nickname;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
+		@Email
+		private String email;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
+		@Size(max = 100)
+		private String bio;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
+		private SessionCategory firstInterestCategory;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
+		private SessionCategory secondInterestCategory;
+
+		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
+		private SessionCategory thirdInterestCategory;
+	}
+
 	@Schema(name = "회원 닉네임 수정 요청")
 	@AllArgsConstructor
 	@NoArgsConstructor

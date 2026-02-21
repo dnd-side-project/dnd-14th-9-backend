@@ -88,6 +88,24 @@ public class MemberCommandService {
 		}
 	}
 
+	public MemberResponseDTO.UpdateMemberResponseDTO updateMember(
+		Long memberId,
+		MemberRequestDTO.UpdateMemberRequestDTO request
+	) {
+		Member member = getMember(memberId);
+
+		member.updateNickname(request.getNickname());
+		member.updateEmail(request.getEmail());
+		member.updateBio(request.getBio());
+		member.updateInterestCategories(
+			request.getFirstInterestCategory(),
+			request.getSecondInterestCategory(),
+			request.getThirdInterestCategory()
+		);
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
 	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile newProfileImage) {
 		Member member = getMember(memberId);
 
