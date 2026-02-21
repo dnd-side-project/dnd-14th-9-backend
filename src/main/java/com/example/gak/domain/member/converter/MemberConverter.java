@@ -12,13 +12,15 @@ public class MemberConverter {
 			.nickname(member.getNickname())
 			.profileImageUrl(member.getProfileImageUrl())
 			.email(member.getEmail())
+			.bio(member.getBio())
 			.socialProvider(member.getSocialProvider())
-			.totalParticipationTime(record.getTotalParticipationMinutes())
-			.focusedTime(record.getFocusedMinutes())
+			.totalParticipationTime(record.getTotalParticipationTime())
+			.focusedTime(record.getFocusedTime())
 			.focusRate(record.getFocusRate())
 			.totalTodoCount(record.getTotalTodoCount())
 			.completedTodoCount(record.getCompletedTodoCount())
 			.todoCompletionRate(record.getTodoCompletionRate())
+			.participationSessionCount(record.getParticipationSessionCount())
 			.firstLogin(member.isFirstLogin())
 			.build();
 	}

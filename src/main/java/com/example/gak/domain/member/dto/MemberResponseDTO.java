@@ -25,6 +25,9 @@ public class MemberResponseDTO {
 		@Schema(nullable = true)
 		private String email;
 
+		@Schema(nullable = true)
+		private String bio;
+
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private String socialProvider;
 
@@ -45,6 +48,9 @@ public class MemberResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private int todoCompletionRate;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int participationSessionCount;
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private boolean firstLogin;
