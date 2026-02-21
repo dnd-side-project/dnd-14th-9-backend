@@ -102,6 +102,7 @@ public class MemberCommandService {
 			request.getThirdInterestCategory()
 		);
 
+		// 이메일 수정 가능 여부가 결정되면 코드 수정
 		String newEmail = request.getEmail();
 		if (newEmail != null) {
 			member.updateEmail(newEmail);
