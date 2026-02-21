@@ -61,7 +61,7 @@ public class MemberController {
 	@PatchMapping("/me")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateMember(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@RequestBody MemberRequestDTO.UpdateMemberRequestDTO request
+		@Valid @RequestBody MemberRequestDTO.UpdateMemberRequestDTO request
 	) {
 		MemberResponseDTO.UpdateMemberResponseDTO response = memberCommandService.updateMember(
 			oAuth2User.getMemberId(),
