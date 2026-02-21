@@ -88,6 +88,29 @@ public class MemberCommandService {
 		}
 	}
 
+	public MemberResponseDTO.UpdateMemberResponseDTO updateMember(
+		Long memberId,
+		MemberRequestDTO.UpdateMemberRequestDTO request
+	) {
+		Member member = getMember(memberId);
+
+		member.updateNickname(request.getNickname());
+		member.updateBio(request.getBio());
+		member.updateInterestCategories(
+			request.getFirstInterestCategory(),
+			request.getSecondInterestCategory(),
+			request.getThirdInterestCategory()
+		);
+
+		// 이메일 수정 가능 여부가 결정되면 코드 수정
+		String newEmail = request.getEmail();
+		if (newEmail != null) {
+			member.updateEmail(newEmail);
+		}
+
+		return MemberConverter.toUpdateMemberResponseDTO(member);
+	}
+
 	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile newProfileImage) {
 		Member member = getMember(memberId);
 

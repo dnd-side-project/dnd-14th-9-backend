@@ -30,7 +30,7 @@ public class Record extends BaseEntity {
 
 	private long focusedTime;
 
-	private int completedSessionCount;
+	private int participationSessionCount;
 
 	private int totalTodoCount;
 
@@ -59,7 +59,7 @@ public class Record extends BaseEntity {
 	public Record(Member member) {
 		this.totalParticipationTime = 0;
 		this.focusedTime = 0;
-		this.completedSessionCount = 0;
+		this.participationSessionCount = 0;
 		this.totalTodoCount = 0;
 		this.completedTodoCount = 0;
 		this.devSessionCount = 0;
@@ -81,15 +81,11 @@ public class Record extends BaseEntity {
 		this.focusedTime += seconds;
 	}
 
-	public void increaseCompletedSessionCount() {
-		this.completedSessionCount++;
-	}
-
 	public void increaseTotalTodoCount(int count) {
 		this.totalTodoCount += count;
 	}
 
-	public void increaseAchievedTodoCount(int count) {
+	public void increaseCompletedTodoCount(int count) {
 		this.completedTodoCount += count;
 	}
 
@@ -104,6 +100,7 @@ public class Record extends BaseEntity {
 			case TEAM_PROJECT -> teamProjectSessionCount++;
 			case FREE -> etcSessionCount++;
 		}
+		participationSessionCount++;
 	}
 
 	public int getTotalParticipationMinutes() {
