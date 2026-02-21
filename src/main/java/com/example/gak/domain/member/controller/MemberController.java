@@ -18,6 +18,7 @@ import com.example.gak.domain.member.service.MemberQueryService;
 import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.oauth2.CustomOAuth2User;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -95,6 +96,7 @@ public class MemberController {
 		);
 	}
 
+	@Hidden
 	@Operation(summary = "내 이메일 수정 API")
 	@PatchMapping("/me/email")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateEmail(
