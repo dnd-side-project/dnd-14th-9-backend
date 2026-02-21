@@ -67,6 +67,9 @@ public class SessionConverter {
 
 			.summary(sessionRoom.getSummary())
 			.notice(sessionRoom.getNotice())
+
+			.requiredFocusRate(sessionRoom.getRequiredFocusRate())
+			.requiredAchievementRate(sessionRoom.getRequiredAchievementRate())
 			.build();
 	}
 
