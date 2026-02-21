@@ -1,13 +1,18 @@
 package com.example.gak.domain.task.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.task.dto.SubTaskRequestDTO;
 import com.example.gak.domain.task.service.TaskCommandService;
 import com.example.gak.global.apiPayload.ApiResponse;
@@ -33,6 +38,16 @@ public class SubTaskController {
 	) {
 		taskCommandService.toggleSubTaskCompletion(subTaskId, oAuth2User.getMemberId());
 		return ApiResponse.onSuccess(null);
+	}
+
+	@Operation(summary = "TODO 추가 API")
+	@PostMapping
+	public ApiResponse<List<SessionResponseDTO.todoResponseDTO>> addSubTask(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestParam Long taskId,
+		@RequestBody List<SubTaskRequestDTO.AddSubTaskDTO> request
+	) {
+		return ApiResponse.onSuccess(taskCommandService.addSubtask(taskId, oAuth2User.getMemberId(), request));
 	}
 
 	@Operation(summary = "TODO 수정 API")
