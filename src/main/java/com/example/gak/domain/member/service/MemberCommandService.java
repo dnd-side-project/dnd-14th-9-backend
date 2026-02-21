@@ -95,13 +95,17 @@ public class MemberCommandService {
 		Member member = getMember(memberId);
 
 		member.updateNickname(request.getNickname());
-		member.updateEmail(request.getEmail());
 		member.updateBio(request.getBio());
 		member.updateInterestCategories(
 			request.getFirstInterestCategory(),
 			request.getSecondInterestCategory(),
 			request.getThirdInterestCategory()
 		);
+
+		String newEmail = request.getEmail();
+		if (newEmail != null) {
+			member.updateEmail(newEmail);
+		}
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
 	}
