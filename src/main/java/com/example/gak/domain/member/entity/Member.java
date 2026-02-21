@@ -95,6 +95,10 @@ public class Member extends BaseEntity {
 		this.email = email;
 	}
 
+	public void updateBio(String bio) {
+		this.bio = bio;
+	}
+
 	public void updateInterestCategories(
 		SessionCategory firstInterestCategory,
 		SessionCategory secondInterestCategory,
