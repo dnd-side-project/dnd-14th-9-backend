@@ -63,6 +63,8 @@ public class SessionResponseDTO {
 		private String imageUrl;
 		private String summary;
 		private String notice;
+		private Integer requiredFocusRate;
+		private Integer requiredAchievementRate;
 	}
 
 	@Schema(name = "세션 참여 응답")
