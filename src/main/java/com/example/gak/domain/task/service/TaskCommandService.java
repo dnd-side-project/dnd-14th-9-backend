@@ -1,9 +1,13 @@
 package com.example.gak.domain.task.service;
 
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.gak.domain.session.converter.SessionConverter;
+import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.task.dto.SubTaskRequestDTO;
 import com.example.gak.domain.task.dto.TaskRequestDTO;
@@ -100,5 +104,32 @@ public class TaskCommandService {
 		}
 
 		subTaskRepository.delete(subTask);
+	}
+
+	public List<SessionResponseDTO.todoResponseDTO> addSubtask(
+		Long taskId,
+		Long memberId,
+		List<SubTaskRequestDTO.AddSubTaskDTO> request
+	) {
+		Task task = taskRepository.findById(taskId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND));
+
+		if (!task.getMember().getId().equals(memberId)) {
+			throw new GeneralException(GeneralErrorCode.TASK_ACCESS_DENIED);
+		}
+
+		if (task.getSessionRoom().getStatus() != SessionRoomStatus.WAITING) {
+			throw new GeneralException(GeneralErrorCode.TASK_ACCESS_DENIED);
+		}
+
+		List<SubTask> subTasks = request.stream()
+			.map(todo -> new SubTask(todo.getTodoContent(), task))
+			.toList();
+
+		subTaskRepository.saveAll(subTasks);
+
+		return subTasks.stream()
+			.map(SessionConverter::toTodoResponseDTO)
+			.toList();
 	}
 }
