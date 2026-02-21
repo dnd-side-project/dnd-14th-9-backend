@@ -45,13 +45,27 @@ public class MemberController {
 		return ApiResponse.onSuccess(response);
 	}
 
-	@Operation(summary = "내 정보 조회 API (수정용)")
+	@Operation(summary = "내 정보 조회 API (마이페이지)")
 	@GetMapping("/me/edit")
 	public ApiResponse<MemberResponseDTO.GetMemberResponseDTO> getMember(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User
 	) {
 		Long memberId = oAuth2User.getMemberId();
 		MemberResponseDTO.GetMemberResponseDTO response = memberQueryService.getMember(memberId);
+
+		return ApiResponse.onSuccess(response);
+	}
+
+	@Operation(summary = "내 정보 수정 API (마이페이지)")
+	@PatchMapping("/me")
+	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateMember(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestBody MemberRequestDTO.UpdateMemberRequestDTO request
+	) {
+		MemberResponseDTO.UpdateMemberResponseDTO response = memberCommandService.updateMember(
+			oAuth2User.getMemberId(),
+			request
+		);
 
 		return ApiResponse.onSuccess(response);
 	}
