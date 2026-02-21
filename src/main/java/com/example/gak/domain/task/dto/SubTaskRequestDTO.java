@@ -12,4 +12,11 @@ public class SubTaskRequestDTO {
 	public static class UpdateSubTaskDTO {
 		private String todoContent;
 	}
+
+	@Schema(name = "세션 TODO 추가 요청")
+	@Getter
+	@Builder
+	public static class AddSubTaskDTO {
+		private String todoContent;
+	}
 }
