@@ -55,4 +55,6 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 	int decreaseCountBy(@Param("sessionRoomId") Long sessionRoomId, @Param("count") int count);
 
 	List<SessionRoom> findByStatusAndStartTimeBefore(SessionRoomStatus status, LocalDateTime dateTime);
+
+	List<SessionRoom> findByStatusAndEndTimeBefore(SessionRoomStatus status, LocalDateTime time);
 }

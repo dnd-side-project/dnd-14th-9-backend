@@ -224,6 +224,19 @@ public class SessionCommandService {
 		);
 	}
 
+	public void endSession(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() == SessionRoomStatus.IN_PROGRESS) {
+			sessionRoom.changeStatus(SessionRoomStatus.COMPLETED);
+		}
+
+		applicationEventPublisher.publishEvent(
+			new SessionStatusUpdateEvent(sessionId)
+		);
+	}
+
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
 		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);
