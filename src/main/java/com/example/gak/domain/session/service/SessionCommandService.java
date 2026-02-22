@@ -127,8 +127,9 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED);
 		}
 
-		Task task = taskRepository.findBySessionRoomIdAndMemberId(sessionId, memberId)
+		Task task = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId, memberId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
+
 		taskRepository.delete(task);
 		taskRepository.flush();
 
@@ -160,7 +161,6 @@ public class SessionCommandService {
 		return toToggleSessionMemberStatusResponseDTO(sessionRoomMember);
 	}
 
-	@Transactional
 	public void forceExitMembers(
 		Long sessionId,
 		Long memberId,
