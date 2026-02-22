@@ -19,13 +19,20 @@ public class SessionScheduler {
 	private final SessionCommandService sessionCommandService;
 	private final SessionQueryService sessionQueryService;
 
-	@Scheduled(fixedDelay = 60000)
+	@Scheduled(cron = "0 * * * * *")
 	public void run() {
+		try {
+			List<Long> sessionsToStart = sessionQueryService.findSessionsToStart();
 
-		List<Long> sessionsToStart = sessionQueryService.findSessionsToStart();
-
-		for (Long sessionId : sessionsToStart) {
-			sessionCommandService.startSession(sessionId);
+			for (Long sessionId : sessionsToStart) {
+				try {
+					sessionCommandService.startSession(sessionId);
+				} catch (Exception e) {
+					log.error("세션 시작 실패함: {}", sessionId, e);
+				}
+			}
+		} catch (Exception e) {
+			log.error("Failed to execute session scheduler", e);
 		}
 	}
 }
