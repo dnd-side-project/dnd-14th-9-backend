@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -129,6 +130,13 @@ public class SessionResponseDTO {
 		private Integer participantCount;
 		private Integer averageAchievementRate;
 		private List<InProgressMemberResponseDTO> members;
+	}
+
+	@Schema(name = "세션 시작-종료 알림 응답")
+	@Builder
+	@Getter
+	public static class SessionStartResponseDTO {
+		private SessionRoomStatus status;
 	}
 
 	@Schema(name = "세션 진행 중 참여자 목록 단일 응답")

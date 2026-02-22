@@ -101,4 +101,8 @@ public class SessionRoom extends BaseEntity {
 		this.requiredAchievementRate = requiredAchievementRate;
 		this.member = member;
 	}
+
+	public void changeStatus(SessionRoomStatus status) {
+		this.status = status;
+	}
 }
