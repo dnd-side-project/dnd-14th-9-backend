@@ -49,6 +49,8 @@ public class SessionRoom extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDateTime startTime;
 
+	private LocalDateTime endTime;
+
 	@Column(nullable = false)
 	private Integer durationMinutes;
 
@@ -94,6 +96,7 @@ public class SessionRoom extends BaseEntity {
 		this.notice = notice;
 		this.thumbnailImageUrl = thumbnailImageUrl;
 		this.startTime = startTime;
+		this.endTime = startTime.plusMinutes(durationMinutes);
 		this.durationMinutes = durationMinutes;
 		this.maxCapacity = maxCapacity;
 		this.status = status;

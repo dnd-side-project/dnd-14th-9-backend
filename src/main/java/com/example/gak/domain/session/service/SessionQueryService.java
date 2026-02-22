@@ -131,6 +131,18 @@ public class SessionQueryService {
 			.toList();
 	}
 
+	public List<Long> findSessionsToEnd() {
+		LocalDateTime now = LocalDateTime.now();
+
+		List<SessionRoom> targetSessions = sessionRoomRepository.findByStatusAndEndTimeBefore(
+			SessionRoomStatus.IN_PROGRESS, now
+		);
+
+		return targetSessions.stream()
+			.map(SessionRoom::getId)
+			.toList();
+	}
+
 	private SessionResponseDTO.WaitingMemberResponseDTO toWaitingMember(
 		Long sessionId,
 		SessionRoomMember srm
