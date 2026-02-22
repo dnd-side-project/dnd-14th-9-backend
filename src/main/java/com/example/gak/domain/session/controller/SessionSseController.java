@@ -54,4 +54,22 @@ public class SessionSseController {
 
 		return emitter;
 	}
+
+	@Operation(summary = "[SSE] 세션 시작, 종료 알림 SSE")
+	@GetMapping(value = "/{sessionId}/status/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeSessionStartEvents(@PathVariable Long sessionId) {
+
+		SseEmitter emitter = sseService.subscribeSessionStatus(sessionId);
+
+		try {
+			sseService.sendSessionStatus(
+				sessionId,
+				sessionQueryService.getSessionStatus(sessionId)
+			);
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
 }

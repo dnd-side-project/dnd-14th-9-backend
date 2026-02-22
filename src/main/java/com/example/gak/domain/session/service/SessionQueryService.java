@@ -4,6 +4,7 @@ import static com.example.gak.domain.session.converter.SessionConverter.*;
 import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.enums.DurationRange;
 import com.example.gak.domain.session.enums.SessionSort;
 import com.example.gak.domain.session.enums.TimeSlot;
@@ -117,6 +119,18 @@ public class SessionQueryService {
 		);
 	}
 
+	public List<Long> findSessionsToStart() {
+		LocalDateTime now = LocalDateTime.now();
+
+		List<SessionRoom> targetSessions = sessionRoomRepository.findByStatusAndStartTimeBefore(
+			SessionRoomStatus.WAITING, now
+		);
+
+		return targetSessions.stream()
+			.map(SessionRoom::getId)
+			.toList();
+	}
+
 	private SessionResponseDTO.WaitingMemberResponseDTO toWaitingMember(
 		Long sessionId,
 		SessionRoomMember srm
@@ -165,6 +179,13 @@ public class SessionQueryService {
 			averageAchievementRate,
 			members
 		);
+	}
+
+	public SessionResponseDTO.SessionStartResponseDTO getSessionStatus(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		return toSessionStartResponseDTO(sessionRoom);
 	}
 
 	private SessionResponseDTO.InProgressMemberResponseDTO toSessionMember(

@@ -34,6 +34,7 @@ public class RedisSubscriber implements MessageListener {
 		switch (type) {
 			case "waiting" -> handleWaiting(sessionId);
 			case "in-progress" -> handleInProgress(sessionId);
+			case "session" -> handleSessionStatus(sessionId);
 			default -> log.warn("Unknown channel type: {}", type);
 		}
 	}
@@ -48,5 +49,11 @@ public class RedisSubscriber implements MessageListener {
 		SessionResponseDTO.InProgressResponseDTO dto =
 			sessionQueryService.getCurrentSessionRoom(sessionId);
 		sseService.sendInProgress(sessionId, dto);
+	}
+
+	private void handleSessionStatus(Long sessionId) {
+		SessionResponseDTO.SessionStartResponseDTO dto =
+			sessionQueryService.getSessionStatus(sessionId);
+		sseService.sendSessionStatus(sessionId, dto);
 	}
 }

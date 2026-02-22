@@ -191,4 +191,12 @@ public class SessionConverter {
 			.members(members)
 			.build();
 	}
+
+	public static SessionResponseDTO.SessionStartResponseDTO toSessionStartResponseDTO(
+		SessionRoom sessionRoom
+	) {
+		return SessionResponseDTO.SessionStartResponseDTO.builder()
+			.status(sessionRoom.getStatus())
+			.build();
+	}
 }

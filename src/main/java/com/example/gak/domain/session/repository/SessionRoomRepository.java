@@ -1,5 +1,7 @@
 package com.example.gak.domain.session.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -51,4 +53,6 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 		      AND s.status = com.example.gak.domain.session.entity.enums.SessionRoomStatus.WAITING
 		""")
 	int decreaseCountBy(@Param("sessionRoomId") Long sessionRoomId, @Param("count") int count);
+
+	List<SessionRoom> findByStatusAndStartTimeBefore(SessionRoomStatus status, LocalDateTime dateTime);
 }

@@ -13,24 +13,24 @@ public class RedisPublisher {
 
 	private final StringRedisTemplate redisTemplate;
 
-	public void waitingRoomPublish(Long sessionId) {
+	public void waitingRoomPublish(
+		Long sessionId
+	) {
 		String channel = "waiting/" + sessionId;
-		log.info("[Redis Publish] 시작 - 채널: {}", channel);
-
-		try {
-			redisTemplate.convertAndSend(channel, "UPDATE");
-			log.info("[Redis Publish] 성공 - 채널: {}", channel);
-		} catch (Exception e) {
-			log.error("[Redis Publish] 실패 - 채널: {}, 에러: {}", channel, e.getMessage(), e);
-		}
-
-		log.info("[Redis Publish] 종료 - 채널: {}", channel);
+		redisTemplate.convertAndSend(channel, "UPDATE");
 	}
 
 	public void inProgressRoomPublish(
 		Long sessionId
 	) {
 		String channel = "in-progress/" + sessionId;
+		redisTemplate.convertAndSend(channel, "UPDATE");
+	}
+
+	public void sessionStatusPublish(
+		Long sessionId
+	) {
+		String channel = "session/" + sessionId;
 		redisTemplate.convertAndSend(channel, "UPDATE");
 	}
 }

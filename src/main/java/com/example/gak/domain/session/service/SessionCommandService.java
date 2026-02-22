@@ -1,6 +1,7 @@
 package com.example.gak.domain.session.service;
 
 import static com.example.gak.domain.session.converter.SessionConverter.*;
+import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,9 +30,10 @@ import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
-import com.example.gak.global.redis.InProgressRoomUpdateEvent;
 import com.example.gak.global.redis.RedisPublisher;
-import com.example.gak.global.redis.WaitingRoomUpdateEvent;
+import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.SessionStatusUpdateEvent;
+import com.example.gak.global.redis.event.WaitingRoomUpdateEvent;
 import com.example.gak.global.validator.ImageFileValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -206,6 +208,19 @@ public class SessionCommandService {
 		publishSessionRoomUpdateEvent(
 			sessionRoom.getStatus(),
 			sessionId
+		);
+	}
+
+	public void startSession(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() == SessionRoomStatus.WAITING) {
+			sessionRoom.changeStatus(SessionRoomStatus.IN_PROGRESS);
+		}
+
+		applicationEventPublisher.publishEvent(
+			new SessionStatusUpdateEvent(sessionId)
 		);
 	}
 
