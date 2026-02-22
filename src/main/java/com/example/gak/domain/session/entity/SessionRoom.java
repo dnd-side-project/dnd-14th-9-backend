@@ -49,6 +49,7 @@ public class SessionRoom extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDateTime startTime;
 
+	@Column(nullable = false)
 	private LocalDateTime endTime;
 
 	@Column(nullable = false)
