@@ -30,10 +30,10 @@ import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
-import com.example.gak.global.redis.InProgressRoomUpdateEvent;
 import com.example.gak.global.redis.RedisPublisher;
-import com.example.gak.global.redis.WaitingRoomUpdateEvent;
+import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
 import com.example.gak.global.redis.event.SessionStatusUpdateEvent;
+import com.example.gak.global.redis.event.WaitingRoomUpdateEvent;
 import com.example.gak.global.validator.ImageFileValidator;
 
 import lombok.RequiredArgsConstructor;

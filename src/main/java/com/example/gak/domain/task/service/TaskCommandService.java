@@ -17,7 +17,7 @@ import com.example.gak.domain.task.repository.SubTaskRepository;
 import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
-import com.example.gak.global.redis.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
 
 import lombok.RequiredArgsConstructor;
 
