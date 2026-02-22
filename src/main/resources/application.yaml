@@ -5,6 +5,9 @@ spring:
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+    hikari:
+      leak-detection-threshold: 5000
+
   servlet:
     multipart:
       max-file-size: 5MB
@@ -27,6 +30,8 @@ spring:
         use_sql_comments: true
         jdbc:
           batch_size: 1000
+        generate_statistics: true
+    open-in-view: false
 
   security:
     oauth2:
@@ -71,3 +76,10 @@ cloud:
     credentials:
       accessKey: ${AWS_ACCESS_KEY_ID}
       secretKey: ${AWS_SECRET_ACCESS_KEY}
+
+logging:
+  level:
+    com.zaxxer.hikari: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.transaction: DEBUG

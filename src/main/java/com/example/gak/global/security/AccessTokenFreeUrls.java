@@ -12,6 +12,8 @@ public final class AccessTokenFreeUrls {
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/api/v1/sessions",
-		"/api/v1/sessions/{sessionId:\\d+}"
+		"/api/v1/sessions/{sessionId:\\d+}",
+		"/api/v1/sessions/{sessionId:\\d+}/waiting-room/events",
+		"/api/v1/sessions/{sessionId:\\d+}/in-progress/events"
 	};
 }
