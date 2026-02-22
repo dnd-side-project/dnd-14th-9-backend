@@ -31,6 +31,7 @@ spring:
         jdbc:
           batch_size: 1000
         generate_statistics: true
+    open-in-view: false
 
   security:
     oauth2:
