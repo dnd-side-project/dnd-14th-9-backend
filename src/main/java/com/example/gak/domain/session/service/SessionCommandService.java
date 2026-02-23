@@ -237,6 +237,26 @@ public class SessionCommandService {
 		);
 	}
 
+	public void postSessionResult(
+		Long memberId,
+		Long sessionId,
+		SessionRequestDTO.SessionResultRequestDTO request
+	) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.COMPLETED) {
+			throw new GeneralException(GeneralErrorCode.SESSION_RESULT_BEFORE_END);
+		}
+
+		SessionRoomMember sessionRoomMember = sessionRoomMemberRepository.findByMemberIdAndSessionRoomId(memberId,
+				sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		sessionRoomMember.setOverallSeconds(request.getOverallSeconds());
+		sessionRoomMember.setTotalFocusSeconds(request.getTotalFocusSeconds());
+	}
+
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
 		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);

@@ -76,4 +76,18 @@ public class SessionRequestDTO {
 	public static class ForceExitMemberRequestDTO {
 		private List<Long> memberIds;
 	}
+
+	@Schema(name = "세션 결과 서버 전송 요청")
+	@Getter
+	@Builder
+	public static class SessionResultRequestDTO {
+
+		@NotNull(message = "총 집중 시간은 필수입니다.")
+		@Min(value = 0)
+		private Integer totalFocusSeconds;
+
+		@NotNull(message = "총 참여 시간은 필수입니다.")
+		@Min(value = 0)
+		private Integer overallSeconds;
+	}
 }
