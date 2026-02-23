@@ -184,4 +184,12 @@ public class SessionController {
 	) {
 		return ApiResponse.onSuccess(sessionQueryService.getMemberSessionReport(sessionId, oAuth2User.getMemberId()));
 	}
+
+	@Operation(summary = "세션 종료 후 전체 리포트 조회 API")
+	@GetMapping("/{sessionId}/report")
+	public ApiResponse<SessionResponseDTO.EndSessionResponseDTO> getSessionReport(
+		@PathVariable Long sessionId
+	) {
+		return ApiResponse.onSuccess(sessionQueryService.getSessionReport(sessionId));
+	}
 }
