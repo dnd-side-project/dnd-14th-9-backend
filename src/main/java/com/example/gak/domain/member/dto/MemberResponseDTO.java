@@ -55,6 +55,15 @@ public class MemberResponseDTO {
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private int participationSessionCount;
 
+		@Schema(nullable = true)
+		private SessionCategory firstInterestCategory;
+
+		@Schema(nullable = true)
+		private SessionCategory secondInterestCategory;
+
+		@Schema(nullable = true)
+		private SessionCategory thirdInterestCategory;
+
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private boolean firstLogin;
 	}

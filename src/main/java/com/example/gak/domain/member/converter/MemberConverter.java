@@ -21,6 +21,9 @@ public class MemberConverter {
 			.completedTodoCount(record.getCompletedTodoCount())
 			.todoCompletionRate(record.getTodoCompletionRate())
 			.participationSessionCount(record.getParticipationSessionCount())
+			.firstInterestCategory(member.getFirstInterestCategory())
+			.secondInterestCategory(member.getSecondInterestCategory())
+			.thirdInterestCategory(member.getThirdInterestCategory())
 			.firstLogin(member.isFirstLogin())
 			.build();
 	}
