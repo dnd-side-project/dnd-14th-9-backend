@@ -27,7 +27,13 @@ public class RedisSubscriber implements MessageListener {
 		String type = parts[0];
 		Long sessionId = Long.parseLong(parts[1]);
 
-		handleMessage(type, sessionId);
+		if ("member".equals(type)) {
+			Long memberId = Long.parseLong(parts[1]);
+			Long sessionIdFromChannel = Long.parseLong(parts[3]);
+			handleMemberReaction(sessionIdFromChannel, memberId);
+		} else {
+			handleMessage(type, sessionId);
+		}
 	}
 
 	private void handleMessage(String type, Long sessionId) {
@@ -35,6 +41,7 @@ public class RedisSubscriber implements MessageListener {
 			case "waiting" -> handleWaiting(sessionId);
 			case "in-progress" -> handleInProgress(sessionId);
 			case "session" -> handleSessionStatus(sessionId);
+			case "reaction" -> handleReaction(sessionId);
 			default -> log.warn("Unknown channel type: {}", type);
 		}
 	}
@@ -55,5 +62,17 @@ public class RedisSubscriber implements MessageListener {
 		SessionResponseDTO.SessionStartResponseDTO dto =
 			sessionQueryService.getSessionStatus(sessionId);
 		sseService.sendSessionStatus(sessionId, dto);
+	}
+
+	private void handleReaction(Long sessionId) {
+		SessionResponseDTO.EmojiResultResponseDTO dto =
+			sessionQueryService.getReactionStatus(sessionId);
+		sseService.sendReaction(sessionId, dto);
+	}
+
+	private void handleMemberReaction(Long sessionId, Long memberId) {
+		SessionResponseDTO.EmojiResultResponseDTO dto =
+			sessionQueryService.getMemberReactionStatus(sessionId, memberId);
+		sseService.sendMemberReaction(sessionId, memberId, dto);
 	}
 }

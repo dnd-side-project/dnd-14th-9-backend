@@ -3,9 +3,11 @@ package com.example.gak.domain.session.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.enums.EmojiActionResult;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -233,5 +235,14 @@ public class SessionResponseDTO {
 		private String goal;
 		private Integer focusRate;
 		private Integer achievementRate;
+	}
+
+	@Schema(name = "이모지 액션 응답")
+	@Getter
+	@Builder
+	public static class EmojiActionResponseDTO {
+		private Long targetMemberId;
+		private EmojiType emojiType;
+		private EmojiActionResult result;
 	}
 }

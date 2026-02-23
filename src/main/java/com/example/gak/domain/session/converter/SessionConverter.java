@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.record.entity.Record;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
+import com.example.gak.domain.session.enums.EmojiActionResult;
 import com.example.gak.domain.task.entity.SubTask;
 import com.example.gak.domain.task.entity.Task;
 
@@ -286,6 +288,22 @@ public class SessionConverter {
 			.starCount(startCount)
 			.thumbsUpCount(thumbsUpCount)
 			.thumbsDownCount(thumbsDownCount)
+			.build();
+	}
+
+	public static SessionResponseDTO.EmojiActionResponseDTO emojiUpdated(Long targetMemberId, EmojiType emojiType) {
+		return SessionResponseDTO.EmojiActionResponseDTO.builder()
+			.targetMemberId(targetMemberId)
+			.emojiType(emojiType)
+			.result(EmojiActionResult.UPDATED)
+			.build();
+	}
+
+	public static SessionResponseDTO.EmojiActionResponseDTO emojiDeleted(Long targetMemberId) {
+		return SessionResponseDTO.EmojiActionResponseDTO.builder()
+			.targetMemberId(targetMemberId)
+			.emojiType(null)
+			.result(EmojiActionResult.DELETED)
 			.build();
 	}
 }

@@ -3,6 +3,7 @@ package com.example.gak.domain.session.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -89,5 +90,17 @@ public class SessionRequestDTO {
 		@NotNull(message = "총 참여 시간은 필수입니다.")
 		@Min(value = 0)
 		private Integer overallSeconds;
+	}
+
+	@Schema(name = "이모지 액션 요청")
+	@Getter
+	@Builder
+	public static class EmojiActionRequest {
+
+		@NotNull
+		Long targetMemberId;
+
+		@NotNull
+		EmojiType emojiType;
 	}
 }

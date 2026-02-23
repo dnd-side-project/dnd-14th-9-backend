@@ -6,6 +6,7 @@ import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,12 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
+import com.example.gak.domain.session.entity.Reaction;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.repository.ReactionRepository;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.task.entity.SubTask;
@@ -32,6 +36,8 @@ import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.redis.RedisPublisher;
 import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.MemberReactionUpdateEvent;
+import com.example.gak.global.redis.event.ReactionUpdateEvent;
 import com.example.gak.global.redis.event.SessionStatusUpdateEvent;
 import com.example.gak.global.redis.event.WaitingRoomUpdateEvent;
 import com.example.gak.global.validator.ImageFileValidator;
@@ -50,6 +56,7 @@ public class SessionCommandService {
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 	private final SubTaskRepository subTaskRepository;
 	private final TaskRepository taskRepository;
+	private final ReactionRepository reactionRepository;
 
 	private final RedisPublisher redisPublisher;
 
@@ -262,6 +269,90 @@ public class SessionCommandService {
 		List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
 
 		sessionRoomMember.updateAchievementRate(subTasks);
+	}
+
+	public SessionResponseDTO.EmojiActionResponseDTO reaction(
+		Long sessionId,
+		Long memberId,
+		SessionRequestDTO.EmojiActionRequest request
+	) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.COMPLETED) {
+			throw new GeneralException(GeneralErrorCode.SESSION_RESULT_BEFORE_END);
+		}
+
+		SessionRoomMember actor = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(memberId, sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		if (actor.getMember().getId() == request.getTargetMemberId()) {
+			throw new GeneralException(GeneralErrorCode.CANNOT_REACT_TO_SELF);
+		}
+
+		SessionRoomMember target = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(request.getTargetMemberId(), sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		Optional<Reaction> optional = reactionRepository
+			.findBySessionRoomIdAndMemberIdAndTargetMemberId(
+				sessionId,
+				memberId,
+				request.getTargetMemberId()
+			);
+
+		if (optional.isPresent()) {
+			Reaction existing = optional.get();
+
+			if (existing.getEmojiType() == request.getEmojiType()) {
+				reactionRepository.delete(existing);
+
+				applicationEventPublisher.publishEvent(
+					new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
+				);
+				applicationEventPublisher.publishEvent(
+					new ReactionUpdateEvent(sessionId)
+				);
+
+				return SessionConverter.emojiDeleted(request.getTargetMemberId());
+			}
+
+			existing.changeEmojiType(request.getEmojiType());
+
+			applicationEventPublisher.publishEvent(
+				new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
+			);
+			applicationEventPublisher.publishEvent(
+				new ReactionUpdateEvent(sessionId)
+			);
+
+			return SessionConverter.emojiUpdated(
+				request.getTargetMemberId(),
+				request.getEmojiType()
+			);
+		}
+
+		Reaction emojiAction = Reaction.create(
+			request.getEmojiType(),
+			actor.getMember(),
+			target.getMember(),
+			sessionRoom
+		);
+
+		reactionRepository.save(emojiAction);
+
+		applicationEventPublisher.publishEvent(
+			new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
+		);
+		applicationEventPublisher.publishEvent(
+			new ReactionUpdateEvent(sessionId)
+		);
+
+		return SessionConverter.emojiUpdated(
+			request.getTargetMemberId(),
+			request.getEmojiType()
+		);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,

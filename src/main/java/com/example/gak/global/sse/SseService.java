@@ -18,6 +18,8 @@ public class SseService {
 	private final Map<Long, List<SseEmitter>> waitingEmitters = new ConcurrentHashMap<>();
 	private final Map<Long, List<SseEmitter>> inProgressEmitters = new ConcurrentHashMap<>();
 	private final Map<Long, List<SseEmitter>> sessionStatusEmitters = new ConcurrentHashMap<>();
+	private final Map<Long, List<SseEmitter>> reactionEmitters = new ConcurrentHashMap<>();
+	private final Map<String, List<SseEmitter>> memberReactionEmitters = new ConcurrentHashMap<>();
 
 	public SseEmitter subscribeWaiting(Long sessionId) {
 		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
@@ -128,6 +130,84 @@ public class SseService {
 
 	private void removeSessionStatusEmitter(Long sessionId, SseEmitter emitter) {
 		List<SseEmitter> emitters = sessionStatusEmitters.get(sessionId);
+		if (emitters != null) {
+			emitters.remove(emitter);
+		}
+	}
+
+	public SseEmitter subscribeReaction(Long sessionId) {
+		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
+
+		reactionEmitters
+			.computeIfAbsent(sessionId, k -> new CopyOnWriteArrayList<>())
+			.add(emitter);
+
+		emitter.onCompletion(() -> removeReactionEmitter(sessionId, emitter));
+		emitter.onTimeout(() -> removeReactionEmitter(sessionId, emitter));
+		emitter.onError(e -> removeReactionEmitter(sessionId, emitter));
+
+		return emitter;
+	}
+
+	public void sendReaction(Long sessionId, Object data) {
+		List<SseEmitter> emitters = reactionEmitters.get(sessionId);
+		if (emitters == null)
+			return;
+
+		for (SseEmitter emitter : emitters) {
+			try {
+				emitter.send(SseEmitter.event()
+					.name("reaction-updated")
+					.data(data)
+				);
+			} catch (IOException e) {
+				removeReactionEmitter(sessionId, emitter);
+			}
+		}
+	}
+
+	private void removeReactionEmitter(Long sessionId, SseEmitter emitter) {
+		List<SseEmitter> emitters = reactionEmitters.get(sessionId);
+		if (emitters != null) {
+			emitters.remove(emitter);
+		}
+	}
+
+	public SseEmitter subscribeMemberReaction(Long sessionId, Long memberId) {
+		String key = sessionId + ":" + memberId;
+		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
+
+		memberReactionEmitters
+			.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>())
+			.add(emitter);
+
+		emitter.onCompletion(() -> removeMemberReactionEmitter(key, emitter));
+		emitter.onTimeout(() -> removeMemberReactionEmitter(key, emitter));
+		emitter.onError(e -> removeMemberReactionEmitter(key, emitter));
+
+		return emitter;
+	}
+
+	public void sendMemberReaction(Long sessionId, Long memberId, Object data) {
+		String key = sessionId + ":" + memberId;
+		List<SseEmitter> emitters = memberReactionEmitters.get(key);
+		if (emitters == null)
+			return;
+
+		for (SseEmitter emitter : emitters) {
+			try {
+				emitter.send(SseEmitter.event()
+					.name("member-reaction-updated")
+					.data(data)
+				);
+			} catch (IOException e) {
+				removeMemberReactionEmitter(key, emitter);
+			}
+		}
+	}
+
+	private void removeMemberReactionEmitter(String key, SseEmitter emitter) {
+		List<SseEmitter> emitters = memberReactionEmitters.get(key);
 		if (emitters != null) {
 			emitters.remove(emitter);
 		}
