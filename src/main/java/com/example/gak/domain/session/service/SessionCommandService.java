@@ -271,7 +271,7 @@ public class SessionCommandService {
 		sessionRoomMember.updateAchievementRate(subTasks);
 	}
 
-	public SessionResponseDTO.EmojiActionResponseDTO emojiAction(
+	public SessionResponseDTO.EmojiActionResponseDTO reaction(
 		Long sessionId,
 		Long memberId,
 		SessionRequestDTO.EmojiActionRequest request
