@@ -16,4 +16,10 @@ public interface EmojiActionRepository extends JpaRepository<EmojiAction, Long> 
 	);
 
 	int countBySessionRoomIdAndEmojiType(Long sessionRoomId, EmojiType emojiType);
+
+	int countBySessionRoomIdAndTargetMemberIdAndEmojiType(
+		Long sessionRoomId,
+		Long targetMemberId,
+		EmojiType emojiType
+	);
 }

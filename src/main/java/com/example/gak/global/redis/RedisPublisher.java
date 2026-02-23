@@ -40,4 +40,12 @@ public class RedisPublisher {
 		String channel = "reaction/" + sessionId;
 		redisTemplate.convertAndSend(channel, "UPDATE");
 	}
+
+	public void memberReactionPublish(
+		Long sessionId,
+		Long memberId
+	) {
+		String channel = "member/" + memberId + "/reaction/" + sessionId;
+		redisTemplate.convertAndSend(channel, "UPDATE");
+	}
 }

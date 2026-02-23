@@ -36,6 +36,7 @@ import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.redis.RedisPublisher;
 import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.MemberReactionUpdateEvent;
 import com.example.gak.global.redis.event.ReactionUpdateEvent;
 import com.example.gak.global.redis.event.SessionStatusUpdateEvent;
 import com.example.gak.global.redis.event.WaitingRoomUpdateEvent;
@@ -308,6 +309,9 @@ public class SessionCommandService {
 				emojiActionRepository.delete(existing);
 
 				applicationEventPublisher.publishEvent(
+					new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
+				);
+				applicationEventPublisher.publishEvent(
 					new ReactionUpdateEvent(sessionId)
 				);
 
@@ -316,6 +320,9 @@ public class SessionCommandService {
 
 			existing.changeEmojiType(request.getEmojiType());
 
+			applicationEventPublisher.publishEvent(
+				new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
+			);
 			applicationEventPublisher.publishEvent(
 				new ReactionUpdateEvent(sessionId)
 			);
@@ -335,6 +342,9 @@ public class SessionCommandService {
 
 		emojiActionRepository.save(emojiAction);
 
+		applicationEventPublisher.publishEvent(
+			new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
+		);
 		applicationEventPublisher.publishEvent(
 			new ReactionUpdateEvent(sessionId)
 		);

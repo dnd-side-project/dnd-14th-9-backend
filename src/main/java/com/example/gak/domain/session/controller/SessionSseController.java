@@ -90,4 +90,26 @@ public class SessionSseController {
 
 		return emitter;
 	}
+
+	@Operation(summary = "[SSE] 세션 종료 후 특정 사용자가 받은 리액션")
+	@GetMapping(value = "/{sessionId}/members/{memberId}/reaction/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeMemberSessionReactionEvents(
+		@PathVariable Long sessionId,
+		@PathVariable Long memberId
+	) {
+
+		SseEmitter emitter = sseService.subscribeMemberReaction(sessionId, memberId);
+
+		try {
+			sseService.sendMemberReaction(
+				sessionId,
+				memberId,
+				sessionQueryService.getMemberReactionStatus(sessionId, memberId)
+			);
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
 }

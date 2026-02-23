@@ -230,6 +230,37 @@ public class SessionQueryService {
 		);
 	}
 
+	public SessionResponseDTO.EmojiResultResponseDTO getMemberReactionStatus(
+		Long sessionId,
+		Long memberId
+	) {
+		sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		int sumHeartCount = emojiActionRepository
+			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
+				sessionId, memberId, EmojiType.HEART);
+
+		int sumStarCount = emojiActionRepository
+			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
+				sessionId, memberId, EmojiType.STAR);
+
+		int sumThumbsUpCount = emojiActionRepository
+			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
+				sessionId, memberId, EmojiType.THUMBS_UP);
+
+		int sumThumbsDownCount = emojiActionRepository
+			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
+				sessionId, memberId, EmojiType.THUMBS_DOWN);
+
+		return SessionConverter.toSumEmojiResultResponseDTO(
+			sumHeartCount,
+			sumStarCount,
+			sumThumbsUpCount,
+			sumThumbsDownCount
+		);
+	}
+
 	public SessionResponseDTO.SessionResultResponseDTO getMemberSessionReport(
 		Long sessionId,
 		Long memberId
