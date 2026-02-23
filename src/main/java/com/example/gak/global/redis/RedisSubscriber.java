@@ -35,6 +35,7 @@ public class RedisSubscriber implements MessageListener {
 			case "waiting" -> handleWaiting(sessionId);
 			case "in-progress" -> handleInProgress(sessionId);
 			case "session" -> handleSessionStatus(sessionId);
+			case "reaction" -> handleReaction(sessionId);
 			default -> log.warn("Unknown channel type: {}", type);
 		}
 	}
@@ -55,5 +56,11 @@ public class RedisSubscriber implements MessageListener {
 		SessionResponseDTO.SessionStartResponseDTO dto =
 			sessionQueryService.getSessionStatus(sessionId);
 		sseService.sendSessionStatus(sessionId, dto);
+	}
+
+	private void handleReaction(Long sessionId) {
+		SessionResponseDTO.EmojiResultResponseDTO dto =
+			sessionQueryService.getReactionStatus(sessionId);
+		sseService.sendReaction(sessionId, dto);
 	}
 }

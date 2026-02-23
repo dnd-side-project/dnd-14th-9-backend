@@ -33,4 +33,11 @@ public class RedisPublisher {
 		String channel = "session/" + sessionId;
 		redisTemplate.convertAndSend(channel, "UPDATE");
 	}
+
+	public void reactionPublish(
+		Long sessionId
+	) {
+		String channel = "reaction/" + sessionId;
+		redisTemplate.convertAndSend(channel, "UPDATE");
+	}
 }

@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.record.entity.Record;
@@ -28,6 +29,7 @@ import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.enums.DurationRange;
 import com.example.gak.domain.session.enums.SessionSort;
 import com.example.gak.domain.session.enums.TimeSlot;
+import com.example.gak.domain.session.repository.EmojiActionRepository;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.session.repository.SessionSpecification;
@@ -47,6 +49,7 @@ public class SessionQueryService {
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 	private final RecordRepository recordRepository;
 	private final TaskRepository taskRepository;
+	private final EmojiActionRepository emojiActionRepository;
 
 	public SessionResponseDTO.SessionCardResponseListDTO getSessions(
 		String keyword,
@@ -201,6 +204,30 @@ public class SessionQueryService {
 			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
 
 		return toSessionStartResponseDTO(sessionRoom);
+	}
+
+	public SessionResponseDTO.EmojiResultResponseDTO getReactionStatus(Long sessionId) {
+		sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		int sumHeartCount = emojiActionRepository
+			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.HEART);
+
+		int sumStarCount = emojiActionRepository
+			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.STAR);
+
+		int sumThumbsUpCount = emojiActionRepository
+			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.THUMBS_UP);
+
+		int sumThumbsDownCount = emojiActionRepository
+			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.THUMBS_DOWN);
+
+		return SessionConverter.toSumEmojiResultResponseDTO(
+			sumHeartCount,
+			sumStarCount,
+			sumThumbsUpCount,
+			sumThumbsDownCount
+		);
 	}
 
 	public SessionResponseDTO.SessionResultResponseDTO getMemberSessionReport(

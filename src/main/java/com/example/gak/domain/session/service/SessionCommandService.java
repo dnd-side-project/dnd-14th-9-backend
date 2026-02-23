@@ -36,6 +36,7 @@ import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.redis.RedisPublisher;
 import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.ReactionUpdateEvent;
 import com.example.gak.global.redis.event.SessionStatusUpdateEvent;
 import com.example.gak.global.redis.event.WaitingRoomUpdateEvent;
 import com.example.gak.global.validator.ImageFileValidator;
@@ -285,6 +286,10 @@ public class SessionCommandService {
 			.findByMemberIdAndSessionRoomId(memberId, sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
 
+		if (actor.getMember().getId() == request.getTargetMemberId()) {
+			throw new GeneralException(GeneralErrorCode.CANNOT_REACT_TO_SELF);
+		}
+
 		SessionRoomMember target = sessionRoomMemberRepository
 			.findByMemberIdAndSessionRoomId(request.getTargetMemberId(), sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
@@ -302,10 +307,18 @@ public class SessionCommandService {
 			if (existing.getEmojiType() == request.getEmojiType()) {
 				emojiActionRepository.delete(existing);
 
+				applicationEventPublisher.publishEvent(
+					new ReactionUpdateEvent(sessionId)
+				);
+
 				return SessionConverter.emojiDeleted(request.getTargetMemberId());
 			}
 
 			existing.changeEmojiType(request.getEmojiType());
+
+			applicationEventPublisher.publishEvent(
+				new ReactionUpdateEvent(sessionId)
+			);
 
 			return SessionConverter.emojiUpdated(
 				request.getTargetMemberId(),
@@ -321,6 +334,10 @@ public class SessionCommandService {
 		);
 
 		emojiActionRepository.save(emojiAction);
+
+		applicationEventPublisher.publishEvent(
+			new ReactionUpdateEvent(sessionId)
+		);
 
 		return SessionConverter.emojiUpdated(
 			request.getTargetMemberId(),

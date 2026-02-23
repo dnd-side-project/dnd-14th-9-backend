@@ -20,6 +20,7 @@ public class RedisConfig {
 		container.addMessageListener(redisSubscriber, new PatternTopic("waiting/*"));
 		container.addMessageListener(redisSubscriber, new PatternTopic("in-progress/*"));
 		container.addMessageListener(redisSubscriber, new PatternTopic("session/*"));
+		container.addMessageListener(redisSubscriber, new PatternTopic("reaction/*"));
 
 		return container;
 	}
