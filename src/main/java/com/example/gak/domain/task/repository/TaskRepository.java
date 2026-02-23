@@ -22,4 +22,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 		@Param("sessionId") Long sessionId,
 		@Param("memberId") Long memberId
 	);
+
+	List<Task> findBySessionRoomId(Long sessionRoomId);
 }

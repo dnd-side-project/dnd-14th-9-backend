@@ -170,4 +170,42 @@ public class SessionResponseDTO {
 		private String content;
 		private Boolean isCompleted;
 	}
+
+	@Schema(name = "세션 결과 응답")
+	@Builder
+	@Getter
+	public static class SessionResultResponseDTO {
+		private Long sessionId;
+		private Integer currentParticipants;
+		private SessionMemberResultResponseDTO sessionMemberResult;
+	}
+
+	@Schema(name = "사용자 세션 결과 단건 응답")
+	@Builder
+	@Getter
+	public static class SessionMemberResultResponseDTO {
+		private Long memberId;
+		private String nickname;
+		private String profileImageUrl;
+		private SessionParticipantRole role;
+
+		private Integer focusRate;
+		private Integer totalFocusSeconds;
+		private Integer overallFocusSeconds;
+
+		private Integer achievementRate;
+		private SessionTaskResponseDTO task;
+
+		private EmojiResultResponseDTO emojiResult;
+	}
+
+	@Schema(name = "받은 이모지 갯수 응답")
+	@Builder
+	@Getter
+	public static class EmojiResultResponseDTO {
+		private Integer heartCount;
+		private Integer starCount;
+		private Integer thumbsUpCount;
+		private Integer thumbsDownCount;
+	}
 }

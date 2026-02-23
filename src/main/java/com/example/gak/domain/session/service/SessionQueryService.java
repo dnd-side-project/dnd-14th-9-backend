@@ -200,6 +200,45 @@ public class SessionQueryService {
 		return toSessionStartResponseDTO(sessionRoom);
 	}
 
+	public SessionResponseDTO.SessionResultResponseDTO getSessionReport(
+		Long sessionId,
+		Long memberId
+	) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		SessionRoomMember srm = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(memberId, sessionId)
+			.orElseThrow(() -> new GeneralException(SESSION_NOT_JOINED));
+
+		Task task = taskRepository.findBySessionRoomIdAndMemberId(sessionId, memberId)
+			.orElseThrow(() -> new GeneralException(TASK_NOT_FOUND_IN_SESSION));
+
+		SessionResponseDTO.EmojiResultResponseDTO emojiResult =
+			SessionConverter.toEmojiResultResponseDTO(srm);
+
+		List<SessionResponseDTO.SessionTodoResponseDTO> todos =
+			task.getSubTasks().stream()
+				.map(SessionConverter::toSessionTodoResponseDTO)
+				.toList();
+
+		SessionResponseDTO.SessionTaskResponseDTO sessionTask =
+			SessionConverter.toSessionTaskResponseDTO(task, todos);
+
+		SessionResponseDTO.SessionMemberResultResponseDTO memberResult =
+			SessionConverter.toSessionMemberResultResponseDTO(
+				srm,
+				emojiResult,
+				sessionTask
+			);
+
+		return SessionConverter.toSessionResultResponseDTO(
+			0,
+			sessionRoom,
+			memberResult
+		);
+	}
+
 	private SessionResponseDTO.InProgressMemberResponseDTO toSessionMember(
 		Long sessionId,
 		SessionRoomMember srm
