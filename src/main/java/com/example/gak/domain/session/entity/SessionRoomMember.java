@@ -58,6 +58,10 @@ public class SessionRoomMember extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
+	private Integer totalFocusSeconds = 0;
+	
+	private Integer overallSeconds = 0;
+
 	public SessionRoomMember(
 		SessionParticipantRole role,
 		SessionRoom sessionRoom,
@@ -79,5 +83,13 @@ public class SessionRoomMember extends BaseEntity {
 		} else {
 			this.status = SessionParticipantStatus.FOCUSED;
 		}
+	}
+
+	public void setTotalFocusSeconds(int totalFocusSeconds) {
+		this.totalFocusSeconds = totalFocusSeconds;
+	}
+
+	public void setOverallSeconds(int overallSeconds) {
+		this.overallSeconds = overallSeconds;
 	}
 }
