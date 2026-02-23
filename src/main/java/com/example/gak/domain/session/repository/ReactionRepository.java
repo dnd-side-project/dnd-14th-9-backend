@@ -5,11 +5,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.gak.domain.common.entity.enums.EmojiType;
-import com.example.gak.domain.session.entity.EmojiAction;
+import com.example.gak.domain.session.entity.Reaction;
 
-public interface EmojiActionRepository extends JpaRepository<EmojiAction, Long> {
+public interface ReactionRepository extends JpaRepository<Reaction, Long> {
 
-	Optional<EmojiAction> findBySessionRoomIdAndMemberIdAndTargetMemberId(
+	Optional<Reaction> findBySessionRoomIdAndMemberIdAndTargetMemberId(
 		Long sessionRoomId,
 		Long memberId,
 		Long targetMemberId

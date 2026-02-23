@@ -29,7 +29,7 @@ import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.enums.DurationRange;
 import com.example.gak.domain.session.enums.SessionSort;
 import com.example.gak.domain.session.enums.TimeSlot;
-import com.example.gak.domain.session.repository.EmojiActionRepository;
+import com.example.gak.domain.session.repository.ReactionRepository;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.session.repository.SessionSpecification;
@@ -49,7 +49,7 @@ public class SessionQueryService {
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 	private final RecordRepository recordRepository;
 	private final TaskRepository taskRepository;
-	private final EmojiActionRepository emojiActionRepository;
+	private final ReactionRepository reactionRepository;
 
 	public SessionResponseDTO.SessionCardResponseListDTO getSessions(
 		String keyword,
@@ -210,16 +210,16 @@ public class SessionQueryService {
 		sessionRoomRepository.findById(sessionId)
 			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
 
-		int sumHeartCount = emojiActionRepository
+		int sumHeartCount = reactionRepository
 			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.HEART);
 
-		int sumStarCount = emojiActionRepository
+		int sumStarCount = reactionRepository
 			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.STAR);
 
-		int sumThumbsUpCount = emojiActionRepository
+		int sumThumbsUpCount = reactionRepository
 			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.THUMBS_UP);
 
-		int sumThumbsDownCount = emojiActionRepository
+		int sumThumbsDownCount = reactionRepository
 			.countBySessionRoomIdAndEmojiType(sessionId, EmojiType.THUMBS_DOWN);
 
 		return SessionConverter.toSumEmojiResultResponseDTO(
@@ -237,19 +237,19 @@ public class SessionQueryService {
 		sessionRoomRepository.findById(sessionId)
 			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
 
-		int sumHeartCount = emojiActionRepository
+		int sumHeartCount = reactionRepository
 			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
 				sessionId, memberId, EmojiType.HEART);
 
-		int sumStarCount = emojiActionRepository
+		int sumStarCount = reactionRepository
 			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
 				sessionId, memberId, EmojiType.STAR);
 
-		int sumThumbsUpCount = emojiActionRepository
+		int sumThumbsUpCount = reactionRepository
 			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
 				sessionId, memberId, EmojiType.THUMBS_UP);
 
-		int sumThumbsDownCount = emojiActionRepository
+		int sumThumbsDownCount = reactionRepository
 			.countBySessionRoomIdAndTargetMemberIdAndEmojiType(
 				sessionId, memberId, EmojiType.THUMBS_DOWN);
 

@@ -27,11 +27,11 @@ import lombok.NoArgsConstructor;
 		)
 	}
 )
-public class EmojiAction {
+public class Reaction {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "emoji_action_id")
+	@Column(name = "reaction_id")
 	private Long id;
 
 	private EmojiType emojiType;
@@ -52,13 +52,13 @@ public class EmojiAction {
 		this.emojiType = emojiType;
 	}
 
-	public static EmojiAction create(
+	public static Reaction create(
 		EmojiType emojiType,
 		Member member,
 		Member targetMember,
 		SessionRoom sessionRoom
 	) {
-		EmojiAction action = new EmojiAction();
+		Reaction action = new Reaction();
 		action.emojiType = emojiType;
 		action.member = member;
 		action.targetMember = targetMember;

@@ -19,12 +19,12 @@ import com.example.gak.domain.member.repository.MemberRepository;
 import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
-import com.example.gak.domain.session.entity.EmojiAction;
+import com.example.gak.domain.session.entity.Reaction;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
-import com.example.gak.domain.session.repository.EmojiActionRepository;
+import com.example.gak.domain.session.repository.ReactionRepository;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.task.entity.SubTask;
@@ -56,7 +56,7 @@ public class SessionCommandService {
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 	private final SubTaskRepository subTaskRepository;
 	private final TaskRepository taskRepository;
-	private final EmojiActionRepository emojiActionRepository;
+	private final ReactionRepository reactionRepository;
 
 	private final RedisPublisher redisPublisher;
 
@@ -295,7 +295,7 @@ public class SessionCommandService {
 			.findByMemberIdAndSessionRoomId(request.getTargetMemberId(), sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
 
-		Optional<EmojiAction> optional = emojiActionRepository
+		Optional<Reaction> optional = reactionRepository
 			.findBySessionRoomIdAndMemberIdAndTargetMemberId(
 				sessionId,
 				memberId,
@@ -303,10 +303,10 @@ public class SessionCommandService {
 			);
 
 		if (optional.isPresent()) {
-			EmojiAction existing = optional.get();
+			Reaction existing = optional.get();
 
 			if (existing.getEmojiType() == request.getEmojiType()) {
-				emojiActionRepository.delete(existing);
+				reactionRepository.delete(existing);
 
 				applicationEventPublisher.publishEvent(
 					new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
@@ -333,14 +333,14 @@ public class SessionCommandService {
 			);
 		}
 
-		EmojiAction emojiAction = EmojiAction.create(
+		Reaction emojiAction = Reaction.create(
 			request.getEmojiType(),
 			actor.getMember(),
 			target.getMember(),
 			sessionRoom
 		);
 
-		emojiActionRepository.save(emojiAction);
+		reactionRepository.save(emojiAction);
 
 		applicationEventPublisher.publishEvent(
 			new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
