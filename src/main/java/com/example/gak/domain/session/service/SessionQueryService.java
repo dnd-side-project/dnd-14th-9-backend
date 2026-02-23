@@ -200,7 +200,7 @@ public class SessionQueryService {
 		return toSessionStartResponseDTO(sessionRoom);
 	}
 
-	public SessionResponseDTO.SessionResultResponseDTO getSessionReport(
+	public SessionResponseDTO.SessionResultResponseDTO getMemberSessionReport(
 		Long sessionId,
 		Long memberId
 	) {

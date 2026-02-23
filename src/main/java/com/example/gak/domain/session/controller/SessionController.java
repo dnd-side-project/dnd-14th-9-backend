@@ -182,6 +182,6 @@ public class SessionController {
 		@PathVariable Long sessionId,
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User
 	) {
-		return ApiResponse.onSuccess(sessionQueryService.getSessionReport(sessionId, oAuth2User.getMemberId()));
+		return ApiResponse.onSuccess(sessionQueryService.getMemberSessionReport(sessionId, oAuth2User.getMemberId()));
 	}
 }
