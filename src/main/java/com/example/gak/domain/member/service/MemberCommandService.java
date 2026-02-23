@@ -81,7 +81,7 @@ public class MemberCommandService {
 	}
 
 	public void markFirstLoginComplete(Long memberId) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		if (member.isFirstLogin()) {
 			member.markLoginDone();
@@ -92,7 +92,7 @@ public class MemberCommandService {
 		Long memberId,
 		MemberRequestDTO.UpdateMemberRequestDTO request
 	) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		member.updateNickname(request.getNickname());
 		member.updateBio(request.getBio());
@@ -112,7 +112,7 @@ public class MemberCommandService {
 	}
 
 	public MemberResponseDTO.UpdateMemberResponseDTO updateProfileImage(Long memberId, MultipartFile newProfileImage) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		if (newProfileImage != null) {
 			String newProfileImageUrl = amazonS3Manager.uploadFile(
@@ -134,7 +134,7 @@ public class MemberCommandService {
 		Long memberId,
 		MemberRequestDTO.UpdateMemberNicknameRequestDTO request
 	) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 		member.updateNickname(request.getNickname());
 
 		return MemberConverter.toUpdateMemberResponseDTO(member);
@@ -144,7 +144,7 @@ public class MemberCommandService {
 		Long memberId,
 		MemberRequestDTO.UpdateMemberEmailRequestDTO request
 	) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		if (request != null) {
 			member.updateEmail(request.getEmail());
@@ -157,7 +157,7 @@ public class MemberCommandService {
 		Long memberId,
 		MemberRequestDTO.UpdateMemberInterestCategoriesRequestDTO request
 	) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		if (request != null) {
 			member.updateInterestCategories(
@@ -171,7 +171,7 @@ public class MemberCommandService {
 	}
 
 	public void deleteProfileImage(Long memberId) {
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		String profileImageUrl = member.getProfileImageUrl();
 		if (profileImageUrl == null || profileImageUrl.isEmpty()) {
@@ -187,7 +187,7 @@ public class MemberCommandService {
 			throw new GeneralException(GeneralErrorCode.MEMBER_HAS_ACTIVE_SESSION);
 		}
 
-		Member member = getMember(memberId);
+		Member member = findMember(memberId);
 
 		recordRepository.deleteByMemberId(memberId);
 		chatMessageRepository.deleteByMemberId(memberId);
@@ -207,7 +207,7 @@ public class MemberCommandService {
 		member.delete();
 	}
 
-	private Member getMember(Long memberId) {
+	private Member findMember(Long memberId) {
 		return memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 	}

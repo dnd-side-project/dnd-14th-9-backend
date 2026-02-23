@@ -57,6 +57,16 @@ public class MemberController {
 		return ApiResponse.onSuccess(response);
 	}
 
+	@Operation(summary = "내 리포트 통계 정보 조회 API (마이페이지)")
+	@GetMapping("/me/report-stats")
+	public ApiResponse<MemberResponseDTO.GetReportStats> getReportStats(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		return ApiResponse.onSuccess(
+			memberQueryService.getReportStats(oAuth2User.getMemberId())
+		);
+	}
+
 	@Operation(summary = "내 정보 수정 API (마이페이지)")
 	@PatchMapping("/me")
 	public ApiResponse<MemberResponseDTO.UpdateMemberResponseDTO> updateMember(

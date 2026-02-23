@@ -1,6 +1,10 @@
 package com.example.gak.domain.record.entity;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import com.example.gak.domain.common.entity.BaseEntity;
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.example.gak.domain.member.entity.Member;
 
@@ -52,6 +56,16 @@ public class Record extends BaseEntity {
 
 	private int etcSessionCount;
 
+	private int totalEmojiCount;
+
+	private int heartEmojiCount;
+
+	private int thumbsUpEmojiCount;
+
+	private int thumbsDownEmojiCount;
+
+	private int starEmojiCount;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false, unique = true)
 	private Member member;
@@ -70,8 +84,17 @@ public class Record extends BaseEntity {
 		this.creativeSessionCount = 0;
 		this.teamProjectSessionCount = 0;
 		this.etcSessionCount = 0;
+		this.totalEmojiCount = 0;
+		this.heartEmojiCount = 0;
+		this.thumbsUpEmojiCount = 0;
+		this.thumbsDownEmojiCount = 0;
+		this.starEmojiCount = 0;
 		this.member = member;
 	}
+
+	/* =========================
+	 * 상태 변경 메서드 - 카운트 증가
+	 * ========================= */
 
 	public void increaseParticipationTime(long seconds) {
 		this.totalParticipationTime += seconds;
@@ -103,20 +126,28 @@ public class Record extends BaseEntity {
 		participationSessionCount++;
 	}
 
-	public int getTotalParticipationMinutes() {
-		return (int)Math.round(totalParticipationTime / 60.0);
+	public void increaseEmojiTypesCount(Map<EmojiType, Integer> emojiTypes) {
+		emojiTypes.forEach((type, count) -> {
+			switch (type) {
+				case HEART -> heartEmojiCount += count;
+				case THUMBS_UP -> thumbsUpEmojiCount += count;
+				case THUMBS_DOWN -> thumbsDownEmojiCount += count;
+				case STAR -> starEmojiCount += count;
+			}
+			totalEmojiCount += count;
+		});
 	}
 
-	public int getFocusedMinutes() {
-		return (int)Math.round(focusedTime / 60.0);
-	}
+	/* =========================
+	 * 비율 계산 메서드
+	 * ========================= */
 
 	public int getFocusRate() {
 		if (totalParticipationTime == 0) {
 			return 0;
 		}
 
-		return (int)((focusedTime * 100.0) / totalParticipationTime);
+		return (int)Math.round((focusedTime * 100.0) / totalParticipationTime);
 	}
 
 	public int getTodoCompletionRate() {
@@ -124,6 +155,62 @@ public class Record extends BaseEntity {
 			return 0;
 		}
 
-		return (int)((completedTodoCount * 100.0) / totalTodoCount);
+		return (int)Math.round((completedTodoCount * 100.0) / totalTodoCount);
+	}
+
+	public int getCategoryParticipationRate(SessionCategory category) {
+		if (participationSessionCount == 0) {
+			return 0;
+		}
+
+		int count = getCategoryCount(category);
+
+		return (int)Math.round((count * 100.0 / participationSessionCount));
+	}
+
+	/* =========================
+	 * 통계 조회 - 카테고리, 이모지
+	 * ========================= */
+
+	public Map<SessionCategory, Integer> getCategoryCounts() {
+		Map<SessionCategory, Integer> map = new EnumMap<>(SessionCategory.class);
+
+		for (SessionCategory category : SessionCategory.values()) {
+			map.put(category, getCategoryCount(category));
+		}
+
+		return map;
+	}
+
+	public Map<EmojiType, Integer> getEmojiTypeCounts() {
+		Map<EmojiType, Integer> map = new EnumMap<>(EmojiType.class);
+
+		for (EmojiType type : EmojiType.values()) {
+			map.put(type, getEmojiCount(type));
+		}
+
+		return map;
+	}
+
+	private int getCategoryCount(SessionCategory category) {
+		return switch (category) {
+			case DEVELOPMENT -> devSessionCount;
+			case DESIGN -> designSessionCount;
+			case PLANNING_PM -> planningPmSessionCount;
+			case CAREER_SELF_DEVELOPMENT -> careerSelfDevSessionCount;
+			case STUDY_READING -> studyReadingSessionCount;
+			case CREATIVE -> creativeSessionCount;
+			case TEAM_PROJECT -> teamProjectSessionCount;
+			case FREE -> etcSessionCount;
+		};
+	}
+
+	private int getEmojiCount(EmojiType type) {
+		return switch (type) {
+			case HEART -> heartEmojiCount;
+			case THUMBS_UP -> thumbsUpEmojiCount;
+			case THUMBS_DOWN -> thumbsDownEmojiCount;
+			case STAR -> starEmojiCount;
+		};
 	}
 }
