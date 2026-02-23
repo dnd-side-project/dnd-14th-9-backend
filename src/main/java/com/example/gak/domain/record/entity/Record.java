@@ -175,14 +175,9 @@ public class Record extends BaseEntity {
 	public Map<SessionCategory, Integer> getCategoryCounts() {
 		Map<SessionCategory, Integer> map = new EnumMap<>(SessionCategory.class);
 
-		map.put(SessionCategory.DEVELOPMENT, devSessionCount);
-		map.put(SessionCategory.DESIGN, designSessionCount);
-		map.put(SessionCategory.PLANNING_PM, planningPmSessionCount);
-		map.put(SessionCategory.CAREER_SELF_DEVELOPMENT, careerSelfDevSessionCount);
-		map.put(SessionCategory.STUDY_READING, studyReadingSessionCount);
-		map.put(SessionCategory.CREATIVE, creativeSessionCount);
-		map.put(SessionCategory.TEAM_PROJECT, teamProjectSessionCount);
-		map.put(SessionCategory.FREE, etcSessionCount);
+		for (SessionCategory category : SessionCategory.values()) {
+			map.put(category, getCategoryCount(category));
+		}
 
 		return map;
 	}
@@ -190,10 +185,9 @@ public class Record extends BaseEntity {
 	public Map<EmojiType, Integer> getEmojiTypeCounts() {
 		Map<EmojiType, Integer> map = new EnumMap<>(EmojiType.class);
 
-		map.put(EmojiType.HEART, heartEmojiCount);
-		map.put(EmojiType.THUMBS_UP, thumbsUpEmojiCount);
-		map.put(EmojiType.THUMBS_DOWN, thumbsDownEmojiCount);
-		map.put(EmojiType.STAR, starEmojiCount);
+		for (EmojiType type : EmojiType.values()) {
+			map.put(type, getEmojiCount(type));
+		}
 
 		return map;
 	}
@@ -208,6 +202,15 @@ public class Record extends BaseEntity {
 			case CREATIVE -> creativeSessionCount;
 			case TEAM_PROJECT -> teamProjectSessionCount;
 			case FREE -> etcSessionCount;
+		};
+	}
+
+	private int getEmojiCount(EmojiType type) {
+		return switch (type) {
+			case HEART -> heartEmojiCount;
+			case THUMBS_UP -> thumbsUpEmojiCount;
+			case THUMBS_DOWN -> thumbsDownEmojiCount;
+			case STAR -> starEmojiCount;
 		};
 	}
 }
