@@ -255,6 +255,13 @@ public class SessionCommandService {
 
 		sessionRoomMember.setOverallSeconds(request.getOverallSeconds());
 		sessionRoomMember.setTotalFocusSeconds(request.getTotalFocusSeconds());
+		sessionRoomMember.updateFocusRate();
+
+		Task task = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId, memberId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
+		List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
+
+		sessionRoomMember.updateAchievementRate(subTasks);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
