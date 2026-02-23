@@ -175,4 +175,13 @@ public class SessionController {
 		sessionCommandService.postSessionResult(oAuth2User.getMemberId(), sessionId, request);
 		return ApiResponse.onSuccess(null);
 	}
+
+	@Operation(summary = "세션 종료 후 나의 리포트 조회 API")
+	@GetMapping("/{sessionId}/me/report")
+	public ApiResponse<SessionResponseDTO.SessionResultResponseDTO> getSessionFocusReport(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		return ApiResponse.onSuccess(sessionQueryService.getSessionReport(sessionId, oAuth2User.getMemberId()));
+	}
 }
