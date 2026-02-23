@@ -1,9 +1,12 @@
 package com.example.gak.domain.session.entity;
 
+import java.util.List;
+
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
+import com.example.gak.domain.task.entity.SubTask;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,8 +62,20 @@ public class SessionRoomMember extends BaseEntity {
 	private Member member;
 
 	private Integer totalFocusSeconds = 0;
-	
+
 	private Integer overallSeconds = 0;
+
+	private Integer focusRate = 0;
+
+	private Integer achievementRate = 0;
+
+	private Integer heartCount = 0;
+
+	private Integer starCount = 0;
+
+	private Integer thumbsUpCount = 0;
+
+	private Integer thumbsDownCount = 0;
 
 	public SessionRoomMember(
 		SessionParticipantRole role,
@@ -85,11 +100,33 @@ public class SessionRoomMember extends BaseEntity {
 		}
 	}
 
+	public void updateAchievementRate(List<SubTask> subTasks) {
+		int totalCount = subTasks.size();
+		if (totalCount == 0) {
+			this.achievementRate = 0;
+			return;
+		}
+
+		long completedCount = subTasks.stream()
+			.filter(SubTask::isCompleted)
+			.count();
+
+		this.achievementRate = (int)((double)completedCount / totalCount * 100);
+	}
+
 	public void setTotalFocusSeconds(int totalFocusSeconds) {
 		this.totalFocusSeconds = totalFocusSeconds;
 	}
 
 	public void setOverallSeconds(int overallSeconds) {
 		this.overallSeconds = overallSeconds;
+	}
+
+	public void updateFocusRate() {
+		if (this.overallSeconds <= 0) {
+			this.focusRate = 0;
+			return;
+		}
+		this.focusRate = (int)((double)this.totalFocusSeconds / this.overallSeconds * 100);
 	}
 }
