@@ -164,4 +164,15 @@ public class SessionController {
 		sessionCommandService.forceExitMembers(sessionId, oAuth2User.getMemberId(), request);
 		return ApiResponse.onSuccess(null);
 	}
+
+	@Operation(summary = "세션 종료 후 결과 전송 API")
+	@PostMapping("/{sessionId}/results")
+	public ApiResponse<Void> postSessionResult(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestBody @Valid SessionRequestDTO.SessionResultRequestDTO request
+	) {
+		sessionCommandService.postSessionResult(oAuth2User.getMemberId(), sessionId, request);
+		return ApiResponse.onSuccess(null);
+	}
 }
