@@ -241,4 +241,51 @@ public class SessionConverter {
 			.sessionMemberResult(sessionMemberResult)
 			.build();
 	}
+
+	public static SessionResponseDTO.EndSessionResponseDTO toEndSessionResponseDTO(
+		Integer averageTotalFocusSeconds,
+		Integer averageOverallSeconds,
+		Integer averageAchievementRate,
+		Integer averageFocusRate,
+		List<SessionResponseDTO.EndSessionMemberResultResponseDTO> members,
+		SessionResponseDTO.EmojiResultResponseDTO emojiResult
+	) {
+		return SessionResponseDTO.EndSessionResponseDTO.builder()
+			.averageTotalFocusSeconds(averageTotalFocusSeconds)
+			.averageOverallSeconds(averageOverallSeconds)
+			.averageAchievementRate(averageAchievementRate)
+			.averageFocusRate(averageFocusRate)
+			.members(members)
+			.emojiResult(emojiResult)
+			.build();
+	}
+
+	public static SessionResponseDTO.EndSessionMemberResultResponseDTO toEndSessionMemberResultResponseDTO(
+		SessionRoomMember sessionRoomMember,
+		String goal
+	) {
+		return SessionResponseDTO.EndSessionMemberResultResponseDTO.builder()
+			.memberId(sessionRoomMember.getMember().getId())
+			.nickname(sessionRoomMember.getMember().getNickname())
+			.profileImageUrl(sessionRoomMember.getMember().getProfileImageUrl())
+			.role(sessionRoomMember.getRole())
+			.goal(goal)
+			.focusRate(sessionRoomMember.getFocusRate())
+			.achievementRate(sessionRoomMember.getAchievementRate())
+			.build();
+	}
+
+	public static SessionResponseDTO.EmojiResultResponseDTO toSumEmojiResultResponseDTO(
+		int heartCount,
+		int startCount,
+		int thumbsUpCount,
+		int thumbsDownCount
+	) {
+		return SessionResponseDTO.EmojiResultResponseDTO.builder()
+			.heartCount(heartCount)
+			.starCount(startCount)
+			.thumbsUpCount(thumbsUpCount)
+			.thumbsDownCount(thumbsDownCount)
+			.build();
+	}
 }

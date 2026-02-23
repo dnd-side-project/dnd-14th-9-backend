@@ -208,4 +208,30 @@ public class SessionResponseDTO {
 		private Integer thumbsUpCount;
 		private Integer thumbsDownCount;
 	}
+
+	@Schema(name = "세션 전체 결과 응답")
+	@Builder
+	@Getter
+	public static class EndSessionResponseDTO {
+		private Integer averageTotalFocusSeconds;
+		private Integer averageOverallSeconds;
+		private Integer averageAchievementRate;
+		private Integer averageFocusRate;
+
+		private List<EndSessionMemberResultResponseDTO> members;
+		private EmojiResultResponseDTO emojiResult;
+	}
+
+	@Schema(name = "세션 전체 결과 참여자별 응답")
+	@Builder
+	@Getter
+	public static class EndSessionMemberResultResponseDTO {
+		private Long memberId;
+		private String nickname;
+		private String profileImageUrl;
+		private SessionParticipantRole role;
+		private String goal;
+		private Integer focusRate;
+		private Integer achievementRate;
+	}
 }

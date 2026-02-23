@@ -6,6 +6,9 @@ import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -236,6 +239,97 @@ public class SessionQueryService {
 			0,
 			sessionRoom,
 			memberResult
+		);
+	}
+
+	public SessionResponseDTO.EndSessionResponseDTO getSessionReport(Long sessionId) {
+
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
+
+		List<SessionRoomMember> sessionRoomMembers =
+			sessionRoomMemberRepository.findBySessionRoom(sessionRoom);
+
+		if (sessionRoomMembers.isEmpty()) {
+			return SessionConverter.toEndSessionResponseDTO(
+				0, 0, 0, 0, List.of(),
+				SessionConverter.toSumEmojiResultResponseDTO(0, 0, 0, 0)
+			);
+		}
+
+		int avgTotalFocusSeconds = (int)sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getTotalFocusSeconds)
+			.average()
+			.orElse(0);
+
+		int avgOverallSeconds = (int)sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getOverallSeconds)
+			.average()
+			.orElse(0);
+
+		int avgAchievementRate = (int)sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getAchievementRate)
+			.average()
+			.orElse(0);
+
+		int avgFocusRate = (int)sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getFocusRate)
+			.average()
+			.orElse(0);
+
+		List<Task> tasks = taskRepository.findBySessionRoomId(sessionId);
+
+		Map<Long, Task> taskMap = tasks.stream()
+			.collect(Collectors.toMap(
+				task -> task.getMember().getId(),
+				Function.identity()
+			));
+
+		List<SessionResponseDTO.EndSessionMemberResultResponseDTO> members =
+			sessionRoomMembers.stream()
+				.map(srm -> {
+					Task task = taskMap.get(srm.getMember().getId());
+					if (task == null) {
+						throw new GeneralException(TASK_NOT_FOUND_IN_SESSION);
+					}
+					return SessionConverter.toEndSessionMemberResultResponseDTO(
+						srm,
+						task.getGoal()
+					);
+				})
+				.toList();
+
+		int sumHeartCount = sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getHeartCount)
+			.sum();
+
+		int sumStarCount = sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getStarCount)
+			.sum();
+
+		int sumThumbsUpCount = sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getThumbsUpCount)
+			.sum();
+
+		int sumThumbsDownCount = sessionRoomMembers.stream()
+			.mapToInt(SessionRoomMember::getThumbsDownCount)
+			.sum();
+
+		SessionResponseDTO.EmojiResultResponseDTO emojiResult =
+			SessionConverter.toSumEmojiResultResponseDTO(
+				sumHeartCount,
+				sumStarCount,
+				sumThumbsUpCount,
+				sumThumbsDownCount
+			);
+
+		return SessionConverter.toEndSessionResponseDTO(
+			avgTotalFocusSeconds,
+			avgOverallSeconds,
+			avgAchievementRate,
+			avgFocusRate,
+			members,
+			emojiResult
 		);
 	}
 
