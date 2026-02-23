@@ -6,6 +6,7 @@ import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,12 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
+import com.example.gak.domain.session.entity.EmojiAction;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.repository.EmojiActionRepository;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.domain.session.repository.SessionRoomRepository;
 import com.example.gak.domain.task.entity.SubTask;
@@ -50,6 +54,7 @@ public class SessionCommandService {
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 	private final SubTaskRepository subTaskRepository;
 	private final TaskRepository taskRepository;
+	private final EmojiActionRepository emojiActionRepository;
 
 	private final RedisPublisher redisPublisher;
 
@@ -262,6 +267,65 @@ public class SessionCommandService {
 		List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
 
 		sessionRoomMember.updateAchievementRate(subTasks);
+	}
+
+	public SessionResponseDTO.EmojiActionResponseDTO emojiAction(
+		Long sessionId,
+		Long memberId,
+		SessionRequestDTO.EmojiActionRequest request
+	) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.COMPLETED) {
+			throw new GeneralException(GeneralErrorCode.SESSION_RESULT_BEFORE_END);
+		}
+
+		SessionRoomMember actor = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(memberId, sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		SessionRoomMember target = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(request.getTargetMemberId(), sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		Optional<EmojiAction> optional = emojiActionRepository
+			.findBySessionRoomIdAndMemberIdAndTargetMemberId(
+				sessionId,
+				memberId,
+				request.getTargetMemberId()
+			);
+
+		if (optional.isPresent()) {
+			EmojiAction existing = optional.get();
+
+			if (existing.getEmojiType() == request.getEmojiType()) {
+				emojiActionRepository.delete(existing);
+
+				return SessionConverter.emojiDeleted(request.getTargetMemberId());
+			}
+
+			existing.changeEmojiType(request.getEmojiType());
+
+			return SessionConverter.emojiUpdated(
+				request.getTargetMemberId(),
+				request.getEmojiType()
+			);
+		}
+
+		EmojiAction emojiAction = EmojiAction.create(
+			request.getEmojiType(),
+			actor.getMember(),
+			target.getMember(),
+			sessionRoom
+		);
+
+		emojiActionRepository.save(emojiAction);
+
+		return SessionConverter.emojiUpdated(
+			request.getTargetMemberId(),
+			request.getEmojiType()
+		);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
