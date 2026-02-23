@@ -192,4 +192,16 @@ public class SessionController {
 	) {
 		return ApiResponse.onSuccess(sessionQueryService.getSessionReport(sessionId));
 	}
+
+	@Operation(summary = "이모지 액션 API")
+	@PostMapping("/{sessionId}/emoji")
+	public ApiResponse<SessionResponseDTO.EmojiActionResponseDTO> emojiAction(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestBody SessionRequestDTO.EmojiActionRequest request
+
+	) {
+		Long memberId = oAuth2User.getMemberId();
+		return ApiResponse.onSuccess(sessionCommandService.emojiAction(sessionId, memberId, request));
+	}
 }
