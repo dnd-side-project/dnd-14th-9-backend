@@ -17,6 +17,7 @@ public final class AccessTokenFreeUrls {
 		"/api/v1/sessions/{sessionId:\\d+}/in-progress/events",
 		"/api/v1/sessions/{sessionId:\\d+}/status/events",
 		"/api/v1/sessions/{sessionId:\\d+}/reaction/events",
-		"/api/v1/sessions/{sessionId:\\d+}/members/{memberId:\\d+}/reaction/events"
+		"/api/v1/sessions/{sessionId:\\d+}/members/{memberId:\\d+}/reaction/events",
+		"/ws/**"
 	};
 }

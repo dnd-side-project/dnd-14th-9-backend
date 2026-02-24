@@ -25,6 +25,7 @@ import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
+import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.enums.DurationRange;
 import com.example.gak.domain.session.enums.SessionSort;
@@ -389,6 +390,13 @@ public class SessionQueryService {
 			members,
 			emojiResult
 		);
+	}
+
+	public Boolean isHost(Long sessionId, Long memberId) {
+		SessionRoomMember sessionRoomMember = sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(memberId, sessionId)
+			.orElseThrow(() -> new GeneralException(SESSION_NOT_JOINED));
+		return sessionRoomMember.getRole() == SessionParticipantRole.HOST;
 	}
 
 	private SessionResponseDTO.InProgressMemberResponseDTO toSessionMember(

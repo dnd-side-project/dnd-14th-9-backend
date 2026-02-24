@@ -1,7 +1,10 @@
 package com.example.gak.global.redis;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+
+import com.example.gak.domain.chat.dto.ChatResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisPublisher {
 
 	private final StringRedisTemplate redisTemplate;
+	private final RedisTemplate<String, Object> chatRedisTemplate;
 
 	public void waitingRoomPublish(
 		Long sessionId
@@ -47,5 +51,13 @@ public class RedisPublisher {
 	) {
 		String channel = "member/" + memberId + "/reaction/" + sessionId;
 		redisTemplate.convertAndSend(channel, "UPDATE");
+	}
+
+	public void chatMessagePublish(
+		Long sessionId,
+		ChatResponseDTO.ChatMessageResponseDTO dto
+	) {
+		String channel = "chat/" + sessionId;
+		chatRedisTemplate.convertAndSend(channel, dto);
 	}
 }

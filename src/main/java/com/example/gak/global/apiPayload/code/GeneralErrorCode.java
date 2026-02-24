@@ -13,6 +13,7 @@ public enum GeneralErrorCode implements BaseErrorCode {
 
 	_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 처리 중 오류가 발생했습니다."),
 	_BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400_1", "잘못된 요청입니다."),
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401_5", "인증 되지 않았습니다."),
 
 	// OAuth2 관련
 	OAUTH2_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "OAUTH401_1", "OAuth2 로그인에 실패했습니다."),
@@ -55,6 +56,7 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	TASK_NOT_FOUND_IN_SESSION(HttpStatus.INTERNAL_SERVER_ERROR, "TASK500_1", "세션에 대한 작업(Task) 정보가 존재하지 않습니다."),
 	SESSION_RESULT_BEFORE_END(HttpStatus.BAD_REQUEST, "SESSION400_10", "세션 종료 전에는 세션 결과 전송이 불가능합니다."),
 	CANNOT_REACT_TO_SELF(HttpStatus.BAD_REQUEST, "SESSION400_11", "자기 자신에게는 리액션 전송이 불가능합니다."),
+	ONLY_HOST_CAN_CHAT(HttpStatus.FORBIDDEN, "SESSION403_01", "HOST만 채팅이 가능합니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),
