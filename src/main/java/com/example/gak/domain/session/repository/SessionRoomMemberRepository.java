@@ -3,6 +3,8 @@ package com.example.gak.domain.session.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
 public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMember, Long> {
 
@@ -40,4 +43,16 @@ public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMe
 		""")
 	int deleteByMemberIdInAndSessionRoomId(@Param("memberIds") List<Long> memberIds,
 		@Param("sessionRoomId") Long sessionRoomId);
+
+	@Query("""
+		SELECT srm
+		FROM SessionRoomMember srm
+		WHERE srm.member.id = :memberId
+		AND srm.sessionRoom.status = :status
+		""")
+	Page<SessionRoomMember> findByMember(
+		@Param("memberId") Long memberId,
+		@Param("status") SessionRoomStatus status,
+		Pageable pageable
+	);
 }

@@ -1,5 +1,9 @@
 package com.example.gak.domain.member.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,11 +63,25 @@ public class MemberController {
 
 	@Operation(summary = "내 리포트 통계 정보 조회 API (마이페이지)")
 	@GetMapping("/me/report-stats")
-	public ApiResponse<MemberResponseDTO.GetReportStats> getReportStats(
+	public ApiResponse<MemberResponseDTO.GetReportStatsResponseDTO> getReportStats(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User
 	) {
 		return ApiResponse.onSuccess(
 			memberQueryService.getReportStats(oAuth2User.getMemberId())
+		);
+	}
+
+	@Operation(summary = "내 리포트 통계 참여 세션 목록 조회 API (마이페이지)")
+	@GetMapping("/me/report-sessions")
+	public ApiResponse<MemberResponseDTO.GetReportSessionsResponseDTO> getReportSessions(
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@PageableDefault @SortDefault.SortDefaults({
+			@SortDefault(sort = "updatedAt", direction = Sort.Direction.DESC),
+			@SortDefault(sort = "sessionRoom.title", direction = Sort.Direction.ASC)
+		}) Pageable pageable
+	) {
+		return ApiResponse.onSuccess(
+			memberQueryService.getReportSessions(oAuth2User.getMemberId(), pageable)
 		);
 	}
 

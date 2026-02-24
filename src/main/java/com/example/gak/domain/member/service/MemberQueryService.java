@@ -4,6 +4,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
 import com.example.gak.domain.record.entity.Record;
 import com.example.gak.domain.record.repository.RecordRepository;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 
@@ -27,6 +31,7 @@ public class MemberQueryService {
 
 	private final MemberRepository memberRepository;
 	private final RecordRepository recordRepository;
+	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 
 	public MemberResponseDTO.GetProfileResponseDTO getProfile(Long memberId) {
 		Member member = findMember(memberId);
@@ -41,20 +46,20 @@ public class MemberQueryService {
 		return MemberConverter.toGetMemberResponseDTO(member);
 	}
 
-	public MemberResponseDTO.GetReportStats getReportStats(Long memberId) {
+	public MemberResponseDTO.GetReportStatsResponseDTO getReportStats(Long memberId) {
 		Record record = recordRepository.findByMemberId(memberId);
 
 		Map<SessionCategory, Integer> categoryCounts = record.getCategoryCounts();
-		List<MemberResponseDTO.SessionParticipationStat> sessionParticipationStats =
+		List<MemberResponseDTO.SessionParticipationStatResponseDTO> sessionParticipationStats =
 			categoryCounts.entrySet().stream()
-				.map(entry -> MemberResponseDTO.SessionParticipationStat.builder()
+				.map(entry -> MemberResponseDTO.SessionParticipationStatResponseDTO.builder()
 					.categoryName(entry.getKey())
 					.count(entry.getValue())
 					.rate(record.getCategoryParticipationRate(entry.getKey()))
 					.build()
 				)
 				.sorted(
-					Comparator.comparing(MemberResponseDTO.SessionParticipationStat::getCount)
+					Comparator.comparing(MemberResponseDTO.SessionParticipationStatResponseDTO::getCount)
 						.reversed()
 						.thenComparing(stat -> stat.getCategoryName().name())
 				)
@@ -62,28 +67,35 @@ public class MemberQueryService {
 				.toList();
 
 		Map<EmojiType, Integer> emojiTypeCounts = record.getEmojiTypeCounts();
-		List<MemberResponseDTO.ReceivedEmojiStat> receivedEmojiStats =
+		List<MemberResponseDTO.ReceivedEmojiStatResponseDTO> receivedEmojiStats =
 			emojiTypeCounts.entrySet().stream()
-				.map(entry -> MemberResponseDTO.ReceivedEmojiStat.builder()
+				.map(entry -> MemberResponseDTO.ReceivedEmojiStatResponseDTO.builder()
 					.emojiName(entry.getKey())
 					.count(entry.getValue())
 					.build()
 				)
 				.sorted(
-					Comparator.comparing(MemberResponseDTO.ReceivedEmojiStat::getCount)
+					Comparator.comparing(MemberResponseDTO.ReceivedEmojiStatResponseDTO::getCount)
 						.reversed()
 						.thenComparing(stat -> stat.getEmojiName().name())
 				)
 				.toList();
 
-		return MemberResponseDTO.GetReportStats.builder()
-			.focusedTime(record.getFocusedTime())
-			.totalParticipationTime(record.getTotalParticipationTime())
-			.todoCompletionRate(record.getTodoCompletionRate())
-			.focusRate(record.getFocusRate())
-			.sessionParticipationStats(sessionParticipationStats)
-			.receivedEmojis(receivedEmojiStats)
-			.build();
+		return MemberResponseDTO.GetReportStatsResponseDTO.of(
+			record,
+			sessionParticipationStats,
+			receivedEmojiStats
+		);
+	}
+
+	public MemberResponseDTO.GetReportSessionsResponseDTO getReportSessions(Long memberId, Pageable pageable) {
+		Page<MemberResponseDTO.GetReportSessionResponseDTO> page = sessionRoomMemberRepository.findByMember(
+			memberId,
+			SessionRoomStatus.COMPLETED,
+			pageable
+		).map(MemberResponseDTO.GetReportSessionResponseDTO::from);
+
+		return MemberResponseDTO.GetReportSessionsResponseDTO.from(page);
 	}
 
 	private Member findMember(Long memberId) {
