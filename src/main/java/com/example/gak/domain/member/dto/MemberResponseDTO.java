@@ -1,9 +1,15 @@
 package com.example.gak.domain.member.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
 
 import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
+import com.example.gak.domain.record.entity.Record;
+import com.example.gak.domain.session.entity.SessionRoom;
+import com.example.gak.domain.session.entity.SessionRoomMember;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -131,7 +137,7 @@ public class MemberResponseDTO {
 	@Schema(name = "회원 리포트 통계 정보 응답")
 	@Builder
 	@Getter
-	public static class GetReportStats {
+	public static class GetReportStatsResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private long focusedTime;
@@ -146,16 +152,31 @@ public class MemberResponseDTO {
 		private int focusRate;
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-		private List<SessionParticipationStat> sessionParticipationStats;
+		private List<SessionParticipationStatResponseDTO> sessionParticipationStats;
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-		private List<ReceivedEmojiStat> receivedEmojis;
+		private List<ReceivedEmojiStatResponseDTO> receivedEmojis;
+
+		public static GetReportStatsResponseDTO of(
+			Record record,
+			List<SessionParticipationStatResponseDTO> sessionParticipationStats,
+			List<ReceivedEmojiStatResponseDTO> receivedEmojiStats
+		) {
+			return GetReportStatsResponseDTO.builder()
+				.focusedTime(record.getFocusedTime())
+				.totalParticipationTime(record.getTotalParticipationTime())
+				.todoCompletionRate(record.getTodoCompletionRate())
+				.focusRate(record.getFocusRate())
+				.sessionParticipationStats(sessionParticipationStats)
+				.receivedEmojis(receivedEmojiStats)
+				.build();
+		}
 	}
 
 	@Schema(name = "세션 참여 현황 응답")
 	@Builder
 	@Getter
-	public static class SessionParticipationStat {
+	public static class SessionParticipationStatResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private SessionCategory categoryName;
@@ -170,12 +191,96 @@ public class MemberResponseDTO {
 	@Schema(name = "받은 이모지 현황 응답")
 	@Builder
 	@Getter
-	public static class ReceivedEmojiStat {
+	public static class ReceivedEmojiStatResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private EmojiType emojiName;
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private int count;
+	}
+
+	@Schema(name = "회원 리포트 참여 세션 목록 응답")
+	@Builder
+	@Getter
+	public static class GetReportSessionsResponseDTO {
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int listSize;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int totalPage;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private long totalElements;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private boolean isFirst;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private boolean isLast;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private List<GetReportSessionResponseDTO> sessions;
+
+		public static GetReportSessionsResponseDTO from(Page<GetReportSessionResponseDTO> page) {
+			return GetReportSessionsResponseDTO.builder()
+				.listSize(page.getSize())
+				.totalPage(page.getTotalPages())
+				.totalElements(page.getTotalElements())
+				.isFirst(page.isFirst())
+				.isLast(page.isLast())
+				.sessions(page.getContent())
+				.build();
+		}
+	}
+
+	@Schema(name = "회원 리포트 참여 세션 응답")
+	@Builder
+	@Getter
+	public static class GetReportSessionResponseDTO {
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private String title;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private SessionCategory category;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int currentCount;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int maxCapacity;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private long durationTime;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private LocalDateTime startTime;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private long focusedTime;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int focusRate;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int todoCompletionRate;
+
+		public static GetReportSessionResponseDTO from(SessionRoomMember srm) {
+			SessionRoom session = srm.getSessionRoom();
+
+			return GetReportSessionResponseDTO.builder()
+				.title(session.getTitle())
+				.category(session.getCategory())
+				.currentCount(session.getCurrentCount())
+				.maxCapacity(session.getMaxCapacity())
+				.durationTime(srm.getOverallSeconds())
+				.startTime(session.getStartTime())
+				.focusedTime(srm.getTotalFocusSeconds())
+				.focusRate(srm.getFocusRate())
+				.todoCompletionRate(srm.getAchievementRate())
+				.build();
+		}
 	}
 }
