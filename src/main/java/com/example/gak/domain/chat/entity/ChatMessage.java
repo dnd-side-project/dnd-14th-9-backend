@@ -1,4 +1,4 @@
-package com.example.gak.domain.chatmessage.entity;
+package com.example.gak.domain.chat.entity;
 
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;

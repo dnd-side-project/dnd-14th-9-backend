@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.gak.domain.chatmessage.repository.ChatMessageRepository;
+import com.example.gak.domain.chat.repository.ChatMessageRepository;
 import com.example.gak.domain.member.converter.MemberConverter;
 import com.example.gak.domain.member.dto.MemberRequestDTO;
 import com.example.gak.domain.member.dto.MemberResponseDTO;
