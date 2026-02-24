@@ -17,7 +17,6 @@ import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
 import com.example.gak.domain.record.entity.Record;
 import com.example.gak.domain.record.repository.RecordRepository;
-import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
@@ -82,14 +81,11 @@ public class MemberQueryService {
 				)
 				.toList();
 
-		return MemberResponseDTO.GetReportStatsResponseDTO.builder()
-			.focusedTime(record.getFocusedTime())
-			.totalParticipationTime(record.getTotalParticipationTime())
-			.todoCompletionRate(record.getTodoCompletionRate())
-			.focusRate(record.getFocusRate())
-			.sessionParticipationStats(sessionParticipationStats)
-			.receivedEmojis(receivedEmojiStats)
-			.build();
+		return MemberResponseDTO.GetReportStatsResponseDTO.of(
+			record,
+			sessionParticipationStats,
+			receivedEmojiStats
+		);
 	}
 
 	public MemberResponseDTO.GetReportSessionsResponseDTO getReportSessions(Long memberId, Pageable pageable) {
@@ -97,30 +93,9 @@ public class MemberQueryService {
 			memberId,
 			SessionRoomStatus.COMPLETED,
 			pageable
-		).map(srm -> {
-			SessionRoom session = srm.getSessionRoom();
+		).map(MemberResponseDTO.GetReportSessionResponseDTO::from);
 
-			return MemberResponseDTO.GetReportSessionResponseDTO.builder()
-				.title(session.getTitle())
-				.category(session.getCategory())
-				.currentCount(session.getCurrentCount())
-				.maxCapacity(session.getMaxCapacity())
-				.durationTime(srm.getOverallSeconds())
-				.startTime(session.getStartTime())
-				.focusedTime(srm.getTotalFocusSeconds())
-				.focusRate(srm.getFocusRate())
-				.todoCompletionRate(srm.getAchievementRate())
-				.build();
-		});
-
-		return MemberResponseDTO.GetReportSessionsResponseDTO.builder()
-			.listSize(page.getSize())
-			.totalPage(page.getTotalPages())
-			.totalElements(page.getTotalElements())
-			.isFirst(page.isFirst())
-			.isLast(page.isLast())
-			.sessions(page.getContent())
-			.build();
+		return MemberResponseDTO.GetReportSessionsResponseDTO.from(page);
 	}
 
 	private Member findMember(Long memberId) {
