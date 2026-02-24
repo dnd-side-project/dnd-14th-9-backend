@@ -4,6 +4,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,9 @@ import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
 import com.example.gak.domain.record.entity.Record;
 import com.example.gak.domain.record.repository.RecordRepository;
+import com.example.gak.domain.session.entity.SessionRoom;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 
@@ -27,6 +32,7 @@ public class MemberQueryService {
 
 	private final MemberRepository memberRepository;
 	private final RecordRepository recordRepository;
+	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 
 	public MemberResponseDTO.GetProfileResponseDTO getProfile(Long memberId) {
 		Member member = findMember(memberId);
@@ -83,6 +89,37 @@ public class MemberQueryService {
 			.focusRate(record.getFocusRate())
 			.sessionParticipationStats(sessionParticipationStats)
 			.receivedEmojis(receivedEmojiStats)
+			.build();
+	}
+
+	public MemberResponseDTO.GetReportSessionsResponseDTO getReportSessions(Long memberId, Pageable pageable) {
+		Page<MemberResponseDTO.GetReportSessionResponseDTO> page = sessionRoomMemberRepository.findByMember(
+			memberId,
+			SessionRoomStatus.COMPLETED,
+			pageable
+		).map(srm -> {
+			SessionRoom session = srm.getSessionRoom();
+
+			return MemberResponseDTO.GetReportSessionResponseDTO.builder()
+				.title(session.getTitle())
+				.category(session.getCategory())
+				.currentCount(session.getCurrentCount())
+				.maxCapacity(session.getMaxCapacity())
+				.durationTime(srm.getOverallSeconds())
+				.startTime(session.getStartTime())
+				.focusedTime(srm.getTotalFocusSeconds())
+				.focusRate(srm.getFocusRate())
+				.todoCompletionRate(srm.getAchievementRate())
+				.build();
+		});
+
+		return MemberResponseDTO.GetReportSessionsResponseDTO.builder()
+			.listSize(page.getSize())
+			.totalPage(page.getTotalPages())
+			.totalElements(page.getTotalElements())
+			.isFirst(page.isFirst())
+			.isLast(page.isLast())
+			.sessions(page.getContent())
 			.build();
 	}
 
