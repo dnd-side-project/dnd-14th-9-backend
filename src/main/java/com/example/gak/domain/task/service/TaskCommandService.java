@@ -18,6 +18,7 @@ import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.WaitingRoomUpdateEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -67,6 +68,10 @@ public class TaskCommandService {
 		}
 
 		subTask.updateSubTaskTitle(request.getTodoContent());
+
+		applicationEventPublisher.publishEvent(
+			new WaitingRoomUpdateEvent(subTask.getTask().getSessionRoom().getId())
+		);
 	}
 
 	public void updateTask(
@@ -86,6 +91,10 @@ public class TaskCommandService {
 		}
 
 		task.updateGoal(request.getGoalContent());
+
+		applicationEventPublisher.publishEvent(
+			new WaitingRoomUpdateEvent(task.getSessionRoom().getId())
+		);
 	}
 
 	public void deleteSubtask(
@@ -104,6 +113,10 @@ public class TaskCommandService {
 		}
 
 		subTaskRepository.delete(subTask);
+
+		applicationEventPublisher.publishEvent(
+			new WaitingRoomUpdateEvent(subTask.getTask().getSessionRoom().getId())
+		);
 	}
 
 	public List<SessionResponseDTO.todoResponseDTO> addSubtasks(
@@ -127,6 +140,10 @@ public class TaskCommandService {
 			.toList();
 
 		subTaskRepository.saveAll(subTasks);
+
+		applicationEventPublisher.publishEvent(
+			new WaitingRoomUpdateEvent(task.getSessionRoom().getId())
+		);
 
 		return subTasks.stream()
 			.map(SessionConverter::toTodoResponseDTO)
