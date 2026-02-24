@@ -132,7 +132,7 @@ public class MemberResponseDTO {
 	@Schema(name = "회원 리포트 통계 정보 응답")
 	@Builder
 	@Getter
-	public static class GetReportStats {
+	public static class GetReportStatsResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private long focusedTime;
@@ -147,16 +147,16 @@ public class MemberResponseDTO {
 		private int focusRate;
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-		private List<SessionParticipationStat> sessionParticipationStats;
+		private List<SessionParticipationStatResponseDTO> sessionParticipationStats;
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-		private List<ReceivedEmojiStat> receivedEmojis;
+		private List<ReceivedEmojiStatResponseDTO> receivedEmojis;
 	}
 
 	@Schema(name = "세션 참여 현황 응답")
 	@Builder
 	@Getter
-	public static class SessionParticipationStat {
+	public static class SessionParticipationStatResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private SessionCategory categoryName;
@@ -171,7 +171,7 @@ public class MemberResponseDTO {
 	@Schema(name = "받은 이모지 현황 응답")
 	@Builder
 	@Getter
-	public static class ReceivedEmojiStat {
+	public static class ReceivedEmojiStatResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private EmojiType emojiName;

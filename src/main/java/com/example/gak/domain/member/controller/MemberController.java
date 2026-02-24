@@ -63,7 +63,7 @@ public class MemberController {
 
 	@Operation(summary = "내 리포트 통계 정보 조회 API (마이페이지)")
 	@GetMapping("/me/report-stats")
-	public ApiResponse<MemberResponseDTO.GetReportStats> getReportStats(
+	public ApiResponse<MemberResponseDTO.GetReportStatsResponseDTO> getReportStats(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User
 	) {
 		return ApiResponse.onSuccess(

@@ -47,20 +47,20 @@ public class MemberQueryService {
 		return MemberConverter.toGetMemberResponseDTO(member);
 	}
 
-	public MemberResponseDTO.GetReportStats getReportStats(Long memberId) {
+	public MemberResponseDTO.GetReportStatsResponseDTO getReportStats(Long memberId) {
 		Record record = recordRepository.findByMemberId(memberId);
 
 		Map<SessionCategory, Integer> categoryCounts = record.getCategoryCounts();
-		List<MemberResponseDTO.SessionParticipationStat> sessionParticipationStats =
+		List<MemberResponseDTO.SessionParticipationStatResponseDTO> sessionParticipationStats =
 			categoryCounts.entrySet().stream()
-				.map(entry -> MemberResponseDTO.SessionParticipationStat.builder()
+				.map(entry -> MemberResponseDTO.SessionParticipationStatResponseDTO.builder()
 					.categoryName(entry.getKey())
 					.count(entry.getValue())
 					.rate(record.getCategoryParticipationRate(entry.getKey()))
 					.build()
 				)
 				.sorted(
-					Comparator.comparing(MemberResponseDTO.SessionParticipationStat::getCount)
+					Comparator.comparing(MemberResponseDTO.SessionParticipationStatResponseDTO::getCount)
 						.reversed()
 						.thenComparing(stat -> stat.getCategoryName().name())
 				)
@@ -68,21 +68,21 @@ public class MemberQueryService {
 				.toList();
 
 		Map<EmojiType, Integer> emojiTypeCounts = record.getEmojiTypeCounts();
-		List<MemberResponseDTO.ReceivedEmojiStat> receivedEmojiStats =
+		List<MemberResponseDTO.ReceivedEmojiStatResponseDTO> receivedEmojiStats =
 			emojiTypeCounts.entrySet().stream()
-				.map(entry -> MemberResponseDTO.ReceivedEmojiStat.builder()
+				.map(entry -> MemberResponseDTO.ReceivedEmojiStatResponseDTO.builder()
 					.emojiName(entry.getKey())
 					.count(entry.getValue())
 					.build()
 				)
 				.sorted(
-					Comparator.comparing(MemberResponseDTO.ReceivedEmojiStat::getCount)
+					Comparator.comparing(MemberResponseDTO.ReceivedEmojiStatResponseDTO::getCount)
 						.reversed()
 						.thenComparing(stat -> stat.getEmojiName().name())
 				)
 				.toList();
 
-		return MemberResponseDTO.GetReportStats.builder()
+		return MemberResponseDTO.GetReportStatsResponseDTO.builder()
 			.focusedTime(record.getFocusedTime())
 			.totalParticipationTime(record.getTotalParticipationTime())
 			.todoCompletionRate(record.getTodoCompletionRate())
