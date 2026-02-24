@@ -2,6 +2,8 @@ package com.example.gak.global.redis;
 
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com.example.gak.domain.session.dto.SessionResponseDTO;
@@ -18,20 +20,26 @@ public class RedisSubscriber implements MessageListener {
 
 	private final SessionQueryService sessionQueryService;
 	private final SseService sseService;
+	private final SimpMessagingTemplate messagingTemplate;
+	private final StringRedisTemplate redisTemplate;
 
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
 		String channel = new String(message.getChannel());
-
 		String[] parts = channel.split("/");
+
 		String type = parts[0];
-		Long sessionId = Long.parseLong(parts[1]);
 
 		if ("member".equals(type)) {
 			Long memberId = Long.parseLong(parts[1]);
-			Long sessionIdFromChannel = Long.parseLong(parts[3]);
-			handleMemberReaction(sessionIdFromChannel, memberId);
+			Long sessionId = Long.parseLong(parts[3]);
+			handleMemberReaction(sessionId, memberId);
+		} else if ("chat".equals(type)) {
+			Long sessionId = Long.parseLong(parts[1]);
+			String json = new String(message.getBody(), java.nio.charset.StandardCharsets.UTF_8);
+			handleChatMessage(sessionId, json);
 		} else {
+			Long sessionId = Long.parseLong(parts[1]);
 			handleMessage(type, sessionId);
 		}
 	}
@@ -74,5 +82,9 @@ public class RedisSubscriber implements MessageListener {
 		SessionResponseDTO.EmojiResultResponseDTO dto =
 			sessionQueryService.getMemberReactionStatus(sessionId, memberId);
 		sseService.sendMemberReaction(sessionId, memberId, dto);
+	}
+
+	private void handleChatMessage(Long sessionId, String json) {
+		messagingTemplate.convertAndSend("/sub/chat/" + sessionId, json);
 	}
 }

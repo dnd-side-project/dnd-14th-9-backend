@@ -1,8 +1,8 @@
-package com.example.gak.domain.chatmessage.repository;
+package com.example.gak.domain.chat.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.gak.domain.chatmessage.entity.ChatMessage;
+import com.example.gak.domain.chat.entity.ChatMessage;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
