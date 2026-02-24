@@ -1,5 +1,6 @@
 package com.example.gak.domain.member.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.gak.domain.common.entity.enums.EmojiType;
@@ -177,5 +178,62 @@ public class MemberResponseDTO {
 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 		private int count;
+	}
+
+	@Schema(name = "회원 리포트 참여 세션 목록 응답")
+	@Builder
+	@Getter
+	public static class GetReportSessionsResponseDTO {
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int listSize;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int totalPage;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private long totalElements;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private boolean isFirst;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private boolean isLast;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private List<GetReportSessionResponseDTO> sessions;
+	}
+
+	@Schema(name = "회원 리포트 참여 세션 응답")
+	@Builder
+	@Getter
+	public static class GetReportSessionResponseDTO {
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private String title;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private SessionCategory category;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int currentCount;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int maxCapacity;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private long durationTime;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private LocalDateTime startTime;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private long focusedTime;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int focusRate;
+
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+		private int todoCompletionRate;
 	}
 }
