@@ -74,8 +74,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getServletPath();
+
+		if (!path.startsWith("/api/")) {
+			return true;
+		}
+
 		return Arrays.stream(AccessTokenFreeUrls.PATHS)
-			.anyMatch(pattern -> pathMatcher.match(pattern, request.getServletPath()));
+			.anyMatch(pattern -> pathMatcher.match(pattern, path));
 	}
 
 	private void sendErrorResponse(HttpServletResponse response, BaseErrorCode errorCode) throws IOException {
