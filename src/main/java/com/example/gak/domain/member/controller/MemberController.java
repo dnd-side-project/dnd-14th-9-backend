@@ -1,9 +1,8 @@
 package com.example.gak.domain.member.controller;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,11 +75,18 @@ public class MemberController {
 	@GetMapping("/me/report-sessions")
 	public ApiResponse<MemberResponseDTO.GetReportSessionsResponseDTO> getReportSessions(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-		@PageableDefault @SortDefault.SortDefaults({
-			@SortDefault(sort = "updatedAt", direction = Sort.Direction.DESC),
-			@SortDefault(sort = "sessionRoom.title", direction = Sort.Direction.ASC)
-		}) Pageable pageable
+		@Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
+		@Parameter(description = "페이지 크기") @RequestParam(name = "size", defaultValue = "10") int size
 	) {
+		Pageable pageable = PageRequest.of(
+			page - 1,
+			size,
+			Sort.by(
+				Sort.Order.desc("updatedAt"),
+				Sort.Order.asc("sessionRoom.title")
+			)
+		);
+
 		return ApiResponse.onSuccess(
 			memberQueryService.getReportSessions(oAuth2User.getMemberId(), pageable)
 		);
