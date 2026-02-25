@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
+import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
 public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMember, Long> {
@@ -55,4 +56,10 @@ public interface SessionRoomMemberRepository extends JpaRepository<SessionRoomMe
 		@Param("status") SessionRoomStatus status,
 		Pageable pageable
 	);
+
+	boolean existsBySessionRoomIdAndRole(Long sessionRoomId, SessionParticipantRole role);
+
+	List<SessionRoomMember> findBySessionRoomId(Long sessionRoomId);
+
+	Optional<SessionRoomMember> findFirstBySessionRoomIdOrderByCreatedAtAsc(Long sessionRoomId);
 }

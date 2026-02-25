@@ -5,7 +5,9 @@ import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.domain.record.entity.Record;
+import com.example.gak.domain.record.repository.RecordRepository;
 import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
@@ -63,6 +68,7 @@ public class SessionCommandService {
 	private final AmazonS3Manager amazonS3Manager;
 	private final ImageFileValidator imageFileValidator;
 	private final ApplicationEventPublisher applicationEventPublisher;
+	private final RecordRepository recordRepository;
 
 	public SessionRoom createSession(
 		SessionRequestDTO.CreateSessionRequestDTO request,
@@ -116,8 +122,10 @@ public class SessionCommandService {
 		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
+		List<SessionRoomMember> sessionRoomMembers = sessionRoomMemberRepository.findBySessionRoom(targetSessionRoom);
+
 		increaseCountOrThrow(targetSessionRoom);
-		SessionParticipantRole role = determineRole(member, targetSessionRoom);
+		SessionParticipantRole role = determineRole(member, targetSessionRoom, sessionRoomMembers);
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
 		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
 
@@ -127,6 +135,33 @@ public class SessionCommandService {
 		);
 
 		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, taskResponseDTO);
+	}
+
+	private SessionParticipantRole determineRole(
+		Member member,
+		SessionRoom sessionRoom,
+		List<SessionRoomMember> members
+	) {
+		boolean hasHost = members.stream()
+			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
+
+		if (hasHost) {
+			return SessionParticipantRole.PARTICIPANT;
+		}
+
+		boolean isWaiting = sessionRoom.getStatus() == SessionRoomStatus.WAITING;
+		boolean isRoomOwner = member.getId().equals(sessionRoom.getMember().getId());
+		boolean isFirstJoiner = members.isEmpty();
+
+		if (isWaiting && isRoomOwner) {
+			return SessionParticipantRole.HOST;
+		}
+
+		if (!isWaiting && isFirstJoiner) {
+			return SessionParticipantRole.HOST;
+		}
+
+		return SessionParticipantRole.PARTICIPANT;
 	}
 
 	public void leaveSession(Long sessionId, Long memberId) {
@@ -147,10 +182,35 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
 		}
 
+		hostPermissionTransfer(sessionId);
+
 		publishSessionRoomUpdateEvent(
 			task.getSessionRoom().getStatus(),
 			sessionId
 		);
+	}
+
+	private void hostPermissionTransfer(Long sessionId) {
+		List<SessionRoomMember> members =
+			sessionRoomMemberRepository.findBySessionRoomId(sessionId);
+
+		if (members.isEmpty()) {
+			return;
+		}
+
+		boolean hasHost = members.stream()
+			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
+
+		if (hasHost) {
+			return;
+		}
+
+		SessionRoomMember oldestMember = members.stream()
+			.min(Comparator.comparing(SessionRoomMember::getCreatedAt))
+			.orElseThrow();
+
+		oldestMember.changeParticipantRole(SessionParticipantRole.HOST);
+		sessionRoomMemberRepository.save(oldestMember);
 	}
 
 	public SessionResponseDTO.ToggleSessionMemberStatusResponseDTO toggleSessionRoomMemberStatus(Long sessionId,
@@ -272,6 +332,27 @@ public class SessionCommandService {
 		List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
 
 		sessionRoomMember.updateAchievementRate(subTasks);
+		sessionSaveToRecord(sessionRoomMember.getMember(), sessionRoomMember, subTasks);
+	}
+
+	private void sessionSaveToRecord(
+		Member member, SessionRoomMember sessionRoomMember, List<SubTask> subTasks
+	) {
+		Record record = recordRepository.findByMember(member);
+
+		if (record == null)
+			return;
+
+		record.increaseParticipationTime(sessionRoomMember.getOverallSeconds());
+		record.increaseFocusedTime(sessionRoomMember.getTotalFocusSeconds());
+		record.increaseTotalTodoCount(subTasks.size());
+		record.increaseCompletedTodoCount(
+			(int)subTasks.stream()
+				.filter(SubTask::isCompleted)
+				.count()
+		);
+		record.increaseSessionCategoryCount(
+			sessionRoomMember.getSessionRoom().getCategory());
 	}
 
 	public SessionResponseDTO.EmojiActionResponseDTO reaction(
@@ -290,13 +371,15 @@ public class SessionCommandService {
 			.findByMemberIdAndSessionRoomId(memberId, sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
 
-		if (actor.getMember().getId() == request.getTargetMemberId()) {
+		if (actor.getMember().getId().equals(request.getTargetMemberId())) {
 			throw new GeneralException(GeneralErrorCode.CANNOT_REACT_TO_SELF);
 		}
 
 		SessionRoomMember target = sessionRoomMemberRepository
 			.findByMemberIdAndSessionRoomId(request.getTargetMemberId(), sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		Record record = recordRepository.findByMember(target.getMember());
 
 		Optional<Reaction> optional = reactionRepository
 			.findBySessionRoomIdAndMemberIdAndTargetMemberId(
@@ -311,6 +394,12 @@ public class SessionCommandService {
 			if (existing.getEmojiType() == request.getEmojiType()) {
 				reactionRepository.delete(existing);
 
+				if (record != null) {
+					record.decreaseEmojiTypesCount(
+						Map.of(existing.getEmojiType(), 1)
+					);
+				}
+
 				applicationEventPublisher.publishEvent(
 					new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
 				);
@@ -321,7 +410,15 @@ public class SessionCommandService {
 				return SessionConverter.emojiDeleted(request.getTargetMemberId());
 			}
 
-			existing.changeEmojiType(request.getEmojiType());
+			EmojiType before = existing.getEmojiType();
+			EmojiType after = request.getEmojiType();
+
+			existing.changeEmojiType(after);
+
+			if (record != null) {
+				record.decreaseEmojiTypesCount(Map.of(before, 1));
+				record.increaseEmojiTypesCount(Map.of(after, 1));
+			}
 
 			applicationEventPublisher.publishEvent(
 				new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
@@ -344,6 +441,12 @@ public class SessionCommandService {
 		);
 
 		reactionRepository.save(emojiAction);
+
+		if (record != null) {
+			record.increaseEmojiTypesCount(
+				Map.of(request.getEmojiType(), 1)
+			);
+		}
 
 		applicationEventPublisher.publishEvent(
 			new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
@@ -389,14 +492,6 @@ public class SessionCommandService {
 				throw new GeneralException(GeneralErrorCode.SESSION_CAPACITY_EXCEEDED);
 			}
 		}
-	}
-
-	private SessionParticipantRole determineRole(Member member, SessionRoom sessionRoom) {
-		if (member.getId().equals(sessionRoom.getMember().getId()) &&
-			sessionRoom.getStatus() == SessionRoomStatus.WAITING) {
-			return SessionParticipantRole.HOST;
-		}
-		return SessionParticipantRole.PARTICIPANT;
 	}
 
 	private SessionRoomMember saveSessionRoomMember(SessionRoom sessionRoom, Member member,
