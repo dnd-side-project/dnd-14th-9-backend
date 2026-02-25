@@ -88,6 +88,10 @@ public class SessionRoomMember extends BaseEntity {
 		this.member = member;
 	}
 
+	public void changeParticipantRole(SessionParticipantRole role) {
+		this.role = role;
+	}
+
 	public void markAsAbnormalExit() {
 		this.isAbnormalExit = true;
 	}

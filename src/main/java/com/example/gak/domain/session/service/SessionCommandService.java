@@ -5,6 +5,7 @@ import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,8 +117,10 @@ public class SessionCommandService {
 		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
+		List<SessionRoomMember> sessionRoomMembers = sessionRoomMemberRepository.findBySessionRoom(targetSessionRoom);
+
 		increaseCountOrThrow(targetSessionRoom);
-		SessionParticipantRole role = determineRole(member, targetSessionRoom);
+		SessionParticipantRole role = determineRole(member, targetSessionRoom, sessionRoomMembers);
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
 		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
 
@@ -127,6 +130,33 @@ public class SessionCommandService {
 		);
 
 		return tojoinSessionResponseDTO(sessionRoomMember, member, targetSessionRoom, taskResponseDTO);
+	}
+
+	private SessionParticipantRole determineRole(
+		Member member,
+		SessionRoom sessionRoom,
+		List<SessionRoomMember> members
+	) {
+		boolean hasHost = members.stream()
+			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
+
+		if (hasHost) {
+			return SessionParticipantRole.PARTICIPANT;
+		}
+
+		boolean isWaiting = sessionRoom.getStatus() == SessionRoomStatus.WAITING;
+		boolean isRoomOwner = member.getId().equals(sessionRoom.getMember().getId());
+		boolean isFirstJoiner = members.isEmpty();
+
+		if (isWaiting && isRoomOwner) {
+			return SessionParticipantRole.HOST;
+		}
+
+		if (!isWaiting && isFirstJoiner) {
+			return SessionParticipantRole.HOST;
+		}
+
+		return SessionParticipantRole.PARTICIPANT;
 	}
 
 	public void leaveSession(Long sessionId, Long memberId) {
@@ -147,10 +177,35 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
 		}
 
+		hostPermissionTransfer(sessionId);
+
 		publishSessionRoomUpdateEvent(
 			task.getSessionRoom().getStatus(),
 			sessionId
 		);
+	}
+
+	private void hostPermissionTransfer(Long sessionId) {
+		List<SessionRoomMember> members =
+			sessionRoomMemberRepository.findBySessionRoomId(sessionId);
+
+		if (members.isEmpty()) {
+			return;
+		}
+
+		boolean hasHost = members.stream()
+			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
+
+		if (hasHost) {
+			return;
+		}
+
+		SessionRoomMember oldestMember = members.stream()
+			.min(Comparator.comparing(SessionRoomMember::getCreatedAt))
+			.orElseThrow();
+
+		oldestMember.changeParticipantRole(SessionParticipantRole.HOST);
+		sessionRoomMemberRepository.save(oldestMember);
 	}
 
 	public SessionResponseDTO.ToggleSessionMemberStatusResponseDTO toggleSessionRoomMemberStatus(Long sessionId,
@@ -386,14 +441,6 @@ public class SessionCommandService {
 				throw new GeneralException(GeneralErrorCode.SESSION_CAPACITY_EXCEEDED);
 			}
 		}
-	}
-
-	private SessionParticipantRole determineRole(Member member, SessionRoom sessionRoom) {
-		if (member.getId().equals(sessionRoom.getMember().getId()) &&
-			sessionRoom.getStatus() == SessionRoomStatus.WAITING) {
-			return SessionParticipantRole.HOST;
-		}
-		return SessionParticipantRole.PARTICIPANT;
 	}
 
 	private SessionRoomMember saveSessionRoomMember(SessionRoom sessionRoom, Member member,
