@@ -391,9 +391,11 @@ public class SessionCommandService {
 			if (existing.getEmojiType() == request.getEmojiType()) {
 				reactionRepository.delete(existing);
 
-				record.decreaseEmojiTypesCount(
-					Map.of(existing.getEmojiType(), 1)
-				);
+				if (record != null) {
+					record.decreaseEmojiTypesCount(
+						Map.of(existing.getEmojiType(), 1)
+					);
+				}
 
 				applicationEventPublisher.publishEvent(
 					new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
@@ -410,8 +412,10 @@ public class SessionCommandService {
 
 			existing.changeEmojiType(after);
 
-			record.decreaseEmojiTypesCount(Map.of(before, 1));
-			record.increaseEmojiTypesCount(Map.of(after, 1));
+			if (record != null) {
+				record.decreaseEmojiTypesCount(Map.of(before, 1));
+				record.increaseEmojiTypesCount(Map.of(after, 1));
+			}
 
 			applicationEventPublisher.publishEvent(
 				new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
@@ -435,9 +439,11 @@ public class SessionCommandService {
 
 		reactionRepository.save(emojiAction);
 
-		record.increaseEmojiTypesCount(
-			Map.of(request.getEmojiType(), 1)
-		);
+		if (record != null) {
+			record.increaseEmojiTypesCount(
+				Map.of(request.getEmojiType(), 1)
+			);
+		}
 
 		applicationEventPublisher.publishEvent(
 			new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
