@@ -138,6 +138,18 @@ public class Record extends BaseEntity {
 		});
 	}
 
+	public void decreaseEmojiTypesCount(Map<EmojiType, Integer> emojiTypes) {
+		emojiTypes.forEach((type, count) -> {
+			switch (type) {
+				case HEART -> heartEmojiCount -= count;
+				case THUMBS_UP -> thumbsUpEmojiCount -= count;
+				case THUMBS_DOWN -> thumbsDownEmojiCount -= count;
+				case STAR -> starEmojiCount -= count;
+			}
+			totalEmojiCount -= count;
+		});
+	}
+
 	/* =========================
 	 * 비율 계산 메서드
 	 * ========================= */

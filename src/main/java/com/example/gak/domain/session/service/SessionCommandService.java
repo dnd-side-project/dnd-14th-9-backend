@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
+import com.example.gak.domain.record.entity.Record;
+import com.example.gak.domain.record.repository.RecordRepository;
 import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
@@ -64,6 +68,7 @@ public class SessionCommandService {
 	private final AmazonS3Manager amazonS3Manager;
 	private final ImageFileValidator imageFileValidator;
 	private final ApplicationEventPublisher applicationEventPublisher;
+	private final RecordRepository recordRepository;
 
 	public SessionRoom createSession(
 		SessionRequestDTO.CreateSessionRequestDTO request,
@@ -324,6 +329,27 @@ public class SessionCommandService {
 		List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
 
 		sessionRoomMember.updateAchievementRate(subTasks);
+		sessionSaveToRecord(sessionRoomMember.getMember(), sessionRoomMember, subTasks);
+	}
+
+	private void sessionSaveToRecord(
+		Member member, SessionRoomMember sessionRoomMember, List<SubTask> subTasks
+	) {
+		Record record = recordRepository.findByMember(member);
+
+		if (record == null)
+			return;
+
+		record.increaseParticipationTime(sessionRoomMember.getOverallSeconds());
+		record.increaseFocusedTime(sessionRoomMember.getOverallSeconds());
+		record.increaseTotalTodoCount(subTasks.size());
+		record.increaseCompletedTodoCount(
+			(int)subTasks.stream()
+				.filter(SubTask::isCompleted)
+				.count()
+		);
+		record.increaseSessionCategoryCount(
+			sessionRoomMember.getSessionRoom().getCategory());
 	}
 
 	public SessionResponseDTO.EmojiActionResponseDTO reaction(
@@ -342,13 +368,15 @@ public class SessionCommandService {
 			.findByMemberIdAndSessionRoomId(memberId, sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
 
-		if (actor.getMember().getId() == request.getTargetMemberId()) {
+		if (actor.getMember().getId().equals(request.getTargetMemberId())) {
 			throw new GeneralException(GeneralErrorCode.CANNOT_REACT_TO_SELF);
 		}
 
 		SessionRoomMember target = sessionRoomMemberRepository
 			.findByMemberIdAndSessionRoomId(request.getTargetMemberId(), sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.SESSION_NOT_JOINED));
+
+		Record record = recordRepository.findByMember(target.getMember());
 
 		Optional<Reaction> optional = reactionRepository
 			.findBySessionRoomIdAndMemberIdAndTargetMemberId(
@@ -363,6 +391,10 @@ public class SessionCommandService {
 			if (existing.getEmojiType() == request.getEmojiType()) {
 				reactionRepository.delete(existing);
 
+				record.decreaseEmojiTypesCount(
+					Map.of(existing.getEmojiType(), 1)
+				);
+
 				applicationEventPublisher.publishEvent(
 					new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
 				);
@@ -373,7 +405,13 @@ public class SessionCommandService {
 				return SessionConverter.emojiDeleted(request.getTargetMemberId());
 			}
 
-			existing.changeEmojiType(request.getEmojiType());
+			EmojiType before = existing.getEmojiType();
+			EmojiType after = request.getEmojiType();
+
+			existing.changeEmojiType(after);
+
+			record.decreaseEmojiTypesCount(Map.of(before, 1));
+			record.increaseEmojiTypesCount(Map.of(after, 1));
 
 			applicationEventPublisher.publishEvent(
 				new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
@@ -396,6 +434,10 @@ public class SessionCommandService {
 		);
 
 		reactionRepository.save(emojiAction);
+
+		record.increaseEmojiTypesCount(
+			Map.of(request.getEmojiType(), 1)
+		);
 
 		applicationEventPublisher.publishEvent(
 			new MemberReactionUpdateEvent(sessionId, request.getTargetMemberId())
