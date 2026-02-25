@@ -75,10 +75,6 @@ public class Member extends BaseEntity {
 		this.deleted = false;
 	}
 
-	public String getDisplayNickname() {
-		return nickname + " #" + id;
-	}
-
 	public void markLoginDone() {
 		this.firstLogin = false;
 	}
