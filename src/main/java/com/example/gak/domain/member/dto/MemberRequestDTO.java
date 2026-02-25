@@ -30,10 +30,6 @@ public class MemberRequestDTO {
 		private String nickname;
 
 		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
-		@Email
-		private String email;
-
-		@Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, nullable = true)
 		@Size(max = 100)
 		private String bio;
 
