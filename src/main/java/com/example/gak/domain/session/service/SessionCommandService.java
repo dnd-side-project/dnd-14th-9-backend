@@ -165,7 +165,10 @@ public class SessionCommandService {
 
 		sessionRoomMember.toggleStatus();
 
-		redisPublisher.inProgressRoomPublish(sessionId);
+		publishSessionRoomUpdateEvent(
+			sessionRoomMember.getSessionRoom().getStatus(),
+			sessionId
+		);
 
 		return toToggleSessionMemberStatusResponseDTO(sessionRoomMember);
 	}
