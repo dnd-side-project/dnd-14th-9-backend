@@ -341,7 +341,7 @@ public class SessionCommandService {
 			return;
 
 		record.increaseParticipationTime(sessionRoomMember.getOverallSeconds());
-		record.increaseFocusedTime(sessionRoomMember.getOverallSeconds());
+		record.increaseFocusedTime(sessionRoomMember.getTotalFocusSeconds());
 		record.increaseTotalTodoCount(subTasks.size());
 		record.increaseCompletedTodoCount(
 			(int)subTasks.stream()
