@@ -57,6 +57,9 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	SESSION_RESULT_BEFORE_END(HttpStatus.BAD_REQUEST, "SESSION400_10", "세션 종료 전에는 세션 결과 전송이 불가능합니다."),
 	CANNOT_REACT_TO_SELF(HttpStatus.BAD_REQUEST, "SESSION400_11", "자기 자신에게는 리액션 전송이 불가능합니다."),
 	ONLY_HOST_CAN_CHAT(HttpStatus.FORBIDDEN, "SESSION403_01", "HOST만 채팅이 가능합니다."),
+	NOT_SESSION_HOST(HttpStatus.FORBIDDEN, "SESSION403_02", "세션 주최자가 아닙니다."),
+	SESSION_DELETE_ONLY_WAITING(HttpStatus.BAD_REQUEST, "SESSION400_12", "세션이 대기 상태가 아니라면 삭제가 불가능합니다."),
+	SESSION_DELETE_HAS_WAITING_USERS(HttpStatus.BAD_REQUEST, "SESSION400_13", "세션에 대기 중인 사용자가 존재해 세션 삭제가 불가능합니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),

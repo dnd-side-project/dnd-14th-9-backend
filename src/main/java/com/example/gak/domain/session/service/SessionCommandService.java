@@ -461,6 +461,26 @@ public class SessionCommandService {
 		);
 	}
 
+	public void sessionDelete(Long sessionId, Long memberId) {
+
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (!sessionRoom.getMember().getId().equals(memberId)) {
+			throw new GeneralException(GeneralErrorCode.NOT_SESSION_HOST);
+		}
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.WAITING) {
+			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_ONLY_WAITING);
+		}
+
+		if (!sessionRoom.getSessionRoomMembers().isEmpty()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_HAS_WAITING_USERS);
+		}
+
+		sessionRoomRepository.delete(sessionRoom);
+	}
+
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
 		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);
