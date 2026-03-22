@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -49,6 +50,7 @@ public class SecurityConfig {
 				.successHandler(successHandler)
 				.failureHandler(failureHandler))
 			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.GET, "/api/v1/sessions/*").permitAll()
 				.requestMatchers(AccessTokenFreeUrls.PATHS).permitAll()
 				.anyRequest().authenticated())
 			.addFilterAt(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

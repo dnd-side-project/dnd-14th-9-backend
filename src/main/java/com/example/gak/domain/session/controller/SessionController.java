@@ -204,4 +204,15 @@ public class SessionController {
 		Long memberId = oAuth2User.getMemberId();
 		return ApiResponse.onSuccess(sessionCommandService.reaction(sessionId, memberId, request));
 	}
+
+	@Operation(summary = "세션 삭제 API")
+	@DeleteMapping("/{sessionId}")
+	public ApiResponse<Void> deleteSession(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User
+	) {
+		Long memberId = oAuth2User.getMemberId();
+		sessionCommandService.sessionDelete(sessionId, memberId);
+		return ApiResponse.onSuccess(null);
+	}
 }
