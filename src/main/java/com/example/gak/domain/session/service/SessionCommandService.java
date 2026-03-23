@@ -517,7 +517,7 @@ public class SessionCommandService {
 			String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
 			String imageUrl = amazonS3Manager.uploadFile(keyName, image);
 
-			if (sessionRoom.getThumbnailImageUrl() != null) {
+			if (sessionRoom.getThumbnailImageUrl() != null && !sessionRoom.getThumbnailImageUrl().isEmpty()) {
 				amazonS3Manager.deleteFile(sessionRoom.getThumbnailImageUrl());
 			}
 
