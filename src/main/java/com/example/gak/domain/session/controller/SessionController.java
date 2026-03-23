@@ -215,4 +215,17 @@ public class SessionController {
 		sessionCommandService.sessionDelete(sessionId, memberId);
 		return ApiResponse.onSuccess(null);
 	}
+
+	@Operation(summary = "세션 수정 API")
+	@PatchMapping(path = "/{sessionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ApiResponse<Void> patchSession(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+		@RequestPart("request") @Valid SessionRequestDTO.PatchSessionRequestDTO request,
+		@RequestPart(value = "image", required = false) MultipartFile image
+	) {
+		Long memberId = oAuth2User.getMemberId();
+		sessionCommandService.sessionPatch(sessionId, memberId, request, image);
+		return ApiResponse.onSuccess(null);
+	}
 }
