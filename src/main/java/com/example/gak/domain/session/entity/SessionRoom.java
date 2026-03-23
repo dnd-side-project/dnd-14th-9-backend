@@ -150,6 +150,8 @@ public class SessionRoom extends BaseEntity {
 		if (request.getRequiredAchievementRate() != null) {
 			this.requiredAchievementRate = request.getRequiredAchievementRate();
 		}
+
+		this.endTime = this.startTime.plusMinutes(this.durationMinutes);
 	}
 
 	public void changeStatus(SessionRoomStatus status) {
