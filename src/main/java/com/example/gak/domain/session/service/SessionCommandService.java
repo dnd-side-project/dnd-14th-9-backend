@@ -481,6 +481,52 @@ public class SessionCommandService {
 		sessionRoomRepository.delete(sessionRoom);
 	}
 
+	@Transactional
+	public void sessionPatch(
+		Long sessionId,
+		Long memberId,
+		SessionRequestDTO.PatchSessionRequestDTO request,
+		MultipartFile image
+	) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (!sessionRoom.getMember().getId().equals(memberId)) {
+			throw new GeneralException(GeneralErrorCode.NOT_SESSION_HOST);
+		}
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.WAITING) {
+			throw new GeneralException(GeneralErrorCode.SESSION_PATCH_ONLY_WAITING);
+		}
+
+		if (!sessionRoom.getSessionRoomMembers().isEmpty()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_PATCH_HAS_WAITING_USERS);
+		}
+
+		if (request.getStartTime() != null) {
+			LocalDateTime minAllowedStartTime = LocalDateTime.now().plusMinutes(MIN_START_MINUTES);
+
+			if (request.getStartTime().isBefore(minAllowedStartTime)) {
+				throw new GeneralException(GeneralErrorCode.SESSION_START_TIME_TOO_SOON);
+			}
+		}
+
+		if (image != null && !image.isEmpty()) {
+			imageFileValidator.validate(image);
+
+			String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
+			String imageUrl = amazonS3Manager.uploadFile(keyName, image);
+
+			if (sessionRoom.getThumbnailImageUrl() != null) {
+				amazonS3Manager.deleteFile(sessionRoom.getThumbnailImageUrl());
+			}
+
+			sessionRoom.changeThumbnailImageUrl(imageUrl);
+		}
+
+		sessionRoom.updateSession(request);
+	}
+
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
 		SessionRequestDTO.SessionJoinRequestDTO request) {
 		Task newTask = new Task(request.getGoal(), sessionRoom, member);

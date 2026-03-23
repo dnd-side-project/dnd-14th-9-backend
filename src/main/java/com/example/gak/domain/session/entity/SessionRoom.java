@@ -7,6 +7,7 @@ import java.util.List;
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
 import com.example.gak.domain.member.entity.Member;
+import com.example.gak.domain.session.dto.SessionRequestDTO;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
 import jakarta.persistence.CascadeType;
@@ -113,7 +114,49 @@ public class SessionRoom extends BaseEntity {
 		this.member = member;
 	}
 
+	public void updateSession(SessionRequestDTO.PatchSessionRequestDTO request) {
+		if (request.getTitle() != null) {
+			this.title = request.getTitle().trim();
+		}
+
+		if (request.getSummary() != null) {
+			this.summary = request.getSummary().trim();
+		}
+
+		if (request.getNotice() != null) {
+			this.notice = request.getNotice().trim();
+		}
+
+		if (request.getCategory() != null) {
+			this.category = request.getCategory();
+		}
+
+		if (request.getStartTime() != null) {
+			this.startTime = request.getStartTime();
+		}
+
+		if (request.getSessionDurationMinutes() != null) {
+			this.durationMinutes = request.getSessionDurationMinutes();
+		}
+
+		if (request.getMaxParticipants() != null) {
+			this.maxCapacity = request.getMaxParticipants();
+		}
+
+		if (request.getRequiredFocusRate() != null) {
+			this.requiredFocusRate = request.getRequiredFocusRate();
+		}
+
+		if (request.getRequiredAchievementRate() != null) {
+			this.requiredAchievementRate = request.getRequiredAchievementRate();
+		}
+	}
+
 	public void changeStatus(SessionRoomStatus status) {
 		this.status = status;
+	}
+
+	public void changeThumbnailImageUrl(String thumbnailImageUrl) {
+		this.thumbnailImageUrl = thumbnailImageUrl;
 	}
 }

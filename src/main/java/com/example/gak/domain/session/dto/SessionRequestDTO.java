@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -56,6 +57,42 @@ public class SessionRequestDTO {
 
 		@Min(0)
 		private Integer requiredAchievementRate = 0;
+	}
+
+	@Schema(name = "세션 수정 요청")
+	@Getter
+	@Builder
+	public static class PatchSessionRequestDTO {
+
+		@Size(min = 1, max = 20)
+		@Pattern(regexp = "^(?!\\s*$).+", message = "공백만 입력할 수 없습니다.")
+		private String title;
+
+		@Size(min = 1, max = 50)
+		@Pattern(regexp = "^(?!\\s*$).+", message = "공백만 입력할 수 없습니다.")
+		private String summary;
+
+		@Size(min = 1, max = 100)
+		@Pattern(regexp = "^(?!\\s*$).+", message = "공백만 입력할 수 없습니다.")
+		private String notice;
+
+		private SessionCategory category;
+
+		@Future
+		@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+		private LocalDateTime startTime;
+
+		@Positive
+		private Integer sessionDurationMinutes;
+
+		@Positive
+		private Integer maxParticipants;
+
+		@Min(0)
+		private Integer requiredFocusRate;
+
+		@Min(0)
+		private Integer requiredAchievementRate;
 	}
 
 	@Schema(name = "세션 참여 요청")
