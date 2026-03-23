@@ -481,7 +481,6 @@ public class SessionCommandService {
 		sessionRoomRepository.delete(sessionRoom);
 	}
 
-	@Transactional
 	public void sessionPatch(
 		Long sessionId,
 		Long memberId,
