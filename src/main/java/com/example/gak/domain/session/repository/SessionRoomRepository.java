@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 
@@ -57,4 +58,6 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 	List<SessionRoom> findByStatusAndStartTimeBefore(SessionRoomStatus status, LocalDateTime dateTime);
 
 	List<SessionRoom> findByStatusAndEndTimeBefore(SessionRoomStatus status, LocalDateTime time);
+
+	boolean existsByMemberAndStatusIn(Member member, List<SessionRoomStatus> statuses);
 }

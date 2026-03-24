@@ -1,6 +1,7 @@
 package com.example.gak.domain.session.service;
 
 import static com.example.gak.domain.session.converter.SessionConverter.*;
+import static com.example.gak.domain.session.entity.enums.SessionRoomStatus.*;
 import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
 import java.time.LocalDateTime;
@@ -78,6 +79,10 @@ public class SessionCommandService {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_MEMBER));
 
+		if (sessionRoomRepository.existsByMemberAndStatusIn(member, List.of(WAITING, IN_PROGRESS))) {
+			throw new GeneralException(GeneralErrorCode.SESSION_CREATE_LIMIT_EXCEEDED);
+		}
+
 		LocalDateTime minAllowedStartTime = LocalDateTime.now().plusMinutes(MIN_START_MINUTES);
 		if (request.getStartTime().isBefore(minAllowedStartTime)) {
 			throw new GeneralException(GeneralErrorCode.SESSION_START_TIME_TOO_SOON);
@@ -102,7 +107,7 @@ public class SessionCommandService {
 			request.getStartTime(),
 			request.getSessionDurationMinutes(),
 			request.getMaxParticipants(),
-			SessionRoomStatus.WAITING,
+			WAITING,
 			request.getRequiredFocusRate(),
 			request.getRequiredAchievementRate(),
 			member
@@ -149,7 +154,7 @@ public class SessionCommandService {
 			return SessionParticipantRole.PARTICIPANT;
 		}
 
-		boolean isWaiting = sessionRoom.getStatus() == SessionRoomStatus.WAITING;
+		boolean isWaiting = sessionRoom.getStatus() == WAITING;
 		boolean isRoomOwner = member.getId().equals(sessionRoom.getMember().getId());
 		boolean isFirstJoiner = members.isEmpty();
 
@@ -241,7 +246,7 @@ public class SessionCommandService {
 		SessionRoom sessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
-		if (sessionRoom.getStatus() != SessionRoomStatus.WAITING) {
+		if (sessionRoom.getStatus() != WAITING) {
 			throw new GeneralException(GeneralErrorCode.SESSION_KICK_ALLOWED_ONLY_IN_WAITING);
 		}
 
@@ -285,7 +290,7 @@ public class SessionCommandService {
 		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
 			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
 
-		if (sessionRoom.getStatus() == SessionRoomStatus.WAITING) {
+		if (sessionRoom.getStatus() == WAITING) {
 			sessionRoom.changeStatus(SessionRoomStatus.IN_PROGRESS);
 		}
 
@@ -470,7 +475,7 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.NOT_SESSION_HOST);
 		}
 
-		if (sessionRoom.getStatus() != SessionRoomStatus.WAITING) {
+		if (sessionRoom.getStatus() != WAITING) {
 			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_ONLY_WAITING);
 		}
 
@@ -494,7 +499,7 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.NOT_SESSION_HOST);
 		}
 
-		if (sessionRoom.getStatus() != SessionRoomStatus.WAITING) {
+		if (sessionRoom.getStatus() != WAITING) {
 			throw new GeneralException(GeneralErrorCode.SESSION_PATCH_ONLY_WAITING);
 		}
 
@@ -574,7 +579,7 @@ public class SessionCommandService {
 			applicationEventPublisher.publishEvent(
 				new InProgressRoomUpdateEvent(sessionId)
 			);
-		} else if (status == SessionRoomStatus.WAITING) {
+		} else if (status == WAITING) {
 			applicationEventPublisher.publishEvent(
 				new WaitingRoomUpdateEvent(sessionId)
 			);
