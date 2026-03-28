@@ -1,8 +1,11 @@
 package com.example.gak.domain.member.service;
 
+import static com.example.gak.global.security.oauth2.CustomOAuth2AuthorizedClientService.*;
+
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +28,8 @@ import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
+import com.example.gak.global.security.oauth2.external.GoogleClient;
+import com.example.gak.global.security.oauth2.external.KakaoClient;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +40,9 @@ public class MemberCommandService {
 
 	private final MemberRepository memberRepository;
 	private final AmazonS3Manager amazonS3Manager;
+	private final KakaoClient kakaoClient;
+	private final GoogleClient googleClient;
+	private final StringRedisTemplate stringRedisTemplate;
 
 	private final RecordRepository recordRepository;
 	private final ChatMessageRepository chatMessageRepository;
@@ -199,6 +207,22 @@ public class MemberCommandService {
 		sessionRoomRepository.deleteByMemberId(memberId);
 
 		member.delete();
+		if (member.getSocialProvider().equals("kakao")) {
+			kakaoClient.unlink(member.getProviderId());
+		}
+		if (member.getSocialProvider().equals("google")) {
+			String googleRefreshKey = OAUTH2_REFRESH_TOKEN_KEY_PREFIX + member.getId();
+			String googleRefreshToken = stringRedisTemplate.opsForValue().get(googleRefreshKey);
+
+			String googleAccessKey = OAUTH2_ACCESS_TOKEN_KEY_PREFIX + member.getId();
+			String googleAccessToken = stringRedisTemplate.opsForValue().get(googleAccessKey);
+
+			if (googleAccessToken == null) {
+				googleAccessToken = googleClient.reissueToken(googleRefreshToken).getAccess_token();
+			}
+
+			googleClient.unlink(googleAccessToken);
+		}
 	}
 
 	private Member findMember(Long memberId) {
