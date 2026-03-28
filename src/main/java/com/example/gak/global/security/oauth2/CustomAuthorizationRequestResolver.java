@@ -45,18 +45,24 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
 		}
 
 		String referer = request.getHeader(HttpHeaders.REFERER);
-		if (referer == null) {
-			return authRequest;
+		if (referer != null) {
+			String origin = URI.create(referer).getScheme() + "://" + URI.create(referer).getAuthority();
+			String newState = origin + "|" + authRequest.getState();
+			authRequest = OAuth2AuthorizationRequest.from(authRequest)
+				.state(newState)
+				.build();
 		}
 
-		String origin = URI.create(referer).getScheme()
-			+ "://"
-			+ URI.create(referer).getAuthority();
+		Object registrationId = authRequest.getAttribute("registration_id");
+		if ("google".equals(registrationId)) {
+			authRequest = OAuth2AuthorizationRequest.from(authRequest)
+				.additionalParameters(params -> {
+					params.put("prompt", "consent");
+					params.put("access_type", "offline");
+				})
+				.build();
+		}
 
-		String newState = origin + "|" + authRequest.getState();
-
-		return OAuth2AuthorizationRequest.from(authRequest)
-			.state(newState)
-			.build();
+		return authRequest;
 	}
 }
