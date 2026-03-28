@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.gak.domain.chat.repository.ChatMessageRepository;
@@ -27,15 +28,18 @@ import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
+import com.example.gak.global.security.jwt.JwtService;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
 import com.example.gak.global.security.oauth2.external.GoogleClient;
 import com.example.gak.global.security.oauth2.external.KakaoClient;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class MemberCommandService {
 
 	private final MemberRepository memberRepository;
@@ -50,6 +54,7 @@ public class MemberCommandService {
 	private final SubTaskRepository subTaskRepository;
 	private final SessionRoomRepository sessionRoomRepository;
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
+	private final JwtService jwtService;
 
 	public Long synchronize(OAuth2MemberDto oAuth2MemberDto) {
 		Optional<Member> optionalMember = memberRepository.findBySocialProviderAndProviderId(
@@ -205,23 +210,34 @@ public class MemberCommandService {
 		}
 
 		sessionRoomRepository.deleteByMemberId(memberId);
-
 		member.delete();
-		if (member.getSocialProvider().equals("kakao")) {
-			kakaoClient.unlink(member.getProviderId());
-		}
-		if (member.getSocialProvider().equals("google")) {
-			String googleRefreshKey = OAUTH2_REFRESH_TOKEN_KEY_PREFIX + member.getId();
-			String googleRefreshToken = stringRedisTemplate.opsForValue().get(googleRefreshKey);
+		jwtService.deleteRefreshToken(memberId);
 
-			String googleAccessKey = OAUTH2_ACCESS_TOKEN_KEY_PREFIX + member.getId();
-			String googleAccessToken = stringRedisTemplate.opsForValue().get(googleAccessKey);
+		try {
+			switch (member.getSocialProvider()) {
+				case "kakao" -> kakaoClient.unlink(member.getProviderId());
+				case "google" -> {
+					String googleRefreshKey = OAUTH2_REFRESH_TOKEN_KEY_PREFIX + member.getId();
+					String googleRefreshToken = stringRedisTemplate.opsForValue().get(googleRefreshKey);
 
-			if (googleAccessToken == null) {
-				googleAccessToken = googleClient.reissueToken(googleRefreshToken).getAccess_token();
+					if (googleRefreshToken == null) {
+						log.warn("Google refresh token not found for member {}. Cannot unlink.", member.getId());
+						break;
+					}
+
+					String googleAccessKey = OAUTH2_ACCESS_TOKEN_KEY_PREFIX + member.getId();
+					String googleAccessToken = stringRedisTemplate.opsForValue().get(googleAccessKey);
+
+					if (googleAccessToken == null) {
+						googleAccessToken = googleClient.reissueToken(googleRefreshToken).getAccess_token();
+					}
+
+					googleClient.unlink(googleAccessToken);
+					stringRedisTemplate.delete(List.of(googleRefreshKey, googleAccessKey));
+				}
 			}
-
-			googleClient.unlink(googleAccessToken);
+		} catch (RestClientException e) {
+			log.error("Failed to unlink social account for member {}. This will be ignored.", member.getId(), e);
 		}
 	}
 
