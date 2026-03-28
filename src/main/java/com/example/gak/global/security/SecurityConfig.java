@@ -17,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.gak.global.security.oauth2.CustomAuthorizationRequestResolver;
 import com.example.gak.global.security.oauth2.CustomFailureHandler;
+import com.example.gak.global.security.oauth2.CustomOAuth2AuthorizedClientService;
 import com.example.gak.global.security.oauth2.CustomOAuth2UserService;
 import com.example.gak.global.security.oauth2.CustomOidcUserService;
 import com.example.gak.global.security.oauth2.CustomSuccessHandler;
@@ -34,6 +35,7 @@ public class SecurityConfig {
 	private final CustomFailureHandler failureHandler;
 	private final JwtAuthFilter jwtAuthFilter;
 	private final CustomAuthorizationRequestResolver authorizationRequestResolver;
+	private final CustomOAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,6 +49,7 @@ public class SecurityConfig {
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(oAuth2UserService)
 					.oidcUserService(oidcUserService))
+				.authorizedClientService(oAuth2AuthorizedClientService)
 				.successHandler(successHandler)
 				.failureHandler(failureHandler))
 			.authorizeHttpRequests(auth -> auth
