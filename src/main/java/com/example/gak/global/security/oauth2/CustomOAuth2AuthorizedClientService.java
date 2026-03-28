@@ -37,18 +37,20 @@ public class CustomOAuth2AuthorizedClientService implements OAuth2AuthorizedClie
 		OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
 		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
-		String refreshTokenKey = OAUTH2_REFRESH_TOKEN_KEY_PREFIX + memberId;
-		Duration refreshTokenDuration = Duration.between(
-			Instant.now(),
-			refreshToken.getExpiresAt() != null
-				? refreshToken.getExpiresAt()
-				: Instant.now().plus(1, ChronoUnit.MONTHS)
-		);
-		stringRedisTemplate.opsForValue().set(
-			refreshTokenKey,
-			refreshToken.getTokenValue(),
-			refreshTokenDuration
-		);
+		if (refreshToken != null) {
+			String refreshTokenKey = OAUTH2_REFRESH_TOKEN_KEY_PREFIX + memberId;
+			Duration refreshTokenDuration = Duration.between(
+				Instant.now(),
+				refreshToken.getExpiresAt() != null
+					? refreshToken.getExpiresAt()
+					: Instant.now().plus(1, ChronoUnit.MONTHS)
+			);
+			stringRedisTemplate.opsForValue().set(
+				refreshTokenKey,
+				refreshToken.getTokenValue(),
+				refreshTokenDuration
+			);
+		}
 
 		String accessTokenKey = OAUTH2_ACCESS_TOKEN_KEY_PREFIX + memberId;
 		Duration accessTokenDuration = Duration.between(
