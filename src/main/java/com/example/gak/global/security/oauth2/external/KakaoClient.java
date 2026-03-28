@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KakaoClient {
 
-	private final RestClient kakaoClient;
+	private final RestClient kakaoRestClient;
 
 	@Value("${oauth2.kakao.admin-key}")
 	private String adminKey;
@@ -23,7 +23,7 @@ public class KakaoClient {
 		formData.add("target_id_type", "user_id");
 		formData.add("target_id", providerId);
 
-		kakaoClient.post()
+		kakaoRestClient.post()
 			.uri("/unlink")
 			.header("Authorization", "KakaoAK " + adminKey)
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)

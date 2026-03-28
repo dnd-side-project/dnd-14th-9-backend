@@ -8,14 +8,14 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
 	@Bean
-	public RestClient kakaoClient() {
+	public RestClient kakaoRestClient() {
 		return RestClient.builder()
 			.baseUrl("https://kapi.kakao.com/v1/user")
 			.build();
 	}
 
 	@Bean
-	public RestClient googleClient() {
+	public RestClient googleRestClient() {
 		return RestClient.builder()
 			.baseUrl("https://oauth2.googleapis.com")
 			.build();

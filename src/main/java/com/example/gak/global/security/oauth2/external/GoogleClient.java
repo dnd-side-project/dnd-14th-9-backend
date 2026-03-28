@@ -20,7 +20,7 @@ public class GoogleClient {
 	@Value("${spring.security.oauth2.client.registration.google.client-secret}")
 	private String clientSecret;
 
-	private final RestClient googleClient;
+	private final RestClient googleRestClient;
 
 	public TokenResponse reissueToken(String refreshToken) {
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -29,7 +29,7 @@ public class GoogleClient {
 		formData.add("client_secret", clientSecret);
 		formData.add("refresh_token", refreshToken);
 
-		return googleClient.post()
+		return googleRestClient.post()
 			.uri("/token")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.body(formData)
@@ -38,7 +38,7 @@ public class GoogleClient {
 	}
 
 	public void unlink(String accessToken) {
-		googleClient.post()
+		googleRestClient.post()
 			.uri(uriBuilder -> uriBuilder
 				.path("/revoke")
 				.queryParam("token", accessToken)
