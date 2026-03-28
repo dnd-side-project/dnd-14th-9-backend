@@ -43,7 +43,7 @@ public class CustomOAuth2AuthorizedClientService implements OAuth2AuthorizedClie
 				Instant.now(),
 				refreshToken.getExpiresAt() != null
 					? refreshToken.getExpiresAt()
-					: Instant.now().plus(1, ChronoUnit.MONTHS)
+					: Instant.now().plus(30, ChronoUnit.DAYS)
 			);
 			stringRedisTemplate.opsForValue().set(
 				refreshTokenKey,
