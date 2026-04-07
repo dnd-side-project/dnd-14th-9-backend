@@ -165,6 +165,10 @@ public class SessionController {
 		return ApiResponse.onSuccess(null);
 	}
 
+	/**
+	 * @deprecated 세션 집중 시간 계산 책임 서버 측으로 변경
+	 */
+	@Deprecated
 	@Operation(summary = "세션 종료 후 결과 전송 API")
 	@PostMapping("/{sessionId}/results")
 	public ApiResponse<Void> postSessionResult(
@@ -172,7 +176,7 @@ public class SessionController {
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
 		@RequestBody @Valid SessionRequestDTO.SessionResultRequestDTO request
 	) {
-		sessionCommandService.postSessionResult(oAuth2User.getMemberId(), sessionId, request);
+		// sessionCommandService.postSessionResult(oAuth2User.getMemberId(), sessionId, request);
 		return ApiResponse.onSuccess(null);
 	}
 
