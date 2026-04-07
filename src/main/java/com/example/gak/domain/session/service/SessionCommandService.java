@@ -335,6 +335,23 @@ public class SessionCommandService {
 				).getSeconds();
 				member.updateFocusSeconds(seconds);
 			}
+
+			member.setOverallSeconds(
+				(int)Duration.between(
+					member.getCreatedAt(),
+					sessionRoom.getEndTime()
+				).getSeconds()
+			);
+
+			member.updateFocusRate();
+
+			Task task = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId,
+					sessionRoom.getMember().getId())
+				.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
+			List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
+
+			member.updateAchievementRate(subTasks);
+			sessionSaveToRecord(member.getMember(), member, subTasks);
 		}
 
 		applicationEventPublisher.publishEvent(
