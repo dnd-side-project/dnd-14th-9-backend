@@ -1,5 +1,6 @@
 package com.example.gak.domain.session.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.gak.domain.common.entity.BaseEntity;
@@ -61,6 +62,8 @@ public class SessionRoomMember extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
+	private LocalDateTime lastFocusTime = LocalDateTime.now();
+
 	private Integer totalFocusSeconds = 0;
 
 	private Integer overallSeconds = 0;
@@ -120,6 +123,14 @@ public class SessionRoomMember extends BaseEntity {
 
 	public void setTotalFocusSeconds(int totalFocusSeconds) {
 		this.totalFocusSeconds = totalFocusSeconds;
+	}
+
+	public void updateFocusSeconds(int focusSeconds) {
+		this.totalFocusSeconds += focusSeconds;
+	}
+
+	public void setLastFocusTime(LocalDateTime lastFocusTime) {
+		this.lastFocusTime = lastFocusTime;
 	}
 
 	public void setOverallSeconds(int overallSeconds) {

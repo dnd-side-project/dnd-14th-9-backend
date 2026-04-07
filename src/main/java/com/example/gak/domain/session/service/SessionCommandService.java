@@ -4,6 +4,7 @@ import static com.example.gak.domain.session.converter.SessionConverter.*;
 import static com.example.gak.domain.session.entity.enums.SessionRoomStatus.*;
 import static com.example.gak.global.apiPayload.code.GeneralErrorCode.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,6 +30,7 @@ import com.example.gak.domain.session.entity.Reaction;
 import com.example.gak.domain.session.entity.SessionRoom;
 import com.example.gak.domain.session.entity.SessionRoomMember;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
+import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
 import com.example.gak.domain.session.repository.ReactionRepository;
 import com.example.gak.domain.session.repository.SessionRoomMemberRepository;
@@ -230,6 +232,17 @@ public class SessionCommandService {
 
 		sessionRoomMember.toggleStatus();
 
+		if (sessionRoomMember.getStatus() == SessionParticipantStatus.REST) {
+			int seconds = (int)Duration.between(
+				sessionRoomMember.getLastFocusTime(),
+				LocalDateTime.now()
+			).getSeconds();
+
+			sessionRoomMember.updateFocusSeconds(seconds);
+		} else if (sessionRoomMember.getStatus() == SessionParticipantStatus.FOCUSED) {
+			sessionRoomMember.setLastFocusTime(LocalDateTime.now());
+		}
+
 		publishSessionRoomUpdateEvent(
 			sessionRoomMember.getSessionRoom().getStatus(),
 			sessionId
@@ -294,6 +307,11 @@ public class SessionCommandService {
 			sessionRoom.changeStatus(SessionRoomStatus.IN_PROGRESS);
 		}
 
+		List<SessionRoomMember> sessionRoomMembers = sessionRoom.getSessionRoomMembers();
+		for (SessionRoomMember member : sessionRoomMembers) {
+			member.setLastFocusTime(LocalDateTime.now());
+		}
+
 		applicationEventPublisher.publishEvent(
 			new SessionStatusUpdateEvent(sessionId)
 		);
@@ -305,6 +323,35 @@ public class SessionCommandService {
 
 		if (sessionRoom.getStatus() == SessionRoomStatus.IN_PROGRESS) {
 			sessionRoom.changeStatus(SessionRoomStatus.COMPLETED);
+		}
+
+		List<SessionRoomMember> sessionRoomMembers = sessionRoom.getSessionRoomMembers();
+
+		for (SessionRoomMember member : sessionRoomMembers) {
+			if (member.getStatus() == SessionParticipantStatus.FOCUSED) {
+				int seconds = (int)Duration.between(
+					member.getLastFocusTime(),
+					sessionRoom.getEndTime()
+				).getSeconds();
+				member.updateFocusSeconds(seconds);
+			}
+
+			member.setOverallSeconds(
+				(int)Duration.between(
+					member.getCreatedAt(),
+					sessionRoom.getEndTime()
+				).getSeconds()
+			);
+
+			member.updateFocusRate();
+
+			Task task = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId,
+					sessionRoom.getMember().getId())
+				.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
+			List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
+
+			member.updateAchievementRate(subTasks);
+			sessionSaveToRecord(member.getMember(), member, subTasks);
 		}
 
 		applicationEventPublisher.publishEvent(
