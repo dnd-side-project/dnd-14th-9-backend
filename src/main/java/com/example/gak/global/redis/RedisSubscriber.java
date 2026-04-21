@@ -50,9 +50,7 @@ public class RedisSubscriber implements MessageListener {
 			handleChatMessage(sessionId, json);
 		} else if ("kicked".equals(type)) {
 			Long sessionId = Long.parseLong(parts[1]);
-			log.info("channel={}", channel);
 			String json = new String(message.getBody(), java.nio.charset.StandardCharsets.UTF_8);
-			log.info("kicked payload={}", json);
 			try {
 				handleKicked(sessionId, json);
 			} catch (JsonProcessingException e) {
