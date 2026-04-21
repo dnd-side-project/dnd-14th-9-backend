@@ -75,8 +75,15 @@ public class RedisSubscriber implements MessageListener {
 	}
 
 	private void handleWaiting(Long sessionId) {
-		SessionResponseDTO.WaitingResponseDTO dto =
+		SessionResponseDTO.WaitingResponseDTO waitingResponseDTO =
 			sessionQueryService.getCurrentWaitingRoom(sessionId);
+
+		SessionResponseDTO.SessionWaitingRoomResponseDTO<SessionResponseDTO.WaitingResponseDTO> dto =
+			SessionResponseDTO.SessionWaitingRoomResponseDTO.<SessionResponseDTO.WaitingResponseDTO>builder()
+				.eventType(EventType.ROOM_UPDATE)
+				.data(waitingResponseDTO)
+				.build();
+
 		sseService.sendWaiting(sessionId, dto);
 	}
 
