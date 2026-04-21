@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.gak.domain.common.entity.enums.EmojiType;
+import com.example.gak.domain.session.dto.enums.EventType;
 import com.example.gak.domain.session.entity.enums.SessionParticipantRole;
 import com.example.gak.domain.session.entity.enums.SessionParticipantStatus;
 import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
@@ -116,6 +117,21 @@ public class SessionResponseDTO {
 	public static class WaitingResponseDTO {
 		private Integer participantCount;
 		private List<WaitingMemberResponseDTO> members;
+	}
+
+	@Schema(name = "사용자 강퇴 이벤트 응답")
+	@Builder
+	@Getter
+	public static class KickedUserResponseDTO {
+		private List<Long> memberIds;
+	}
+
+	@Schema(name = "대기방 SSE 이벤트 응답")
+	@Builder
+	@Getter
+	public static class SessionWaitingRoomResponseDTO<T> {
+		private EventType eventType;
+		private T data;
 	}
 
 	@Schema(name = "세션 진행 중 참여자 상태 토글 응답")

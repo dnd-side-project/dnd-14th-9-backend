@@ -202,6 +202,14 @@ public class SessionConverter {
 			.build();
 	}
 
+	public static SessionResponseDTO.KickedUserResponseDTO toKickedUserResponseDTO(
+		List<Long> memberIds
+	) {
+		return SessionResponseDTO.KickedUserResponseDTO.builder()
+			.memberIds(memberIds)
+			.build();
+	}
+
 	public static SessionResponseDTO.EmojiResultResponseDTO toEmojiResultResponseDTO(
 		SessionRoomMember sessionRoomMember
 	) {
