@@ -4,14 +4,12 @@ import java.util.List;
 
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.dto.enums.EventType;
-import com.example.gak.domain.session.service.SessionCommandService;
 import com.example.gak.domain.session.service.SessionQueryService;
 import com.example.gak.global.sse.SseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,8 +27,6 @@ public class RedisSubscriber implements MessageListener {
 	private final SessionQueryService sessionQueryService;
 	private final SseService sseService;
 	private final SimpMessagingTemplate messagingTemplate;
-	private final StringRedisTemplate redisTemplate;
-	private final SessionCommandService sessionCommandService;
 	private final ObjectMapper objectMapper;
 
 	@Override
