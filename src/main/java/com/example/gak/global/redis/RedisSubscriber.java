@@ -1,14 +1,20 @@
 package com.example.gak.global.redis;
 
+import java.util.List;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import com.example.gak.domain.session.converter.SessionConverter;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
+import com.example.gak.domain.session.dto.enums.EventType;
 import com.example.gak.domain.session.service.SessionQueryService;
 import com.example.gak.global.sse.SseService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +27,7 @@ public class RedisSubscriber implements MessageListener {
 	private final SessionQueryService sessionQueryService;
 	private final SseService sseService;
 	private final SimpMessagingTemplate messagingTemplate;
-	private final StringRedisTemplate redisTemplate;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
@@ -38,6 +44,14 @@ public class RedisSubscriber implements MessageListener {
 			Long sessionId = Long.parseLong(parts[1]);
 			String json = new String(message.getBody(), java.nio.charset.StandardCharsets.UTF_8);
 			handleChatMessage(sessionId, json);
+		} else if ("kicked".equals(type)) {
+			Long sessionId = Long.parseLong(parts[1]);
+			String json = new String(message.getBody(), java.nio.charset.StandardCharsets.UTF_8);
+			try {
+				handleKicked(sessionId, json);
+			} catch (JsonProcessingException e) {
+				log.error("강퇴 이벤트 메시지 역직렬화 실패", e);
+			}
 		} else {
 			Long sessionId = Long.parseLong(parts[1]);
 			handleMessage(type, sessionId);
@@ -55,8 +69,26 @@ public class RedisSubscriber implements MessageListener {
 	}
 
 	private void handleWaiting(Long sessionId) {
-		SessionResponseDTO.WaitingResponseDTO dto =
+		SessionResponseDTO.WaitingResponseDTO waitingResponseDTO =
 			sessionQueryService.getCurrentWaitingRoom(sessionId);
+
+		SessionResponseDTO.SessionWaitingRoomResponseDTO<SessionResponseDTO.WaitingResponseDTO> dto =
+			SessionResponseDTO.SessionWaitingRoomResponseDTO.<SessionResponseDTO.WaitingResponseDTO>builder()
+				.eventType(EventType.ROOM_UPDATE)
+				.data(waitingResponseDTO)
+				.build();
+
+		sseService.sendWaiting(sessionId, dto);
+	}
+
+	private void handleKicked(Long sessionId, String json) throws JsonProcessingException {
+		List<Long> memberIds = objectMapper.readValue(
+			json,
+			new TypeReference<List<Long>>() {
+			}
+		);
+		SessionResponseDTO.SessionWaitingRoomResponseDTO<SessionResponseDTO.KickedUserResponseDTO> dto =
+			getKickedUserInfo(memberIds);
 		sseService.sendWaiting(sessionId, dto);
 	}
 
@@ -86,5 +118,16 @@ public class RedisSubscriber implements MessageListener {
 
 	private void handleChatMessage(Long sessionId, String json) {
 		messagingTemplate.convertAndSend("/sub/chat/" + sessionId, json);
+	}
+
+	private SessionResponseDTO.SessionWaitingRoomResponseDTO<SessionResponseDTO.KickedUserResponseDTO> getKickedUserInfo(
+		List<Long> memberIds) {
+		SessionResponseDTO.KickedUserResponseDTO kickedUserResponseDTO
+			= SessionConverter.toKickedUserResponseDTO(memberIds);
+
+		return SessionResponseDTO.SessionWaitingRoomResponseDTO.<SessionResponseDTO.KickedUserResponseDTO>builder()
+			.eventType(EventType.KICKED)
+			.data(kickedUserResponseDTO)
+			.build();
 	}
 }

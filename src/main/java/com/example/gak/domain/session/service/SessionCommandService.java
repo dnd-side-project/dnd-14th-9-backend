@@ -44,6 +44,7 @@ import com.example.gak.global.apiPayload.exception.GeneralException;
 import com.example.gak.global.aws.AmazonS3Manager;
 import com.example.gak.global.redis.RedisPublisher;
 import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
+import com.example.gak.global.redis.event.MemberKickedEvent;
 import com.example.gak.global.redis.event.MemberReactionUpdateEvent;
 import com.example.gak.global.redis.event.ReactionUpdateEvent;
 import com.example.gak.global.redis.event.SessionStatusUpdateEvent;
@@ -292,6 +293,11 @@ public class SessionCommandService {
 		if (updated == 0) {
 			throw new GeneralException(GeneralErrorCode.SESSION_INVALID_STATE);
 		}
+
+		publishSessionRoomKickedMemberEvent(
+			sessionId,
+			targetMemberIds
+		);
 
 		publishSessionRoomUpdateEvent(
 			sessionRoom.getStatus(),
@@ -631,5 +637,11 @@ public class SessionCommandService {
 				new WaitingRoomUpdateEvent(sessionId)
 			);
 		}
+	}
+
+	private void publishSessionRoomKickedMemberEvent(Long sessionId, List<Long> memberIds) {
+		applicationEventPublisher.publishEvent(
+			new MemberKickedEvent(sessionId, memberIds)
+		);
 	}
 }
