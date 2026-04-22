@@ -38,7 +38,7 @@ public class RedisPublisher {
 			String message = objectMapper.writeValueAsString(memberIds);
 			redisTemplate.convertAndSend(channel, message);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			log.error("강퇴 이벤트 메시지 직렬화 실패", e);
 		}
 	}
 

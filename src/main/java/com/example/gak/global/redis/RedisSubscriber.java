@@ -50,7 +50,7 @@ public class RedisSubscriber implements MessageListener {
 			try {
 				handleKicked(sessionId, json);
 			} catch (JsonProcessingException e) {
-				throw new RuntimeException(e);
+				log.error("강퇴 이벤트 메시지 역직렬화 실패", e);
 			}
 		} else {
 			Long sessionId = Long.parseLong(parts[1]);
