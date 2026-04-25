@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.example.gak.domain.session.dto.SessionResponseDTO;
+import com.example.gak.domain.session.dto.enums.EventType;
 import com.example.gak.domain.session.service.SessionQueryService;
 import com.example.gak.global.sse.SseService;
 
@@ -30,8 +32,12 @@ public class SessionSseController {
 		SseEmitter emitter = sseService.subscribeWaiting(sessionId);
 
 		try {
-			sseService.sendWaiting(sessionId,
-				sessionQueryService.getCurrentWaitingRoom(sessionId));
+			SessionResponseDTO.SessionWaitingRoomResponseDTO<SessionResponseDTO.WaitingResponseDTO> dto =
+				SessionResponseDTO.SessionWaitingRoomResponseDTO.<SessionResponseDTO.WaitingResponseDTO>builder()
+					.eventType(EventType.ROOM_UPDATE)
+					.data(sessionQueryService.getCurrentWaitingRoom(sessionId))
+					.build();
+			sseService.sendToWaitingEmitter(emitter, dto);
 		} catch (Exception e) {
 			emitter.completeWithError(e);
 		}
@@ -46,7 +52,7 @@ public class SessionSseController {
 		SseEmitter emitter = sseService.subscribeInProgress(sessionId);
 
 		try {
-			sseService.sendInProgress(sessionId,
+			sseService.sendToInProgressEmitter(emitter,
 				sessionQueryService.getCurrentSessionRoom(sessionId));
 		} catch (Exception e) {
 			emitter.completeWithError(e);
@@ -62,8 +68,8 @@ public class SessionSseController {
 		SseEmitter emitter = sseService.subscribeSessionStatus(sessionId);
 
 		try {
-			sseService.sendSessionStatus(
-				sessionId,
+			sseService.sendToSessionStatusEmitter(
+				emitter,
 				sessionQueryService.getSessionStatus(sessionId)
 			);
 		} catch (Exception e) {
@@ -80,8 +86,8 @@ public class SessionSseController {
 		SseEmitter emitter = sseService.subscribeReaction(sessionId);
 
 		try {
-			sseService.sendReaction(
-				sessionId,
+			sseService.sendToReactionEmitter(
+				emitter,
 				sessionQueryService.getReactionStatus(sessionId)
 			);
 		} catch (Exception e) {

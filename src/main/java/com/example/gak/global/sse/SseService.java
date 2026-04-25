@@ -52,6 +52,12 @@ public class SseService {
 		}
 	}
 
+	public void sendToWaitingEmitter(SseEmitter emitter, Object data) throws IOException {
+		emitter.send(SseEmitter.event()
+			.name("waiting-members-updated")
+			.data(data));
+	}
+
 	private void removeWaitingEmitter(Long sessionId, SseEmitter emitter) {
 		List<SseEmitter> emitters = waitingEmitters.get(sessionId);
 		if (emitters != null) {
@@ -88,6 +94,12 @@ public class SseService {
 				removeInProgressEmitter(sessionId, emitter);
 			}
 		}
+	}
+
+	public void sendToInProgressEmitter(SseEmitter emitter, Object data) throws IOException {
+		emitter.send(SseEmitter.event()
+			.name("in-progress-members-updated")
+			.data(data));
 	}
 
 	private void removeInProgressEmitter(Long sessionId, SseEmitter emitter) {
@@ -128,6 +140,12 @@ public class SseService {
 		}
 	}
 
+	public void sendToSessionStatusEmitter(SseEmitter emitter, Object data) throws IOException {
+		emitter.send(SseEmitter.event()
+			.name("session-status-updated")
+			.data(data));
+	}
+
 	private void removeSessionStatusEmitter(Long sessionId, SseEmitter emitter) {
 		List<SseEmitter> emitters = sessionStatusEmitters.get(sessionId);
 		if (emitters != null) {
@@ -164,6 +182,12 @@ public class SseService {
 				removeReactionEmitter(sessionId, emitter);
 			}
 		}
+	}
+
+	public void sendToReactionEmitter(SseEmitter emitter, Object data) throws IOException {
+		emitter.send(SseEmitter.event()
+			.name("reaction-updated")
+			.data(data));
 	}
 
 	private void removeReactionEmitter(Long sessionId, SseEmitter emitter) {
