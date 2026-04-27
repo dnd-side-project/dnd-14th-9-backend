@@ -199,6 +199,13 @@ public class SessionCommandService {
 	}
 
 	private void hostPermissionTransfer(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.IN_PROGRESS) {
+			return;
+		}
+
 		List<SessionRoomMember> members =
 			sessionRoomMemberRepository.findBySessionRoomId(sessionId);
 
