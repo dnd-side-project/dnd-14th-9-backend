@@ -150,22 +150,16 @@ public class SessionCommandService {
 		SessionRoom sessionRoom,
 		List<SessionRoomMember> members
 	) {
+		boolean isRoomOwner = member.getId().equals(sessionRoom.getMember().getId());
+
+		if (sessionRoom.getStatus() == WAITING) {
+			return isRoomOwner ? SessionParticipantRole.HOST : SessionParticipantRole.PARTICIPANT;
+		}
+
 		boolean hasHost = members.stream()
 			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
 
-		if (hasHost) {
-			return SessionParticipantRole.PARTICIPANT;
-		}
-
-		boolean isWaiting = sessionRoom.getStatus() == WAITING;
-		boolean isRoomOwner = member.getId().equals(sessionRoom.getMember().getId());
-		boolean isFirstJoiner = members.isEmpty();
-
-		if (isWaiting && isRoomOwner) {
-			return SessionParticipantRole.HOST;
-		}
-
-		if (!isWaiting && isFirstJoiner) {
+		if (!hasHost && members.isEmpty()) {
 			return SessionParticipantRole.HOST;
 		}
 
