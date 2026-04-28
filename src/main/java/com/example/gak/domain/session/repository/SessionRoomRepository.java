@@ -32,8 +32,19 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 		    WHERE s.id = :sessionId
 		      AND s.currentCount < s.maxCapacity
 		      AND s.status <> com.example.gak.domain.session.entity.enums.SessionRoomStatus.COMPLETED
+		      AND (
+		        s.status <> com.example.gak.domain.session.entity.enums.SessionRoomStatus.WAITING
+		        OR s.member.id = :memberId
+		        OR EXISTS (
+		          SELECT 1
+		          FROM SessionRoomMember srm
+		          WHERE srm.sessionRoom = s
+		            AND srm.member = s.member
+		        )
+		        OR s.currentCount < s.maxCapacity - 1
+		      )
 		""")
-	int increaseCountIfAvailable(@Param("sessionId") Long sessionId);
+	int increaseCountIfJoinable(@Param("sessionId") Long sessionId, @Param("memberId") Long memberId);
 
 	@Modifying(clearAutomatically = true)
 	@Query("""

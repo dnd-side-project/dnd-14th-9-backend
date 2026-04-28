@@ -130,9 +130,11 @@ public class SessionCommandService {
 		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
-		List<SessionRoomMember> sessionRoomMembers = sessionRoomMemberRepository.findBySessionRoom(targetSessionRoom);
+		increaseCountOrThrow(targetSessionRoom, memberId);
 
-		increaseCountOrThrow(targetSessionRoom);
+		List<SessionRoomMember> sessionRoomMembers
+			= sessionRoomMemberRepository.findBySessionRoom(targetSessionRoom);
+
 		SessionParticipantRole role = determineRole(member, targetSessionRoom, sessionRoomMembers);
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
 		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
@@ -150,22 +152,13 @@ public class SessionCommandService {
 		SessionRoom sessionRoom,
 		List<SessionRoomMember> members
 	) {
-		boolean hasHost = members.stream()
-			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
-
-		if (hasHost) {
-			return SessionParticipantRole.PARTICIPANT;
-		}
-
-		boolean isWaiting = sessionRoom.getStatus() == WAITING;
 		boolean isRoomOwner = member.getId().equals(sessionRoom.getMember().getId());
-		boolean isFirstJoiner = members.isEmpty();
 
-		if (isWaiting && isRoomOwner) {
-			return SessionParticipantRole.HOST;
+		if (sessionRoom.getStatus() == WAITING) {
+			return isRoomOwner ? SessionParticipantRole.HOST : SessionParticipantRole.PARTICIPANT;
 		}
 
-		if (!isWaiting && isFirstJoiner) {
+		if (members.isEmpty()) {
 			return SessionParticipantRole.HOST;
 		}
 
@@ -199,6 +192,13 @@ public class SessionCommandService {
 	}
 
 	private void hostPermissionTransfer(Long sessionId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		if (sessionRoom.getStatus() != SessionRoomStatus.IN_PROGRESS) {
+			return;
+		}
+
 		List<SessionRoomMember> members =
 			sessionRoomMemberRepository.findBySessionRoomId(sessionId);
 
@@ -604,8 +604,8 @@ public class SessionCommandService {
 		return toTaskResponseDTO(list, newTask);
 	}
 
-	private void increaseCountOrThrow(SessionRoom targetSessionRoom) {
-		int updated = sessionRoomRepository.increaseCountIfAvailable(targetSessionRoom.getId());
+	private void increaseCountOrThrow(SessionRoom targetSessionRoom, Long memberId) {
+		int updated = sessionRoomRepository.increaseCountIfJoinable(targetSessionRoom.getId(), memberId);
 		if (updated == 0) {
 			SessionRoom currentSessionRoom = sessionRoomRepository.findById(targetSessionRoom.getId())
 				.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
