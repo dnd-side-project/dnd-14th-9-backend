@@ -158,10 +158,7 @@ public class SessionCommandService {
 			return isRoomOwner ? SessionParticipantRole.HOST : SessionParticipantRole.PARTICIPANT;
 		}
 
-		boolean hasHost = members.stream()
-			.anyMatch(m -> m.getRole() == SessionParticipantRole.HOST);
-
-		if (!hasHost && members.isEmpty()) {
+		if (members.isEmpty()) {
 			return SessionParticipantRole.HOST;
 		}
 
