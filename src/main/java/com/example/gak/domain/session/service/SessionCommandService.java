@@ -130,9 +130,11 @@ public class SessionCommandService {
 		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
-		List<SessionRoomMember> sessionRoomMembers = sessionRoomMemberRepository.findBySessionRoom(targetSessionRoom);
+		increaseCountOrThrow(targetSessionRoom, memberId);
 
-		increaseCountOrThrow(targetSessionRoom);
+		List<SessionRoomMember> sessionRoomMembers
+			= sessionRoomMemberRepository.findBySessionRoom(targetSessionRoom);
+
 		SessionParticipantRole role = determineRole(member, targetSessionRoom, sessionRoomMembers);
 		SessionRoomMember sessionRoomMember = saveSessionRoomMember(targetSessionRoom, member, role);
 		SessionResponseDTO.taskResponseDTO taskResponseDTO = saveGoalTask(targetSessionRoom, member, request);
@@ -605,8 +607,8 @@ public class SessionCommandService {
 		return toTaskResponseDTO(list, newTask);
 	}
 
-	private void increaseCountOrThrow(SessionRoom targetSessionRoom) {
-		int updated = sessionRoomRepository.increaseCountIfAvailable(targetSessionRoom.getId());
+	private void increaseCountOrThrow(SessionRoom targetSessionRoom, Long memberId) {
+		int updated = sessionRoomRepository.increaseCountIfJoinable(targetSessionRoom.getId(), memberId);
 		if (updated == 0) {
 			SessionRoom currentSessionRoom = sessionRoomRepository.findById(targetSessionRoom.getId())
 				.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
