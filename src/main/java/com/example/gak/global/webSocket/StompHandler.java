@@ -78,21 +78,26 @@ public class StompHandler implements ChannelInterceptor {
 			throw new GeneralException(GeneralErrorCode.UNAUTHORIZED);
 		}
 
+		String[] parts = destination.split("/");
+		if (parts.length < 4) {
+			throw new GeneralException(GeneralErrorCode._BAD_REQUEST);
+		}
+
+		Long sessionId;
 		try {
-			String[] parts = destination.split("/");
-			Long sessionId = Long.parseLong(parts[3]);
+			sessionId = Long.parseLong(parts[3]);
+		} catch (NumberFormatException e) {
+			throw new GeneralException(GeneralErrorCode._BAD_REQUEST);
+		}
 
-			UsernamePasswordAuthenticationToken authToken =
-				(UsernamePasswordAuthenticationToken)accessor.getUser();
-			StompPrincipal principal = (StompPrincipal)authToken.getPrincipal();
-			Long memberId = principal.getMemberId();
+		UsernamePasswordAuthenticationToken authToken =
+			(UsernamePasswordAuthenticationToken)accessor.getUser();
+		StompPrincipal principal = (StompPrincipal)authToken.getPrincipal();
+		Long memberId = principal.getMemberId();
 
-			boolean isHost = sessionQueryService.isHost(sessionId, memberId);
-			if (!isHost) {
-				throw new GeneralException(GeneralErrorCode.ONLY_HOST_CAN_CHAT);
-			}
-		} catch (Exception e) {
-			throw e;
+		boolean isHost = sessionQueryService.isHost(sessionId, memberId);
+		if (!isHost) {
+			throw new GeneralException(GeneralErrorCode.ONLY_HOST_CAN_CHAT);
 		}
 	}
 }
