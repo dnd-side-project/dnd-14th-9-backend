@@ -392,6 +392,12 @@ public class SessionQueryService {
 		);
 	}
 
+	public boolean isJoined(Long sessionId, Long memberId) {
+		return sessionRoomMemberRepository
+			.findByMemberIdAndSessionRoomId(memberId, sessionId)
+			.isPresent();
+	}
+
 	public Boolean isHost(Long sessionId, Long memberId) {
 		SessionRoomMember sessionRoomMember = sessionRoomMemberRepository
 			.findByMemberIdAndSessionRoomId(memberId, sessionId)

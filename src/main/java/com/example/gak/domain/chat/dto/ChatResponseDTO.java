@@ -15,4 +15,12 @@ public class ChatResponseDTO {
 		private ChatMessageType type;
 		private QuickActionType quickActionType;
 	}
+
+	@Schema(name = "채팅 에러 응답")
+	@Builder
+	@Getter
+	public static class ChatErrorResponseDTO {
+		private String code;
+		private String message;
+	}
 }
