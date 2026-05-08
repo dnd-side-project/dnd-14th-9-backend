@@ -22,6 +22,10 @@ public class ChatCommandService {
 	public void sendMessage(Long sessionId, Long memberId, ChatRequestDTO.SendChatMessageRequestDTO dto) {
 		redisPublisher.chatMessagePublish(
 			sessionId,
-			toChatMessageResponseDTO(memberId, dto.getContent()));
+			toChatMessageResponseDTO(
+				memberId,
+				dto.getContent(),
+				dto.getType(),
+				dto.getQuickActionType()));
 	}
 }
