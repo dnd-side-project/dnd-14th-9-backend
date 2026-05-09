@@ -41,7 +41,7 @@ import com.example.gak.domain.task.repository.SubTaskRepository;
 import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
-import com.example.gak.global.aws.AmazonS3Manager;
+import com.example.gak.global.objectstorage.OciObjectStorageManager;
 import com.example.gak.global.redis.RedisPublisher;
 import com.example.gak.global.redis.event.InProgressRoomUpdateEvent;
 import com.example.gak.global.redis.event.MemberKickedEvent;
@@ -69,7 +69,7 @@ public class SessionCommandService {
 
 	private final RedisPublisher redisPublisher;
 
-	private final AmazonS3Manager amazonS3Manager;
+	private final OciObjectStorageManager objectStorageManager;
 	private final ImageFileValidator imageFileValidator;
 	private final ApplicationEventPublisher applicationEventPublisher;
 	private final RecordRepository recordRepository;
@@ -95,8 +95,8 @@ public class SessionCommandService {
 		if (image != null && !image.isEmpty()) {
 			imageFileValidator.validate(image);
 
-			String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
-			imageUrl = amazonS3Manager.uploadFile(keyName, image);
+			String keyName = objectStorageManager.generateSessionThumbnailKeyName();
+			imageUrl = objectStorageManager.uploadFile(keyName, image);
 		} else {
 			imageUrl = ""; // 기본 이미지 디자인 완성 시 URL 추가
 		}
@@ -571,11 +571,11 @@ public class SessionCommandService {
 		if (image != null && !image.isEmpty()) {
 			imageFileValidator.validate(image);
 
-			String keyName = amazonS3Manager.generateSessionThumbnailKeyName();
-			String imageUrl = amazonS3Manager.uploadFile(keyName, image);
+			String keyName = objectStorageManager.generateSessionThumbnailKeyName();
+			String imageUrl = objectStorageManager.uploadFile(keyName, image);
 
 			if (sessionRoom.getThumbnailImageUrl() != null && !sessionRoom.getThumbnailImageUrl().isEmpty()) {
-				amazonS3Manager.deleteFile(sessionRoom.getThumbnailImageUrl());
+				objectStorageManager.deleteFile(sessionRoom.getThumbnailImageUrl());
 			}
 
 			sessionRoom.changeThumbnailImageUrl(imageUrl);
