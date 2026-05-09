@@ -1,5 +1,5 @@
 services:
-  my-nginx:
+  gak-nginx:
     image: nginx:alpine
     ports:
       - "80:80"
@@ -9,8 +9,6 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     restart: unless-stopped
-    depends_on:
-      - my-server
 
   certbot:
     image: certbot/certbot
@@ -19,7 +17,7 @@ services:
       - ./certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
-  my-redis:
+  gak-redis:
     image: redis:alpine
     volumes:
       - ./redis-data:/data
@@ -29,14 +27,11 @@ services:
       retries: 10
     restart: unless-stopped
 
-  my-server:
+  gak-server:
     image: dndteam9/gak:latest
-    environment:
-      - REDIS_HOST=my-redis
-      - REDIS_PORT=6379
     env_file:
       - .env
     depends_on:
-      my-redis:
+      gak-redis:
         condition: service_healthy
     restart: unless-stopped
