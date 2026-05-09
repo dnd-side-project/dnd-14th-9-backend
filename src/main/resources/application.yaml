@@ -59,19 +59,12 @@ jwt:
   secret: ${JWT_SECRET_KEY}
 
 cloud:
-  aws:
-    s3:
-      bucket: ${AWS_S3_BUCKET}
-      path:
-        profile: profiles
-        sessionThumbnail: sessionThumbnails
-    region:
-      static: ${AWS_REGION}
-    stack:
-      auto: false
-    credentials:
-      accessKey: ${AWS_ACCESS_KEY_ID}
-      secretKey: ${AWS_SECRET_ACCESS_KEY}
+  oci:
+    bucket-name: ${OCI_BUCKET_NAME}
+    namespace: ${OCI_BUCKET_NAMESPACE}
+    region: ${OCI_REGION}
+    secret-key: ${OCI_SECRET_KEY}
+    access-key: ${OCI_ACCESS_KEY}
 
 oauth2:
   kakao:
