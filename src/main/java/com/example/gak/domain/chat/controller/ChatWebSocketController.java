@@ -12,6 +12,7 @@ import com.example.gak.domain.chat.dto.ChatRequestDTO;
 import com.example.gak.domain.chat.service.ChatCommandService;
 import com.example.gak.global.webSocket.StompPrincipal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +26,7 @@ public class ChatWebSocketController {
 	@MessageMapping("/chat/{sessionId}")
 	public void chat(
 		@DestinationVariable Long sessionId,
-		@Payload ChatRequestDTO.SendChatMessageRequestDTO message,
+		@Valid @Payload ChatRequestDTO.SendChatMessageRequestDTO message,
 		Principal principal
 	) {
 		Long memberId = extractMemberId(principal);

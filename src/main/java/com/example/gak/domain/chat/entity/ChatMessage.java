@@ -1,11 +1,15 @@
 package com.example.gak.domain.chat.entity;
 
+import com.example.gak.domain.chat.dto.ChatMessageType;
+import com.example.gak.domain.chat.dto.QuickActionType;
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.session.entity.SessionRoom;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,8 +30,15 @@ public class ChatMessage extends BaseEntity {
 	@Column(name = "chat_message_id")
 	private Long id;
 
-	@Column(nullable = false)
+	@Column
 	private String content;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ChatMessageType type;
+
+	@Enumerated(EnumType.STRING)
+	private QuickActionType quickActionType;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "session_room_id", nullable = false)
@@ -39,10 +50,14 @@ public class ChatMessage extends BaseEntity {
 
 	public ChatMessage(
 		String content,
+		ChatMessageType type,
+		QuickActionType quickActionType,
 		SessionRoom sessionRoom,
 		Member member
 	) {
 		this.content = content;
+		this.type = type;
+		this.quickActionType = quickActionType;
 		this.sessionRoom = sessionRoom;
 		this.member = member;
 	}
