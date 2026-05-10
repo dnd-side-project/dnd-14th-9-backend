@@ -17,20 +17,20 @@ public class ChatRequestDTO {
 	@AllArgsConstructor
 	@Builder
 	public static class SendChatMessageRequestDTO {
-		@Size(min = 1, max = 200)
+		@Size(max = 200, message = "채팅 내용은 200자 이하로 입력해주세요.")
 		private String content;
 
-		@NotNull
+		@NotNull(message = "메시지 유형을 선택해주세요.")
 		private ChatMessageType type;
 
 		private QuickActionType quickActionType;
 
-		@AssertTrue(message = "일반 채팅은 content가 필요합니다.")
+		@AssertTrue(message = "채팅 내용을 입력해주세요.")
 		public boolean isValidTextMessage() {
 			return type != ChatMessageType.TEXT || (content != null && !content.isBlank());
 		}
 
-		@AssertTrue(message = "퀵메시지는 quickActionType이 필요합니다.")
+		@AssertTrue(message = "퀵 액션을 선택해주세요.")
 		public boolean isValidQuickActionMessage() {
 			return type != ChatMessageType.QUICK_ACTION || quickActionType != null;
 		}
