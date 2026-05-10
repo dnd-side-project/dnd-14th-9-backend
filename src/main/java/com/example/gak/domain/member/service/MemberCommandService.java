@@ -27,7 +27,7 @@ import com.example.gak.domain.task.repository.SubTaskRepository;
 import com.example.gak.domain.task.repository.TaskRepository;
 import com.example.gak.global.apiPayload.code.GeneralErrorCode;
 import com.example.gak.global.apiPayload.exception.GeneralException;
-import com.example.gak.global.aws.AmazonS3Manager;
+import com.example.gak.global.objectstorage.OciObjectStorageManager;
 import com.example.gak.global.security.jwt.JwtService;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
 import com.example.gak.global.security.oauth2.external.GoogleClient;
@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberCommandService {
 
 	private final MemberRepository memberRepository;
-	private final AmazonS3Manager amazonS3Manager;
+	private final OciObjectStorageManager objectStorageManager;
 	private final KakaoClient kakaoClient;
 	private final GoogleClient googleClient;
 	private final StringRedisTemplate stringRedisTemplate;
@@ -122,14 +122,14 @@ public class MemberCommandService {
 		Member member = findMember(memberId);
 
 		if (newProfileImage != null) {
-			String newProfileImageUrl = amazonS3Manager.uploadFile(
-				amazonS3Manager.generateProfileKeyName(),
+			String newProfileImageUrl = objectStorageManager.uploadFile(
+				objectStorageManager.generateProfileKeyName(),
 				newProfileImage
 			);
 
 			String profileImageUrl = member.getProfileImageUrl();
 			if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-				amazonS3Manager.deleteFile(profileImageUrl);
+				objectStorageManager.deleteFile(profileImageUrl);
 			}
 			member.updateProfileImageUrl(newProfileImageUrl);
 		}
@@ -185,7 +185,7 @@ public class MemberCommandService {
 			return;
 		}
 
-		amazonS3Manager.deleteFile(profileImageUrl);
+		objectStorageManager.deleteFile(profileImageUrl);
 		member.deleteProfileImageUrl();
 	}
 
