@@ -352,7 +352,7 @@ public class SessionCommandService {
 			member.updateFocusRate();
 
 			Task task = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId,
-					sessionRoom.getMember().getId())
+					member.getMember().getId())
 				.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
 			List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
 
