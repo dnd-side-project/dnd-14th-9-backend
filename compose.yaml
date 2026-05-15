@@ -19,6 +19,7 @@ services:
 
   gak-redis:
     image: redis:alpine
+    command: redis-server --notify-keyspace-events Ex
     volumes:
       - ./redis-data:/data
     healthcheck:

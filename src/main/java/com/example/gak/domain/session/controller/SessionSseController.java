@@ -1,6 +1,7 @@
 package com.example.gak.domain.session.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.example.gak.domain.session.dto.SessionResponseDTO;
 import com.example.gak.domain.session.dto.enums.EventType;
 import com.example.gak.domain.session.service.SessionQueryService;
+import com.example.gak.global.security.oauth2.CustomOAuth2User;
 import com.example.gak.global.sse.SseService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,9 +65,15 @@ public class SessionSseController {
 
 	@Operation(summary = "[SSE] 세션 시작, 종료 알림 SSE")
 	@GetMapping(value = "/{sessionId}/status/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public SseEmitter subscribeSessionStartEvents(@PathVariable Long sessionId) {
-
-		SseEmitter emitter = sseService.subscribeSessionStatus(sessionId);
+	public SseEmitter subscribeSessionStartEvents(
+		Authentication authentication,
+		@PathVariable Long sessionId
+	) {
+		Long memberId = null;
+		if (authentication != null && authentication.getPrincipal() instanceof CustomOAuth2User user) {
+			memberId = user.getMemberId();
+		}
+		SseEmitter emitter = sseService.subscribeSessionStatus(sessionId, memberId);
 
 		try {
 			sseService.sendToSessionStatusEmitter(

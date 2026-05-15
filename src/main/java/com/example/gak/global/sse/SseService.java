@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SseService {
+
+	private final PresenceService presenceService;
 
 	private final Map<Long, List<SseEmitter>> waitingEmitters = new ConcurrentHashMap<>();
 	private final Map<Long, List<SseEmitter>> inProgressEmitters = new ConcurrentHashMap<>();
@@ -109,16 +112,28 @@ public class SseService {
 		}
 	}
 
-	public SseEmitter subscribeSessionStatus(Long sessionId) {
+	public SseEmitter subscribeSessionStatus(Long sessionId, Long memberId) {
 		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
 
 		sessionStatusEmitters
 			.computeIfAbsent(sessionId, k -> new CopyOnWriteArrayList<>())
 			.add(emitter);
 
-		emitter.onCompletion(() -> removeSessionStatusEmitter(sessionId, emitter));
-		emitter.onTimeout(() -> removeSessionStatusEmitter(sessionId, emitter));
-		emitter.onError(e -> removeSessionStatusEmitter(sessionId, emitter));
+		if (memberId != null) {
+			presenceService.onConnect(sessionId, memberId);
+
+			Runnable onDisconnect = () -> {
+				removeSessionStatusEmitter(sessionId, emitter);
+				presenceService.onDisconnect(sessionId, memberId);
+			};
+			emitter.onCompletion(onDisconnect);
+			emitter.onTimeout(onDisconnect);
+			emitter.onError(e -> onDisconnect.run());
+		} else {
+			emitter.onCompletion(() -> removeSessionStatusEmitter(sessionId, emitter));
+			emitter.onTimeout(() -> removeSessionStatusEmitter(sessionId, emitter));
+			emitter.onError(e -> removeSessionStatusEmitter(sessionId, emitter));
+		}
 
 		return emitter;
 	}
@@ -234,6 +249,20 @@ public class SseService {
 		List<SseEmitter> emitters = memberReactionEmitters.get(key);
 		if (emitters != null) {
 			emitters.remove(emitter);
+		}
+	}
+
+	@Scheduled(fixedDelay = 5000)
+	public void sendHeartbeat() {
+		for (Map.Entry<Long, List<SseEmitter>> entry : sessionStatusEmitters.entrySet()) {
+			List<SseEmitter> emitters = entry.getValue();
+			for (SseEmitter emitter : emitters) {
+				try {
+					emitter.send(SseEmitter.event().comment("heartbeat"));
+				} catch (IOException e) {
+					emitter.completeWithError(e);
+				}
+			}
 		}
 	}
 }

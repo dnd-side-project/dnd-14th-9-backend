@@ -4,10 +4,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import com.example.gak.global.sse.PresenceService;
 
 @Configuration
 public class RedisConfig {
@@ -26,7 +29,8 @@ public class RedisConfig {
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
 		RedisConnectionFactory connectionFactory,
-		RedisSubscriber redisSubscriber
+		RedisSubscriber redisSubscriber,
+		PresenceService presenceService
 	) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 
@@ -37,8 +41,9 @@ public class RedisConfig {
 		container.addMessageListener(redisSubscriber, new PatternTopic("session/*"));
 		container.addMessageListener(redisSubscriber, new PatternTopic("reaction/*"));
 		container.addMessageListener(redisSubscriber, new PatternTopic("member/*/reaction/*"));
-
 		container.addMessageListener(redisSubscriber, new PatternTopic("chat/*"));
+
+		container.addMessageListener(presenceService, new ChannelTopic("__keyevent@0__:expired"));
 
 		return container;
 	}

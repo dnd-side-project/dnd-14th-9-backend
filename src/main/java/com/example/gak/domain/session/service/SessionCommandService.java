@@ -165,6 +165,28 @@ public class SessionCommandService {
 		return SessionParticipantRole.PARTICIPANT;
 	}
 
+	public void leaveSessionOnDisconnect(Long sessionId, Long memberId) {
+		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId).orElse(null);
+		if (sessionRoom == null || sessionRoom.getStatus() == COMPLETED) {
+			return;
+		}
+
+		int deleted = sessionRoomMemberRepository.deleteByMemberIdAndSessionRoomId(memberId, sessionId);
+		if (deleted == 0) {
+			return;
+		}
+
+		taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId, memberId)
+			.ifPresent(task -> {
+				taskRepository.delete(task);
+				taskRepository.flush();
+			});
+
+		sessionRoomRepository.decreaseCount(sessionId);
+		hostPermissionTransfer(sessionId);
+		publishSessionRoomUpdateEvent(sessionRoom.getStatus(), sessionId);
+	}
+
 	public void leaveSession(Long sessionId, Long memberId) {
 		int deleted = sessionRoomMemberRepository
 			.deleteByMemberIdAndSessionRoomId(memberId, sessionId);
