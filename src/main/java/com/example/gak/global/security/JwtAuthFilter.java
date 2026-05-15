@@ -50,8 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				return;
 			}
 
-			String accessToken = authorizationHeader.split(" ")[1];
-			memberId = jwtProvider.extractMemberId(accessToken);
+			memberId = jwtProvider.extractMemberId(authorizationHeader.substring(BEARER_PREFIX.length()));
 		} catch (ExpiredJwtException e) {
 			sendErrorResponse(response, GeneralErrorCode.ACCESS_TOKEN_EXPIRED);
 			return;
