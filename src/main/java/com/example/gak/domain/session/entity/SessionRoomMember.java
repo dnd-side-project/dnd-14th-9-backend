@@ -52,8 +52,6 @@ public class SessionRoomMember extends BaseEntity {
 	@Column(nullable = false)
 	private SessionParticipantStatus status = SessionParticipantStatus.FOCUSED;
 
-	private boolean isAbnormalExit;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "session_room_id", nullable = false)
 	private SessionRoom sessionRoom;
@@ -86,17 +84,12 @@ public class SessionRoomMember extends BaseEntity {
 		Member member
 	) {
 		this.role = role;
-		this.isAbnormalExit = false;
 		this.sessionRoom = sessionRoom;
 		this.member = member;
 	}
 
 	public void changeParticipantRole(SessionParticipantRole role) {
 		this.role = role;
-	}
-
-	public void markAsAbnormalExit() {
-		this.isAbnormalExit = true;
 	}
 
 	public void toggleStatus() {
