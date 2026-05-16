@@ -356,6 +356,13 @@ public class SessionCommandService {
 		List<SessionRoomMember> sessionRoomMembers = sessionRoom.getSessionRoomMembers();
 
 		for (SessionRoomMember member : sessionRoomMembers) {
+			Optional<Task> taskOpt = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId,
+				member.getMember().getId());
+			if (taskOpt.isEmpty()) {
+				// grace 기간 만료로 이미 퇴장 처리된 멤버 — 통계 대상에서 제외
+				continue;
+			}
+
 			if (member.getStatus() == SessionParticipantStatus.FOCUSED) {
 				int seconds = (int)Duration.between(
 					member.getLastFocusTime(),
@@ -373,11 +380,7 @@ public class SessionCommandService {
 
 			member.updateFocusRate();
 
-			Task task = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId,
-					member.getMember().getId())
-				.orElseThrow(() -> new GeneralException(GeneralErrorCode.TASK_NOT_FOUND_IN_SESSION));
-			List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
-
+			List<SubTask> subTasks = subTaskRepository.findByTaskId(taskOpt.get().getId());
 			member.updateAchievementRate(subTasks);
 			sessionSaveToRecord(member.getMember(), member, subTasks);
 		}
