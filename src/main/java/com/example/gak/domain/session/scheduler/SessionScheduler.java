@@ -23,7 +23,6 @@ public class SessionScheduler {
 	public void sessionStartScheduler() {
 		try {
 			List<Long> sessionsToStart = sessionQueryService.findSessionsToStart();
-			log.info("sessionStartScheduler 대상 세션 수: {}", sessionsToStart.size());
 
 			for (Long sessionId : sessionsToStart) {
 				try {
@@ -43,7 +42,6 @@ public class SessionScheduler {
 	public void sessionEndScheduler() {
 		try {
 			List<Long> sessionsToEnd = sessionQueryService.findSessionsToEnd();
-			log.info("sessionEndScheduler 대상 세션 수: {}", sessionsToEnd.size());
 
 			for (Long sessionId : sessionsToEnd) {
 				try {
