@@ -24,4 +24,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	);
 
 	List<Task> findBySessionRoomId(Long sessionRoomId);
+
+	@Query("SELECT DISTINCT t FROM Task t LEFT JOIN FETCH t.subTasks JOIN FETCH t.member WHERE t.sessionRoom.id = :sessionId")
+	List<Task> findAllWithSubTasksBySessionRoomId(@Param("sessionId") Long sessionId);
 }

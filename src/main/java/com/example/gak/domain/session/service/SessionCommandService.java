@@ -11,6 +11,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -354,35 +356,32 @@ public class SessionCommandService {
 		}
 
 		List<SessionRoomMember> sessionRoomMembers = sessionRoom.getSessionRoomMembers();
+		if (sessionRoomMembers.isEmpty()) {
+			applicationEventPublisher.publishEvent(new SessionStatusUpdateEvent(sessionId));
+			return;
+		}
+
+		Map<Long, Task> taskByMemberId = taskRepository.findAllWithSubTasksBySessionRoomId(sessionId)
+			.stream()
+			.collect(Collectors.toMap(t -> t.getMember().getId(), Function.identity()));
+
+		List<Long> memberIds = sessionRoomMembers.stream()
+			.map(m -> m.getMember().getId())
+			.toList();
+
+		Map<Long, Record> recordByMemberId = recordRepository.findByMemberIdIn(memberIds)
+			.stream()
+			.collect(Collectors.toMap(r -> r.getMember().getId(), Function.identity()));
 
 		for (SessionRoomMember member : sessionRoomMembers) {
-			Optional<Task> taskOpt = taskRepository.findWithSessionRoomBySessionRoomIdAndMemberId(sessionId,
-				member.getMember().getId());
-			if (taskOpt.isEmpty()) {
-				// grace 기간 만료로 이미 퇴장 처리된 멤버 — 통계 대상에서 제외
+			Long memberId = member.getMember().getId();
+			Task task = taskByMemberId.get(memberId);
+
+			if (task == null) {
 				continue;
 			}
 
-			if (member.getStatus() == SessionParticipantStatus.FOCUSED) {
-				int seconds = (int)Duration.between(
-					member.getLastFocusTime(),
-					sessionRoom.getEndTime()
-				).getSeconds();
-				member.updateFocusSeconds(seconds);
-			}
-
-			member.setOverallSeconds(
-				(int)Duration.between(
-					member.getCreatedAt(),
-					sessionRoom.getEndTime()
-				).getSeconds()
-			);
-
-			member.updateFocusRate();
-
-			List<SubTask> subTasks = subTaskRepository.findByTaskId(taskOpt.get().getId());
-			member.updateAchievementRate(subTasks);
-			sessionSaveToRecord(member.getMember(), member, subTasks);
+			processMemberStats(member, task, sessionRoom, recordByMemberId.get(memberId));
 		}
 
 		applicationEventPublisher.publishEvent(
@@ -415,14 +414,13 @@ public class SessionCommandService {
 		List<SubTask> subTasks = subTaskRepository.findByTaskId(task.getId());
 
 		sessionRoomMember.updateAchievementRate(subTasks);
-		sessionSaveToRecord(sessionRoomMember.getMember(), sessionRoomMember, subTasks);
+		Record record = recordRepository.findByMemberId(memberId);
+		sessionSaveToRecord(record, sessionRoomMember, subTasks);
 	}
 
 	private void sessionSaveToRecord(
-		Member member, SessionRoomMember sessionRoomMember, List<SubTask> subTasks
+		Record record, SessionRoomMember sessionRoomMember, List<SubTask> subTasks
 	) {
-		Record record = recordRepository.findByMember(member);
-
 		if (record == null)
 			return;
 
@@ -607,6 +605,28 @@ public class SessionCommandService {
 		}
 
 		sessionRoom.updateSession(request);
+	}
+
+	private void processMemberStats(SessionRoomMember member, Task task, SessionRoom sessionRoom, Record record) {
+		if (member.getStatus() == SessionParticipantStatus.FOCUSED) {
+			int seconds = (int)Duration.between(
+				member.getLastFocusTime(),
+				sessionRoom.getEndTime()
+			).getSeconds();
+			member.updateFocusSeconds(seconds);
+		}
+
+		member.setOverallSeconds(
+			(int)Duration.between(
+				member.getCreatedAt(),
+				sessionRoom.getEndTime()
+			).getSeconds()
+		);
+		member.updateFocusRate();
+
+		List<SubTask> subTasks = task.getSubTasks();
+		member.updateAchievementRate(subTasks);
+		sessionSaveToRecord(record, member, subTasks);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
