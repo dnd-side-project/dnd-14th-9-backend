@@ -378,30 +378,10 @@ public class SessionCommandService {
 			Task task = taskByMemberId.get(memberId);
 
 			if (task == null) {
-				// grace 기간 만료로 이미 퇴장 처리된 멤버 — 통계 대상에서 제외
 				continue;
 			}
 
-			if (member.getStatus() == SessionParticipantStatus.FOCUSED) {
-				int seconds = (int)Duration.between(
-					member.getLastFocusTime(),
-					sessionRoom.getEndTime()
-				).getSeconds();
-				member.updateFocusSeconds(seconds);
-			}
-
-			member.setOverallSeconds(
-				(int)Duration.between(
-					member.getCreatedAt(),
-					sessionRoom.getEndTime()
-				).getSeconds()
-			);
-
-			member.updateFocusRate();
-
-			List<SubTask> subTasks = task.getSubTasks();
-			member.updateAchievementRate(subTasks);
-			sessionSaveToRecord(recordByMemberId.get(memberId), member, subTasks);
+			processMemberStats(member, task, sessionRoom, recordByMemberId.get(memberId));
 		}
 
 		applicationEventPublisher.publishEvent(
@@ -625,6 +605,28 @@ public class SessionCommandService {
 		}
 
 		sessionRoom.updateSession(request);
+	}
+
+	private void processMemberStats(SessionRoomMember member, Task task, SessionRoom sessionRoom, Record record) {
+		if (member.getStatus() == SessionParticipantStatus.FOCUSED) {
+			int seconds = (int)Duration.between(
+				member.getLastFocusTime(),
+				sessionRoom.getEndTime()
+			).getSeconds();
+			member.updateFocusSeconds(seconds);
+		}
+
+		member.setOverallSeconds(
+			(int)Duration.between(
+				member.getCreatedAt(),
+				sessionRoom.getEndTime()
+			).getSeconds()
+		);
+		member.updateFocusRate();
+
+		List<SubTask> subTasks = task.getSubTasks();
+		member.updateAchievementRate(subTasks);
+		sessionSaveToRecord(record, member, subTasks);
 	}
 
 	private SessionResponseDTO.taskResponseDTO saveGoalTask(SessionRoom sessionRoom, Member member,
