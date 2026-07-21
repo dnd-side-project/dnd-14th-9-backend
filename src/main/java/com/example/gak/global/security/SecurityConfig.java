@@ -11,8 +11,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import jakarta.servlet.DispatcherType;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,6 +22,7 @@ import com.example.gak.global.security.oauth2.CustomOAuth2UserService;
 import com.example.gak.global.security.oauth2.CustomOidcUserService;
 import com.example.gak.global.security.oauth2.CustomSuccessHandler;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -72,7 +71,8 @@ public class SecurityConfig {
 			"https://localhost:3000",
 			"http://localhost:3000",
 			"https://api.gak.today",
-			"https://gak.today"
+			"https://gak.today",
+			"https://jiangxy.github.io"
 		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
