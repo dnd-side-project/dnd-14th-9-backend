@@ -1,6 +1,5 @@
 package com.example.gak.domain.chat.entity;
 
-import com.example.gak.domain.chat.dto.ChatMessageType;
 import com.example.gak.domain.chat.dto.QuickActionType;
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.member.entity.Member;
@@ -34,10 +33,6 @@ public class ChatMessage extends BaseEntity {
 	private String content;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private ChatMessageType type;
-
-	@Enumerated(EnumType.STRING)
 	private QuickActionType quickActionType;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -50,13 +45,11 @@ public class ChatMessage extends BaseEntity {
 
 	public ChatMessage(
 		String content,
-		ChatMessageType type,
 		QuickActionType quickActionType,
 		SessionRoom sessionRoom,
 		Member member
 	) {
 		this.content = content;
-		this.type = type;
 		this.quickActionType = quickActionType;
 		this.sessionRoom = sessionRoom;
 		this.member = member;

@@ -12,7 +12,6 @@ public class ChatResponseDTO {
 	public static class ChatMessageResponseDTO {
 		private Long memberId;
 		private String content;
-		private ChatMessageType type;
 		private QuickActionType quickActionType;
 	}
 

@@ -33,7 +33,6 @@ public class ChatCommandService {
 
 		chatMessageRepository.save(new ChatMessage(
 			dto.getContent(),
-			dto.getType(),
 			dto.getQuickActionType(),
 			sessionRoom,
 			member
@@ -44,7 +43,6 @@ public class ChatCommandService {
 			toChatMessageResponseDTO(
 				memberId,
 				dto.getContent(),
-				dto.getType(),
 				dto.getQuickActionType())));
 	}
 }
