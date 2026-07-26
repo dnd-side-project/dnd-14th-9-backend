@@ -555,7 +555,7 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_ONLY_WAITING);
 		}
 
-		if (!sessionRoom.getSessionRoomMembers().isEmpty()) {
+		if (hasOtherParticipants(sessionRoom, memberId)) {
 			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_HAS_WAITING_USERS);
 		}
 
@@ -579,7 +579,7 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_PATCH_ONLY_WAITING);
 		}
 
-		if (!sessionRoom.getSessionRoomMembers().isEmpty()) {
+		if (hasOtherParticipants(sessionRoom, memberId)) {
 			throw new GeneralException(GeneralErrorCode.SESSION_PATCH_HAS_WAITING_USERS);
 		}
 
@@ -605,6 +605,11 @@ public class SessionCommandService {
 		}
 
 		sessionRoom.updateSession(request);
+	}
+
+	private boolean hasOtherParticipants(SessionRoom sessionRoom, Long memberId) {
+		return sessionRoom.getSessionRoomMembers().stream()
+			.anyMatch(m -> !m.getMember().getId().equals(memberId));
 	}
 
 	private void processMemberStats(SessionRoomMember member, Task task, SessionRoom sessionRoom, Record record) {
