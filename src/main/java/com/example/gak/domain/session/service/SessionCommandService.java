@@ -330,12 +330,13 @@ public class SessionCommandService {
 	}
 
 	public void startSession(Long sessionId) {
+		int updated = sessionRoomRepository.transitionStatus(sessionId, WAITING, SessionRoomStatus.IN_PROGRESS);
+		if (updated == 0) {
+			return;
+		}
+
 		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
 			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
-
-		if (sessionRoom.getStatus() == WAITING) {
-			sessionRoom.changeStatus(SessionRoomStatus.IN_PROGRESS);
-		}
 
 		List<SessionRoomMember> sessionRoomMembers = sessionRoom.getSessionRoomMembers();
 		for (SessionRoomMember member : sessionRoomMembers) {
@@ -348,12 +349,14 @@ public class SessionCommandService {
 	}
 
 	public void endSession(Long sessionId) {
+		int updated = sessionRoomRepository.transitionStatus(
+			sessionId, SessionRoomStatus.IN_PROGRESS, SessionRoomStatus.COMPLETED);
+		if (updated == 0) {
+			return;
+		}
+
 		SessionRoom sessionRoom = sessionRoomRepository.findById(sessionId)
 			.orElseThrow(() -> new GeneralException(NOT_FOUND_SESSION));
-
-		if (sessionRoom.getStatus() == SessionRoomStatus.IN_PROGRESS) {
-			sessionRoom.changeStatus(SessionRoomStatus.COMPLETED);
-		}
 
 		List<SessionRoomMember> sessionRoomMembers = sessionRoom.getSessionRoomMembers();
 		if (sessionRoomMembers.isEmpty()) {
