@@ -1,0 +1,129 @@
+package com.example.gak.domain.session.controller;
+
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.example.gak.domain.session.dto.SessionResponseDTO;
+import com.example.gak.domain.session.dto.enums.EventType;
+import com.example.gak.domain.session.service.SessionQueryService;
+import com.example.gak.global.security.oauth2.CustomOAuth2User;
+import com.example.gak.global.sse.SseService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+@Tag(name = "세션 SSE")
+@RestController
+@RequestMapping("/api/v1/sessions")
+@RequiredArgsConstructor
+public class SessionSseController {
+
+	private final SseService sseService;
+	private final SessionQueryService sessionQueryService;
+
+	@Operation(summary = "[SSE] 대기방 참여자 목록 조회")
+	@GetMapping(value = "/{sessionId}/waiting-room/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeWaitingRoom(@PathVariable Long sessionId) {
+
+		SseEmitter emitter = sseService.subscribeWaiting(sessionId);
+
+		try {
+			SessionResponseDTO.SessionWaitingRoomResponseDTO<SessionResponseDTO.WaitingResponseDTO> dto =
+				SessionResponseDTO.SessionWaitingRoomResponseDTO.<SessionResponseDTO.WaitingResponseDTO>builder()
+					.eventType(EventType.ROOM_UPDATE)
+					.data(sessionQueryService.getCurrentWaitingRoom(sessionId))
+					.build();
+			sseService.sendToWaitingEmitter(emitter, dto);
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
+
+	@Operation(summary = "[SSE] 세션 진행 중 참여자 목록 조회")
+	@GetMapping(value = "/{sessionId}/in-progress/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeInProgressSession(@PathVariable Long sessionId) {
+
+		SseEmitter emitter = sseService.subscribeInProgress(sessionId);
+
+		try {
+			sseService.sendToInProgressEmitter(emitter,
+				sessionQueryService.getCurrentSessionRoom(sessionId));
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
+
+	@Operation(summary = "[SSE] 세션 시작, 종료 알림 SSE")
+	@GetMapping(value = "/{sessionId}/status/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeSessionStartEvents(
+		Authentication authentication,
+		@PathVariable Long sessionId
+	) {
+		Long memberId = null;
+		if (authentication != null && authentication.getPrincipal() instanceof CustomOAuth2User user) {
+			memberId = user.getMemberId();
+		}
+		SseEmitter emitter = sseService.subscribeSessionStatus(sessionId, memberId);
+
+		try {
+			sseService.sendToSessionStatusEmitter(
+				emitter,
+				sessionQueryService.getSessionStatus(sessionId)
+			);
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
+
+	@Operation(summary = "[SSE] 세션 종료 후 참여자들이 받은 리액션")
+	@GetMapping(value = "/{sessionId}/reaction/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeSessionReactionEvents(@PathVariable Long sessionId) {
+
+		SseEmitter emitter = sseService.subscribeReaction(sessionId);
+
+		try {
+			sseService.sendToReactionEmitter(
+				emitter,
+				sessionQueryService.getReactionStatus(sessionId)
+			);
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
+
+	@Operation(summary = "[SSE] 세션 종료 후 특정 사용자가 받은 리액션")
+	@GetMapping(value = "/{sessionId}/members/{memberId}/reaction/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribeMemberSessionReactionEvents(
+		@PathVariable Long sessionId,
+		@PathVariable Long memberId
+	) {
+
+		SseEmitter emitter = sseService.subscribeMemberReaction(sessionId, memberId);
+
+		try {
+			sseService.sendMemberReaction(
+				sessionId,
+				memberId,
+				sessionQueryService.getMemberReactionStatus(sessionId, memberId)
+			);
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+
+		return emitter;
+	}
+}

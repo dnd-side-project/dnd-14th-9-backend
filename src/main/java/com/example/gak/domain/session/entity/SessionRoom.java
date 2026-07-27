@@ -1,0 +1,164 @@
+package com.example.gak.domain.session.entity;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.gak.domain.common.entity.BaseEntity;
+import com.example.gak.domain.common.entity.enums.SessionCategory;
+import com.example.gak.domain.member.entity.Member;
+import com.example.gak.domain.session.dto.SessionRequestDTO;
+import com.example.gak.domain.session.entity.enums.SessionRoomStatus;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class SessionRoom extends BaseEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "session_room_id")
+	private Long id;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private SessionCategory category;
+
+	@Column(nullable = false)
+	private String title;
+
+	@Column(nullable = false)
+	private String summary;
+
+	@Column(nullable = false)
+	private String notice;
+
+	private String thumbnailImageUrl;
+
+	@Column(nullable = false)
+	private LocalDateTime startTime;
+
+	@Column(nullable = false)
+	private LocalDateTime endTime;
+
+	@Column(nullable = false)
+	private Integer durationMinutes;
+
+	@Column(nullable = false)
+	private Integer maxCapacity;
+
+	@Column(nullable = false)
+	private Integer currentCount = 0;
+
+	@Enumerated(EnumType.STRING)
+	private SessionRoomStatus status;
+
+	@Column(nullable = false)
+	private Integer viewCount = 0;
+
+	@Column(nullable = false)
+	private Integer requiredFocusRate = 0;
+
+	@Column(nullable = false)
+	private Integer requiredAchievementRate = 0;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
+
+	@OneToMany(mappedBy = "sessionRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<SessionRoomMember> sessionRoomMembers = new ArrayList<>();
+
+	public SessionRoom(
+		SessionCategory category,
+		String title,
+		String summary,
+		String notice,
+		String thumbnailImageUrl,
+		LocalDateTime startTime,
+		Integer durationMinutes,
+		Integer maxCapacity,
+		SessionRoomStatus status,
+		Integer requiredFocusRate,
+		Integer requiredAchievementRate,
+		Member member
+	) {
+		this.category = category;
+		this.title = title;
+		this.summary = summary;
+		this.notice = notice;
+		this.thumbnailImageUrl = thumbnailImageUrl;
+		this.startTime = startTime;
+		this.endTime = startTime.plusMinutes(durationMinutes);
+		this.durationMinutes = durationMinutes;
+		this.maxCapacity = maxCapacity;
+		this.status = status;
+		this.requiredFocusRate = requiredFocusRate;
+		this.requiredAchievementRate = requiredAchievementRate;
+		this.member = member;
+	}
+
+	public void updateSession(SessionRequestDTO.PatchSessionRequestDTO request) {
+		if (request.getTitle() != null) {
+			this.title = request.getTitle().trim();
+		}
+
+		if (request.getSummary() != null) {
+			this.summary = request.getSummary().trim();
+		}
+
+		if (request.getNotice() != null) {
+			this.notice = request.getNotice().trim();
+		}
+
+		if (request.getCategory() != null) {
+			this.category = request.getCategory();
+		}
+
+		if (request.getStartTime() != null) {
+			this.startTime = request.getStartTime();
+		}
+
+		if (request.getSessionDurationMinutes() != null) {
+			this.durationMinutes = request.getSessionDurationMinutes();
+		}
+
+		if (request.getMaxParticipants() != null) {
+			this.maxCapacity = request.getMaxParticipants();
+		}
+
+		if (request.getRequiredFocusRate() != null) {
+			this.requiredFocusRate = request.getRequiredFocusRate();
+		}
+
+		if (request.getRequiredAchievementRate() != null) {
+			this.requiredAchievementRate = request.getRequiredAchievementRate();
+		}
+
+		this.endTime = this.startTime.plusMinutes(this.durationMinutes);
+	}
+
+	public void changeStatus(SessionRoomStatus status) {
+		this.status = status;
+	}
+
+	public void changeThumbnailImageUrl(String thumbnailImageUrl) {
+		this.thumbnailImageUrl = thumbnailImageUrl;
+	}
+}

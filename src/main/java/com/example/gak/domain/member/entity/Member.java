@@ -2,7 +2,6 @@ package com.example.gak.domain.member.entity;
 
 import com.example.gak.domain.common.entity.BaseEntity;
 import com.example.gak.domain.common.entity.enums.SessionCategory;
-import com.example.gak.domain.member.entity.enums.SocialProvider;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,31 +29,92 @@ public class Member extends BaseEntity {
 
 	private String profileImageUrl;
 
+	private String email;
+
 	private String bio;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private SessionCategory interestCategory;
+	private SessionCategory firstInterestCategory;
 
 	@Enumerated(EnumType.STRING)
+	private SessionCategory secondInterestCategory;
+
+	@Enumerated(EnumType.STRING)
+	private SessionCategory thirdInterestCategory;
+
 	@Column(nullable = false)
-	private SocialProvider socialProvider;
+	private String socialProvider;
 
 	private String providerId;
+
+	private boolean firstLogin;
+
+	private boolean deleted;
 
 	public Member(
 		String nickname,
 		String profileImageUrl,
+		String email,
 		String bio,
-		SessionCategory interestCategory,
-		SocialProvider socialProvider,
+		SessionCategory firstInterestCategory,
+		SessionCategory secondInterestCategory,
+		SessionCategory thirdInterestCategory,
+		String socialProvider,
 		String providerId
 	) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
+		this.email = email;
 		this.bio = bio;
-		this.interestCategory = interestCategory;
+		this.firstInterestCategory = firstInterestCategory;
+		this.secondInterestCategory = secondInterestCategory;
+		this.thirdInterestCategory = thirdInterestCategory;
 		this.socialProvider = socialProvider;
 		this.providerId = providerId;
+		this.firstLogin = true;
+		this.deleted = false;
+	}
+
+	public void markLoginDone() {
+		this.firstLogin = false;
+	}
+
+	public void updateProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void updateEmail(String email) {
+		this.email = email;
+	}
+
+	public void updateBio(String bio) {
+		this.bio = bio;
+	}
+
+	public void updateInterestCategories(
+		SessionCategory firstInterestCategory,
+		SessionCategory secondInterestCategory,
+		SessionCategory thirdInterestCategory
+	) {
+		this.firstInterestCategory = firstInterestCategory;
+		this.secondInterestCategory = secondInterestCategory;
+		this.thirdInterestCategory = thirdInterestCategory;
+	}
+
+	public void deleteProfileImageUrl() {
+		this.profileImageUrl = null;
+	}
+
+	public void delete() {
+		this.deleted = true;
+		this.firstLogin = true;
+	}
+
+	public void activate() {
+		this.deleted = false;
 	}
 }
