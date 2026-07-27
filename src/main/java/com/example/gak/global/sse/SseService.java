@@ -252,7 +252,7 @@ public class SseService {
 		}
 	}
 
-	@Scheduled(fixedDelay = 5000)
+	@Scheduled(fixedDelay = 3000)
 	public void sendHeartbeat() {
 		for (Map.Entry<Long, List<SseEmitter>> entry : sessionStatusEmitters.entrySet()) {
 			List<SseEmitter> emitters = entry.getValue();
