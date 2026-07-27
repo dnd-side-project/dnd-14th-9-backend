@@ -69,3 +69,12 @@ cloud:
 oauth2:
   kakao:
     admin-key: ${KAKAO_ADMIN_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
