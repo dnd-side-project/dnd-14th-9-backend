@@ -66,6 +66,10 @@ public interface SessionRoomRepository extends JpaRepository<SessionRoom, Long>,
 		""")
 	int decreaseCountBy(@Param("sessionRoomId") Long sessionRoomId, @Param("count") int count);
 
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE SessionRoom s SET s.status = :to WHERE s.id = :id AND s.status = :from")
+	int transitionStatus(@Param("id") Long id, @Param("from") SessionRoomStatus from, @Param("to") SessionRoomStatus to);
+
 	List<SessionRoom> findByStatusAndStartTimeBefore(SessionRoomStatus status, LocalDateTime dateTime);
 
 	List<SessionRoom> findByStatusAndEndTimeBefore(SessionRoomStatus status, LocalDateTime time);
