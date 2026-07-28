@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.chat.repository.ChatMessageRepository;
 import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
@@ -68,6 +69,7 @@ public class SessionCommandService {
 	private final SubTaskRepository subTaskRepository;
 	private final TaskRepository taskRepository;
 	private final ReactionRepository reactionRepository;
+	private final ChatMessageRepository chatMessageRepository;
 
 	private final RedisPublisher redisPublisher;
 
@@ -561,6 +563,13 @@ public class SessionCommandService {
 		if (hasOtherParticipants(sessionRoom, memberId)) {
 			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_HAS_WAITING_USERS);
 		}
+
+		List<Task> tasks = taskRepository.findBySessionRoomId(sessionId);
+		taskRepository.deleteAll(tasks);
+		taskRepository.flush();
+
+		chatMessageRepository.deleteBySessionRoomId(sessionId);
+		chatMessageRepository.flush();
 
 		sessionRoomRepository.delete(sessionRoom);
 	}
