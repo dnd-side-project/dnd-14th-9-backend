@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SseService {
@@ -114,21 +116,32 @@ public class SseService {
 
 	public SseEmitter subscribeSessionStatus(Long sessionId, Long memberId) {
 		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
+		int emitterId = System.identityHashCode(emitter);
 
 		sessionStatusEmitters
 			.computeIfAbsent(sessionId, k -> new CopyOnWriteArrayList<>())
 			.add(emitter);
 
 		if (memberId != null) {
+			int liveCount = sessionStatusEmitters.get(sessionId).size();
+			log.info("[presence-debug] subscribe: emitter={}, session={}, member={}, 현재 해당 session의 총 emitter 수={}",
+				emitterId, sessionId, memberId, liveCount);
+
 			presenceService.onConnect(sessionId, memberId);
 
 			Runnable onDisconnect = () -> {
+				log.info("[presence-debug] disconnect 콜백 발동: emitter={}, session={}, member={}",
+					emitterId, sessionId, memberId);
 				removeSessionStatusEmitter(sessionId, emitter);
 				presenceService.onDisconnect(sessionId, memberId);
 			};
 			emitter.onCompletion(onDisconnect);
 			emitter.onTimeout(onDisconnect);
-			emitter.onError(e -> onDisconnect.run());
+			emitter.onError(e -> {
+				log.info("[presence-debug] onError 발동: emitter={}, session={}, member={}, error={}",
+					emitterId, sessionId, memberId, e.toString());
+				onDisconnect.run();
+			});
 		} else {
 			emitter.onCompletion(() -> removeSessionStatusEmitter(sessionId, emitter));
 			emitter.onTimeout(() -> removeSessionStatusEmitter(sessionId, emitter));
