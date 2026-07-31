@@ -93,6 +93,9 @@ public class SessionRequestDTO {
 
 		@Min(0)
 		private Integer requiredAchievementRate;
+
+		@Schema(description = "true면 기존 썸네일 이미지를 삭제한다. image 파트가 함께 전달되면 무시되고 이미지 교체가 우선한다.")
+		private Boolean deleteImage;
 	}
 
 	@Schema(name = "세션 참여 요청")

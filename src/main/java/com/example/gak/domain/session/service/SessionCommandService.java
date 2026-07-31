@@ -614,6 +614,12 @@ public class SessionCommandService {
 			}
 
 			sessionRoom.changeThumbnailImageUrl(imageUrl);
+		} else if (Boolean.TRUE.equals(request.getDeleteImage())) {
+			if (sessionRoom.getThumbnailImageUrl() != null && !sessionRoom.getThumbnailImageUrl().isEmpty()) {
+				objectStorageManager.deleteFile(sessionRoom.getThumbnailImageUrl());
+			}
+
+			sessionRoom.changeThumbnailImageUrl(null);
 		}
 
 		sessionRoom.updateSession(request);
