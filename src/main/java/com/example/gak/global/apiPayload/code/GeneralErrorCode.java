@@ -68,6 +68,10 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	REQUIRED_FOCUS_RATE_EXCEEDS_HOST_RATE(HttpStatus.BAD_REQUEST, "SESSION400_17", "요구 집중률은 본인의 집중률을 초과할 수 없습니다."),
 	REQUIRED_ACHIEVEMENT_RATE_EXCEEDS_HOST_RATE(HttpStatus.BAD_REQUEST, "SESSION400_18",
 		"요구 달성률은 본인의 달성률을 초과할 수 없습니다."),
+	SESSION_JOIN_FOCUS_RATE_NOT_MET(HttpStatus.BAD_REQUEST, "SESSION400_19",
+		"본인의 집중률이 세션이 요구하는 집중률에 미치지 못합니다."),
+	SESSION_JOIN_ACHIEVEMENT_RATE_NOT_MET(HttpStatus.BAD_REQUEST, "SESSION400_20",
+		"본인의 달성률이 세션이 요구하는 달성률에 미치지 못합니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),

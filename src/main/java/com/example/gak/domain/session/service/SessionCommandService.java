@@ -141,6 +141,9 @@ public class SessionCommandService {
 		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
 
+		Record participantRecord = recordRepository.findByMember(member);
+		validateParticipantMeetsRequirement(participantRecord, targetSessionRoom);
+
 		increaseCountOrThrow(targetSessionRoom, memberId);
 
 		List<SessionRoomMember> sessionRoomMembers
@@ -650,6 +653,16 @@ public class SessionCommandService {
 
 		if (requiredAchievementRate != null && requiredAchievementRate > hostRecord.getTodoCompletionRate()) {
 			throw new GeneralException(GeneralErrorCode.REQUIRED_ACHIEVEMENT_RATE_EXCEEDS_HOST_RATE);
+		}
+	}
+
+	private void validateParticipantMeetsRequirement(Record participantRecord, SessionRoom sessionRoom) {
+		if (participantRecord.getFocusRate() < sessionRoom.getRequiredFocusRate()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_JOIN_FOCUS_RATE_NOT_MET);
+		}
+
+		if (participantRecord.getTodoCompletionRate() < sessionRoom.getRequiredAchievementRate()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_JOIN_ACHIEVEMENT_RATE_NOT_MET);
 		}
 	}
 
