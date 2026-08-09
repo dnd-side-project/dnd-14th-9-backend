@@ -58,7 +58,7 @@ public class SessionSpecification {
 				for (TimeSlot slot : timeSlots) {
 					switch (slot) {
 						case MORNING -> slotPredicates.add(
-							cb.between(cb.function("HOUR", Integer.class, root.get("startTime")), 6, 11)
+							cb.between(cb.function("HOUR", Integer.class, root.get("startTime")), 0, 11)
 						);
 						case AFTERNOON -> slotPredicates.add(
 							cb.between(cb.function("HOUR", Integer.class, root.get("startTime")), 12, 17)
