@@ -19,6 +19,7 @@ import com.example.gak.global.security.oauth2.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "목표 API")
@@ -34,7 +35,7 @@ public class TaskController {
 	public ApiResponse<Void> updateTask(
 		@AuthenticationPrincipal CustomOAuth2User oAuth2User,
 		@PathVariable Long taskId,
-		@RequestBody TaskRequestDTO.UpdateTaskDTO request
+		@RequestBody @Valid TaskRequestDTO.UpdateTaskDTO request
 	) {
 		taskCommandService.updateTask(taskId, oAuth2User.getMemberId(), request);
 		return ApiResponse.onSuccess(null);
