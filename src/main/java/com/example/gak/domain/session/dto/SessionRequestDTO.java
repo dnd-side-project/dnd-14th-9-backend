@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,9 +54,11 @@ public class SessionRequestDTO {
 		private Integer maxParticipants;
 
 		@Min(0)
+		@Max(100)
 		private Integer requiredFocusRate = 0;
 
 		@Min(0)
+		@Max(100)
 		private Integer requiredAchievementRate = 0;
 	}
 
@@ -89,9 +92,11 @@ public class SessionRequestDTO {
 		private Integer maxParticipants;
 
 		@Min(0)
+		@Max(100)
 		private Integer requiredFocusRate;
 
 		@Min(0)
+		@Max(100)
 		private Integer requiredAchievementRate;
 
 		@Schema(description = "true면 기존 썸네일 이미지를 삭제한다. image 파트가 함께 전달되면 무시되고 이미지 교체가 우선한다.")

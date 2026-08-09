@@ -95,6 +95,13 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_START_TIME_TOO_SOON);
 		}
 
+		Record hostRecord = recordRepository.findByMember(member);
+		validateRequiredRatesAgainstHost(
+			hostRecord,
+			request.getRequiredFocusRate(),
+			request.getRequiredAchievementRate()
+		);
+
 		String imageUrl;
 		if (image != null && !image.isEmpty()) {
 			imageFileValidator.validate(image);
@@ -603,6 +610,13 @@ public class SessionCommandService {
 			}
 		}
 
+		Record hostRecord = recordRepository.findByMemberId(memberId);
+		validateRequiredRatesAgainstHost(
+			hostRecord,
+			request.getRequiredFocusRate(),
+			request.getRequiredAchievementRate()
+		);
+
 		if (image != null && !image.isEmpty()) {
 			imageFileValidator.validate(image);
 
@@ -623,6 +637,20 @@ public class SessionCommandService {
 		}
 
 		sessionRoom.updateSession(request);
+	}
+
+	private void validateRequiredRatesAgainstHost(
+		Record hostRecord,
+		Integer requiredFocusRate,
+		Integer requiredAchievementRate
+	) {
+		if (requiredFocusRate != null && requiredFocusRate > hostRecord.getFocusRate()) {
+			throw new GeneralException(GeneralErrorCode.REQUIRED_FOCUS_RATE_EXCEEDS_HOST_RATE);
+		}
+
+		if (requiredAchievementRate != null && requiredAchievementRate > hostRecord.getTodoCompletionRate()) {
+			throw new GeneralException(GeneralErrorCode.REQUIRED_ACHIEVEMENT_RATE_EXCEEDS_HOST_RATE);
+		}
 	}
 
 	private boolean hasOtherParticipants(SessionRoom sessionRoom, Long memberId) {
