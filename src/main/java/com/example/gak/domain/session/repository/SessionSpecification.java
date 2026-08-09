@@ -74,6 +74,9 @@ public class SessionSpecification {
 			if (durationRange != null) {
 				switch (durationRange) {
 					case HALF_TO_ONE_HOUR -> predicates.add(cb.between(root.get("durationMinutes"), 30, 60));
+					case ONE_HOUR_OR_LESS -> predicates.add(cb.lessThanOrEqualTo(root.get("durationMinutes"), 60));
+					case ONE_TO_TWO_HOURS -> predicates.add(cb.between(root.get("durationMinutes"), 60, 120));
+					case TWO_TO_THREE_HOURS -> predicates.add(cb.between(root.get("durationMinutes"), 120, 180));
 					case TWO_TO_FOUR_HOURS -> predicates.add(cb.between(root.get("durationMinutes"), 120, 240));
 					case FIVE_TO_EIGHT_HOURS -> predicates.add(cb.between(root.get("durationMinutes"), 300, 480));
 					case TEN_PLUS_HOURS -> predicates.add(cb.greaterThanOrEqualTo(root.get("durationMinutes"), 600));
