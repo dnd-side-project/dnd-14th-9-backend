@@ -680,11 +680,12 @@ public class SessionCommandService {
 			member.updateFocusSeconds(seconds);
 		}
 
+		LocalDateTime participationStart = member.getCreatedAt().isBefore(sessionRoom.getStartTime())
+			? sessionRoom.getStartTime()
+			: member.getCreatedAt();
+
 		member.setOverallSeconds(
-			(int)Duration.between(
-				member.getCreatedAt(),
-				sessionRoom.getEndTime()
-			).getSeconds()
+			(int)Duration.between(participationStart, sessionRoom.getEndTime()).getSeconds()
 		);
 		member.updateFocusRate();
 
