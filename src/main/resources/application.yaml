@@ -81,3 +81,7 @@ management:
   metrics:
     tags:
       application: gak-server
+
+discord:
+  webhook:
+    url: ${DISCORD_WEBHOOK_URL}
