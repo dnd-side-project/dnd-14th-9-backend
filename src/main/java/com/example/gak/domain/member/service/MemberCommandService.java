@@ -68,7 +68,7 @@ public class MemberCommandService {
 		if (optionalMember.isEmpty()) {
 			Member member = new Member(
 				oAuth2MemberDto.getNickname(),
-				oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
+				oAuth2MemberDto.getProfileImage().orElse(""),
 				oAuth2MemberDto.getEmail().orElse(null),
 				null,
 				null,
