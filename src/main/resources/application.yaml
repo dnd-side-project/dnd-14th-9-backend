@@ -27,6 +27,7 @@ spring:
         use_sql_comments: true
         jdbc:
           batch_size: 1000
+    open-in-view: false
 
   security:
     oauth2:
