@@ -277,7 +277,7 @@ public class SessionQueryService {
 			.orElseThrow(() -> new GeneralException(TASK_NOT_FOUND_IN_SESSION));
 
 		SessionResponseDTO.EmojiResultResponseDTO emojiResult =
-			SessionConverter.toEmojiResultResponseDTO(srm);
+			getMemberReactionStatus(sessionId, memberId);
 
 		List<SessionResponseDTO.SessionTodoResponseDTO> todos =
 			task.getSubTasks().stream()
@@ -358,29 +358,7 @@ public class SessionQueryService {
 				})
 				.toList();
 
-		int sumHeartCount = sessionRoomMembers.stream()
-			.mapToInt(SessionRoomMember::getHeartCount)
-			.sum();
-
-		int sumStarCount = sessionRoomMembers.stream()
-			.mapToInt(SessionRoomMember::getStarCount)
-			.sum();
-
-		int sumThumbsUpCount = sessionRoomMembers.stream()
-			.mapToInt(SessionRoomMember::getThumbsUpCount)
-			.sum();
-
-		int sumThumbsDownCount = sessionRoomMembers.stream()
-			.mapToInt(SessionRoomMember::getThumbsDownCount)
-			.sum();
-
-		SessionResponseDTO.EmojiResultResponseDTO emojiResult =
-			SessionConverter.toSumEmojiResultResponseDTO(
-				sumHeartCount,
-				sumStarCount,
-				sumThumbsUpCount,
-				sumThumbsDownCount
-			);
+		SessionResponseDTO.EmojiResultResponseDTO emojiResult = getReactionStatus(sessionId);
 
 		return SessionConverter.toEndSessionResponseDTO(
 			avgTotalFocusSeconds,

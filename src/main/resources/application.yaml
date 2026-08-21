@@ -69,3 +69,19 @@ cloud:
 oauth2:
   kakao:
     admin-key: ${KAKAO_ADMIN_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: gak-server
+
+discord:
+  webhook:
+    url: ${DISCORD_WEBHOOK_URL}

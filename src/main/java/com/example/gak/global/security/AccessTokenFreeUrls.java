@@ -12,6 +12,7 @@ public final class AccessTokenFreeUrls {
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/api/v1/sessions",
-		"/ws/**"
+		"/ws/**",
+		"/actuator/**"
 	};
 }

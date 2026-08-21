@@ -63,8 +63,15 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	SESSION_DELETE_HAS_WAITING_USERS(HttpStatus.BAD_REQUEST, "SESSION400_13", "세션에 대기 중인 사용자가 존재해 세션 삭제가 불가능합니다."),
 	SESSION_PATCH_ONLY_WAITING(HttpStatus.BAD_REQUEST, "SESSION400_14", "세션이 대기 상태가 아니라면 수정이 불가능합니다."),
 	SESSION_PATCH_HAS_WAITING_USERS(HttpStatus.BAD_REQUEST, "SESSION400_15", "세션에 대기 중인 사용자가 존재해 세션 수정이 불가능합니다."),
-	SESSION_CREATE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "SESSION400_15",
+	SESSION_CREATE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "SESSION400_16",
 		"한 번에 하나의 세션만 생성할 수 있습니다. 이미 진행 중이거나 대기 중인 세션이 존재합니다."),
+	REQUIRED_FOCUS_RATE_EXCEEDS_HOST_RATE(HttpStatus.BAD_REQUEST, "SESSION400_17", "요구 집중률은 본인의 집중률을 초과할 수 없습니다."),
+	REQUIRED_ACHIEVEMENT_RATE_EXCEEDS_HOST_RATE(HttpStatus.BAD_REQUEST, "SESSION400_18",
+		"요구 달성률은 본인의 달성률을 초과할 수 없습니다."),
+	SESSION_JOIN_FOCUS_RATE_NOT_MET(HttpStatus.BAD_REQUEST, "SESSION400_19",
+		"본인의 집중률이 세션이 요구하는 집중률에 미치지 못합니다."),
+	SESSION_JOIN_ACHIEVEMENT_RATE_NOT_MET(HttpStatus.BAD_REQUEST, "SESSION400_20",
+		"본인의 달성률이 세션이 요구하는 달성률에 미치지 못합니다."),
 
 	// 파일 관련
 	INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "FILE400_1", "허용되지 않은 이미지 형식입니다."),

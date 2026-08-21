@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SseService {
@@ -23,6 +25,10 @@ public class SseService {
 	private final Map<Long, List<SseEmitter>> sessionStatusEmitters = new ConcurrentHashMap<>();
 	private final Map<Long, List<SseEmitter>> reactionEmitters = new ConcurrentHashMap<>();
 	private final Map<String, List<SseEmitter>> memberReactionEmitters = new ConcurrentHashMap<>();
+
+	// session:member 별 "현재 유효한" status emitter. 새 구독이 들어오면 이전 emitter를 대체하고,
+	// 대체된 emitter의 뒤늦은 disconnect 콜백은 presence 판정에서 무시하기 위해 사용한다.
+	private final Map<String, SseEmitter> latestStatusEmitterByMember = new ConcurrentHashMap<>();
 
 	public SseEmitter subscribeWaiting(Long sessionId) {
 		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
@@ -114,21 +120,48 @@ public class SseService {
 
 	public SseEmitter subscribeSessionStatus(Long sessionId, Long memberId) {
 		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
+		int emitterId = System.identityHashCode(emitter);
 
 		sessionStatusEmitters
 			.computeIfAbsent(sessionId, k -> new CopyOnWriteArrayList<>())
 			.add(emitter);
 
 		if (memberId != null) {
+			String memberKey = sessionId + ":" + memberId;
+
+			SseEmitter previous = latestStatusEmitterByMember.put(memberKey, emitter);
+			if (previous != null && previous != emitter) {
+				log.info("[presence-debug] 동일 member의 기존 emitter를 새 연결로 대체: session={}, member={}, old={}, new={}",
+					sessionId, memberId, System.identityHashCode(previous), emitterId);
+				removeSessionStatusEmitter(sessionId, previous);
+				previous.complete();
+			}
+
+			int liveCount = sessionStatusEmitters.get(sessionId).size();
+			log.info("[presence-debug] subscribe: emitter={}, session={}, member={}, 현재 해당 session의 총 emitter 수={}",
+				emitterId, sessionId, memberId, liveCount);
+
 			presenceService.onConnect(sessionId, memberId);
 
 			Runnable onDisconnect = () -> {
 				removeSessionStatusEmitter(sessionId, emitter);
+				boolean wasCurrent = latestStatusEmitterByMember.remove(memberKey, emitter);
+				if (!wasCurrent) {
+					log.info("[presence-debug] disconnect 콜백 무시 (이미 새 연결로 대체됨): emitter={}, session={}, member={}",
+						emitterId, sessionId, memberId);
+					return;
+				}
+				log.info("[presence-debug] disconnect 콜백 발동: emitter={}, session={}, member={}",
+					emitterId, sessionId, memberId);
 				presenceService.onDisconnect(sessionId, memberId);
 			};
 			emitter.onCompletion(onDisconnect);
 			emitter.onTimeout(onDisconnect);
-			emitter.onError(e -> onDisconnect.run());
+			emitter.onError(e -> {
+				log.info("[presence-debug] onError 발동: emitter={}, session={}, member={}, error={}",
+					emitterId, sessionId, memberId, e.toString());
+				onDisconnect.run();
+			});
 		} else {
 			emitter.onCompletion(() -> removeSessionStatusEmitter(sessionId, emitter));
 			emitter.onTimeout(() -> removeSessionStatusEmitter(sessionId, emitter));

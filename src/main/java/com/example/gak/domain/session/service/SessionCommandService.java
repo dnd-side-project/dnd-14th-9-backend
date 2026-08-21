@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.gak.domain.chat.repository.ChatMessageRepository;
 import com.example.gak.domain.common.entity.enums.EmojiType;
 import com.example.gak.domain.member.entity.Member;
 import com.example.gak.domain.member.repository.MemberRepository;
@@ -68,6 +69,7 @@ public class SessionCommandService {
 	private final SubTaskRepository subTaskRepository;
 	private final TaskRepository taskRepository;
 	private final ReactionRepository reactionRepository;
+	private final ChatMessageRepository chatMessageRepository;
 
 	private final RedisPublisher redisPublisher;
 
@@ -92,6 +94,13 @@ public class SessionCommandService {
 		if (request.getStartTime().isBefore(minAllowedStartTime)) {
 			throw new GeneralException(GeneralErrorCode.SESSION_START_TIME_TOO_SOON);
 		}
+
+		Record hostRecord = recordRepository.findByMember(member);
+		validateRequiredRatesAgainstHost(
+			hostRecord,
+			request.getRequiredFocusRate(),
+			request.getRequiredAchievementRate()
+		);
 
 		String imageUrl;
 		if (image != null && !image.isEmpty()) {
@@ -131,6 +140,9 @@ public class SessionCommandService {
 
 		SessionRoom targetSessionRoom = sessionRoomRepository.findWithMemberById(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND_SESSION));
+
+		Record participantRecord = recordRepository.findByMember(member);
+		validateParticipantMeetsRequirement(participantRecord, targetSessionRoom);
 
 		increaseCountOrThrow(targetSessionRoom, memberId);
 
@@ -562,6 +574,13 @@ public class SessionCommandService {
 			throw new GeneralException(GeneralErrorCode.SESSION_DELETE_HAS_WAITING_USERS);
 		}
 
+		List<Task> tasks = taskRepository.findBySessionRoomId(sessionId);
+		taskRepository.deleteAll(tasks);
+		taskRepository.flush();
+
+		chatMessageRepository.deleteBySessionRoomId(sessionId);
+		chatMessageRepository.flush();
+
 		sessionRoomRepository.delete(sessionRoom);
 	}
 
@@ -594,6 +613,13 @@ public class SessionCommandService {
 			}
 		}
 
+		Record hostRecord = recordRepository.findByMemberId(memberId);
+		validateRequiredRatesAgainstHost(
+			hostRecord,
+			request.getRequiredFocusRate(),
+			request.getRequiredAchievementRate()
+		);
+
 		if (image != null && !image.isEmpty()) {
 			imageFileValidator.validate(image);
 
@@ -605,9 +631,39 @@ public class SessionCommandService {
 			}
 
 			sessionRoom.changeThumbnailImageUrl(imageUrl);
+		} else if (Boolean.TRUE.equals(request.getDeleteImage())) {
+			if (sessionRoom.getThumbnailImageUrl() != null && !sessionRoom.getThumbnailImageUrl().isEmpty()) {
+				objectStorageManager.deleteFile(sessionRoom.getThumbnailImageUrl());
+			}
+
+			sessionRoom.changeThumbnailImageUrl(null);
 		}
 
 		sessionRoom.updateSession(request);
+	}
+
+	private void validateRequiredRatesAgainstHost(
+		Record hostRecord,
+		Integer requiredFocusRate,
+		Integer requiredAchievementRate
+	) {
+		if (requiredFocusRate != null && requiredFocusRate > hostRecord.getFocusRate()) {
+			throw new GeneralException(GeneralErrorCode.REQUIRED_FOCUS_RATE_EXCEEDS_HOST_RATE);
+		}
+
+		if (requiredAchievementRate != null && requiredAchievementRate > hostRecord.getTodoCompletionRate()) {
+			throw new GeneralException(GeneralErrorCode.REQUIRED_ACHIEVEMENT_RATE_EXCEEDS_HOST_RATE);
+		}
+	}
+
+	private void validateParticipantMeetsRequirement(Record participantRecord, SessionRoom sessionRoom) {
+		if (participantRecord.getFocusRate() < sessionRoom.getRequiredFocusRate()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_JOIN_FOCUS_RATE_NOT_MET);
+		}
+
+		if (participantRecord.getTodoCompletionRate() < sessionRoom.getRequiredAchievementRate()) {
+			throw new GeneralException(GeneralErrorCode.SESSION_JOIN_ACHIEVEMENT_RATE_NOT_MET);
+		}
 	}
 
 	private boolean hasOtherParticipants(SessionRoom sessionRoom, Long memberId) {
@@ -624,11 +680,12 @@ public class SessionCommandService {
 			member.updateFocusSeconds(seconds);
 		}
 
+		LocalDateTime participationStart = member.getCreatedAt().isBefore(sessionRoom.getStartTime())
+			? sessionRoom.getStartTime()
+			: member.getCreatedAt();
+
 		member.setOverallSeconds(
-			(int)Duration.between(
-				member.getCreatedAt(),
-				sessionRoom.getEndTime()
-			).getSeconds()
+			(int)Duration.between(participationStart, sessionRoom.getEndTime()).getSeconds()
 		);
 		member.updateFocusRate();
 

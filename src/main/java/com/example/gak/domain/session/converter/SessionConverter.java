@@ -210,17 +210,6 @@ public class SessionConverter {
 			.build();
 	}
 
-	public static SessionResponseDTO.EmojiResultResponseDTO toEmojiResultResponseDTO(
-		SessionRoomMember sessionRoomMember
-	) {
-		return SessionResponseDTO.EmojiResultResponseDTO.builder()
-			.heartCount(sessionRoomMember.getHeartCount())
-			.starCount(sessionRoomMember.getStarCount())
-			.thumbsUpCount(sessionRoomMember.getThumbsUpCount())
-			.thumbsDownCount(sessionRoomMember.getThumbsDownCount())
-			.build();
-	}
-
 	public static SessionResponseDTO.SessionMemberResultResponseDTO toSessionMemberResultResponseDTO(
 		SessionRoomMember sessionRoomMember,
 		SessionResponseDTO.EmojiResultResponseDTO emojiResult,

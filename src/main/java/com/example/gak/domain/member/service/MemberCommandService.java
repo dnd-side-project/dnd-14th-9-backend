@@ -5,6 +5,7 @@ import static com.example.gak.global.security.oauth2.CustomOAuth2AuthorizedClien
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import com.example.gak.global.security.jwt.JwtService;
 import com.example.gak.global.security.oauth2.dto.OAuth2MemberDto;
 import com.example.gak.global.security.oauth2.external.GoogleClient;
 import com.example.gak.global.security.oauth2.external.KakaoClient;
+import com.example.gak.global.webhook.event.MemberSignedUpEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +57,7 @@ public class MemberCommandService {
 	private final SessionRoomRepository sessionRoomRepository;
 	private final SessionRoomMemberRepository sessionRoomMemberRepository;
 	private final JwtService jwtService;
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	public Long synchronize(OAuth2MemberDto oAuth2MemberDto) {
 		Optional<Member> optionalMember = memberRepository.findBySocialProviderAndProviderId(
@@ -65,7 +68,7 @@ public class MemberCommandService {
 		if (optionalMember.isEmpty()) {
 			Member member = new Member(
 				oAuth2MemberDto.getNickname(),
-				oAuth2MemberDto.getProfileImage().orElse(""), // 기본 이미지 디자인 완성 시 URL 추가
+				oAuth2MemberDto.getProfileImage().orElse(""),
 				oAuth2MemberDto.getEmail().orElse(null),
 				null,
 				null,
@@ -78,6 +81,8 @@ public class MemberCommandService {
 
 			Record record = new Record(persisted);
 			recordRepository.save(record);
+
+			applicationEventPublisher.publishEvent(new MemberSignedUpEvent(persisted.getId()));
 
 			return persisted.getId();
 		}
