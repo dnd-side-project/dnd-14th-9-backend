@@ -70,14 +70,6 @@ public class SessionRoomMember extends BaseEntity {
 
 	private Integer achievementRate = 0;
 
-	private Integer heartCount = 0;
-
-	private Integer starCount = 0;
-
-	private Integer thumbsUpCount = 0;
-
-	private Integer thumbsDownCount = 0;
-
 	public SessionRoomMember(
 		SessionParticipantRole role,
 		SessionRoom sessionRoom,
