@@ -62,7 +62,6 @@ jobs:
           key: ${{ secrets.SECRET_KEY }}
           script: |
             cd ${{ env.APP_PATH }}
-            docker compose down
             docker pull dndteam9/gak:latest
-            docker compose up -d
+            docker compose up -d --no-deps gak-server
             docker image prune -f
