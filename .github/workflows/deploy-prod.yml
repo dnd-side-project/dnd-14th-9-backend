@@ -224,6 +224,33 @@ jobs:
             --is-offline false
 
       # ==================================================
+      # NLB 업데이트 완료 대기
+      # ==================================================
+
+      - name: Wait for NLB after Server-1
+        run: |
+          echo "Waiting for NLB to become ACTIVE..."
+
+          for i in {1..60}; do
+            STATE=$(oci nlb network-load-balancer get \
+              --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
+              --query 'data."lifecycle-state"' \
+              --raw-output)
+
+            echo "NLB state: $STATE"
+
+            if [ "$STATE" = "ACTIVE" ]; then
+              echo "NLB is ACTIVE."
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "NLB did not become ACTIVE within 120 seconds."
+          exit 1
+
+      # ==================================================
       # Server-2 NLB에서 제외
       # ==================================================
 
