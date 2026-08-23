@@ -55,7 +55,6 @@ jobs:
       APP_PATH: ${{ secrets.APP_PATH }}
 
     steps:
-
       # ==================================================
       # OCI CLI 설치
       # ==================================================
@@ -137,7 +136,8 @@ jobs:
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
             --backend-name "${{ secrets.SERVER_1_BACKEND_NAME }}" \
-            --is-offline true
+            --is-offline true \
+            --debug
 
       # ==================================================
       # Server-1 배포
@@ -199,7 +199,8 @@ jobs:
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
             --backend-name "${{ secrets.SERVER_1_BACKEND_NAME }}" \
-            --is-offline false
+            --is-offline false \
+            --debug
 
       # ==================================================
       # Server-2 NLB에서 제외
@@ -213,7 +214,8 @@ jobs:
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
             --backend-name "${{ secrets.SERVER_2_BACKEND_NAME }}" \
-            --is-offline true
+            --is-offline true \
+            --debug
 
       # ==================================================
       # Server-2 배포
@@ -275,4 +277,5 @@ jobs:
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
             --backend-name "${{ secrets.SERVER_2_BACKEND_NAME }}" \
-            --is-offline false
+            --is-offline false \
+            --debug
