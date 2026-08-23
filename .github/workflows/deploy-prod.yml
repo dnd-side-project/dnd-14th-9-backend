@@ -87,6 +87,35 @@ jobs:
           chmod 600 ~/.oci/config
 
       # ==================================================
+      # OCI 인증 및 NLB 정보 확인
+      # ==================================================
+
+      - name: Verify OCI Authentication
+        run: |
+          echo "Checking OCI authentication..."
+          oci iam user get \
+            --user-id "${{ secrets.OCI_USER_OCID }}"
+
+      - name: Check NLB
+        run: |
+          echo "Checking NLB..."
+          oci nlb network-load-balancer get \
+            --network-load-balancer-id "${{ secrets.NLB_OCID }}"
+
+      - name: Check Backend Sets
+        run: |
+          echo "Checking Backend Sets..."
+          oci nlb backend-set list \
+            --network-load-balancer-id "${{ secrets.NLB_OCID }}"
+
+      - name: Check Backends
+        run: |
+          echo "Checking Backends..."
+          oci nlb backend list \
+            --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
+            --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}"
+
+      # ==================================================
       # Server-1 NLB에서 제외
       # ==================================================
 
