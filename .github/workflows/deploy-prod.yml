@@ -110,7 +110,7 @@ jobs:
 
           oci nlb network-load-balancer get \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
-            --query 'data.display-name' \
+            --query 'data."display-name"' \
             --raw-output
 
       # ==================================================
