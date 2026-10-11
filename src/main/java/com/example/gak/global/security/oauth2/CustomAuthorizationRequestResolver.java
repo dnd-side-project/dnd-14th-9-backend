@@ -1,7 +1,9 @@
 package com.example.gak.global.security.oauth2;
 
 import java.net.URI;
+import java.time.Duration;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
@@ -15,11 +17,16 @@ import jakarta.servlet.http.HttpServletRequest;
 public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
 	private final DefaultOAuth2AuthorizationRequestResolver defaultResolver;
+	private final StringRedisTemplate stringRedisTemplate;
 
-	public CustomAuthorizationRequestResolver(ClientRegistrationRepository repository) {
+	public CustomAuthorizationRequestResolver(
+		ClientRegistrationRepository repository,
+		StringRedisTemplate stringRedisTemplate
+	) {
 		this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(
 			repository, "/oauth2/authorization"
 		);
+		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
 	@Override
@@ -44,6 +51,8 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
 			return null;
 		}
 
+		String codeChallenge = request.getParameter("codeChallenge");
+
 		String referer = request.getHeader(HttpHeaders.REFERER);
 		if (referer != null) {
 			String origin = URI.create(referer).getScheme() + "://" + URI.create(referer).getAuthority();
@@ -51,6 +60,14 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
 			authRequest = OAuth2AuthorizationRequest.from(authRequest)
 				.state(newState)
 				.build();
+		}
+
+		if (codeChallenge != null) {
+			stringRedisTemplate.opsForValue().set(
+				"oauth:challenge:" + authRequest.getState(),
+				codeChallenge,
+				Duration.ofMinutes(1)
+			);
 		}
 
 		Object registrationId = authRequest.getAttribute("registration_id");

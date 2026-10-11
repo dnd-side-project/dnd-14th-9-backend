@@ -8,6 +8,7 @@ public final class AccessTokenFreeUrls {
 
 	public static final String[] PATHS = {
 		"/api/v1/auth/refresh",
+		"/api/v1/auth/issue",
 		"/health",
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
