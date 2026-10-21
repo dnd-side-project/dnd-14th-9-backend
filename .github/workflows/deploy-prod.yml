@@ -55,7 +55,6 @@ jobs:
       APP_PATH: ${{ secrets.APP_PATH }}
 
     steps:
-
       # ==================================================
       # OCI CLI 설치
       # ==================================================
@@ -110,7 +109,7 @@ jobs:
 
           oci nlb network-load-balancer get \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
-            --query 'data.display-name' \
+            --query 'data."display-name"' \
             --raw-output
 
       # ==================================================
@@ -131,18 +130,20 @@ jobs:
 
       - name: Take Server-1 Offline
         run: |
+          echo "Taking Server-1 offline..."
+
           BACKEND_NAME=$(oci nlb backend list \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
-            --query "data[?ip-address=='${{ secrets.SERVER_1_PRIVATE_IP }}'].name | [0]" \
+            --query 'data.items[?"ip-address"==`${{ secrets.SERVER_1_PRIVATE_IP }}`].name | [0]' \
             --raw-output)
-
-          echo "Server-1 Backend: $BACKEND_NAME"
 
           if [ -z "$BACKEND_NAME" ] || [ "$BACKEND_NAME" = "null" ]; then
             echo "Server-1 backend not found."
             exit 1
           fi
+
+          echo "Server-1 backend found."
 
           oci nlb backend update \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
@@ -171,7 +172,6 @@ jobs:
 
       # ==================================================
       # Server-1 Health Check
-      # 최대 4분
       # ==================================================
 
       - name: Health Check Server-1
@@ -204,10 +204,12 @@ jobs:
 
       - name: Bring Server-1 Online
         run: |
+          echo "Bringing Server-1 online..."
+
           BACKEND_NAME=$(oci nlb backend list \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
-            --query "data[?ip-address=='${{ secrets.SERVER_1_PRIVATE_IP }}'].name | [0]" \
+            --query 'data.items[?"ip-address"==`${{ secrets.SERVER_1_PRIVATE_IP }}`].name | [0]' \
             --raw-output)
 
           if [ -z "$BACKEND_NAME" ] || [ "$BACKEND_NAME" = "null" ]; then
@@ -222,23 +224,52 @@ jobs:
             --is-offline false
 
       # ==================================================
+      # NLB 업데이트 완료 대기
+      # ==================================================
+
+      - name: Wait for NLB after Server-1
+        run: |
+          echo "Waiting for NLB to become ACTIVE..."
+
+          for i in {1..60}; do
+            STATE=$(oci nlb network-load-balancer get \
+              --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
+              --query 'data."lifecycle-state"' \
+              --raw-output)
+
+            echo "NLB state: $STATE"
+
+            if [ "$STATE" = "ACTIVE" ]; then
+              echo "NLB is ACTIVE."
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "NLB did not become ACTIVE within 120 seconds."
+          exit 1
+
+      # ==================================================
       # Server-2 NLB에서 제외
       # ==================================================
 
       - name: Take Server-2 Offline
         run: |
+          echo "Taking Server-2 offline..."
+
           BACKEND_NAME=$(oci nlb backend list \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
-            --query "data[?ip-address=='${{ secrets.SERVER_2_PRIVATE_IP }}'].name | [0]" \
+            --query 'data.items[?"ip-address"==`${{ secrets.SERVER_2_PRIVATE_IP }}`].name | [0]' \
             --raw-output)
-
-          echo "Server-2 Backend: $BACKEND_NAME"
 
           if [ -z "$BACKEND_NAME" ] || [ "$BACKEND_NAME" = "null" ]; then
             echo "Server-2 backend not found."
             exit 1
           fi
+
+          echo "Server-2 backend found."
 
           oci nlb backend update \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
@@ -267,7 +298,6 @@ jobs:
 
       # ==================================================
       # Server-2 Health Check
-      # 최대 4분
       # ==================================================
 
       - name: Health Check Server-2
@@ -300,10 +330,12 @@ jobs:
 
       - name: Bring Server-2 Online
         run: |
+          echo "Bringing Server-2 online..."
+
           BACKEND_NAME=$(oci nlb backend list \
             --network-load-balancer-id "${{ secrets.NLB_OCID }}" \
             --backend-set-name "${{ secrets.NLB_BACKEND_SET_NAME }}" \
-            --query "data[?ip-address=='${{ secrets.SERVER_2_PRIVATE_IP }}'].name | [0]" \
+            --query 'data.items[?"ip-address"==`${{ secrets.SERVER_2_PRIVATE_IP }}`].name | [0]' \
             --raw-output)
 
           if [ -z "$BACKEND_NAME" ] || [ "$BACKEND_NAME" = "null" ]; then
