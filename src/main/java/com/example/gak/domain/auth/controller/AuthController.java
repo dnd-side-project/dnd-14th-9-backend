@@ -6,10 +6,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.gak.domain.auth.dto.TokenPair;
+import com.example.gak.domain.auth.dto.TokenVerifier;
 import com.example.gak.domain.auth.service.AuthService;
 import com.example.gak.global.apiPayload.ApiResponse;
 import com.example.gak.global.security.AuthCookieProvider;
@@ -49,5 +51,13 @@ public class AuthController {
 				AuthCookieProvider.deleteRefreshTokenCookie().toString()
 			)
 			.body(ApiResponse.onSuccess(null));
+	}
+
+	@Operation(summary = "코드를 통한 토큰 발급 API")
+	@PostMapping("/issue")
+	public ResponseEntity<ApiResponse<TokenPair>> issueToken(@RequestBody TokenVerifier tokenVerifier) {
+		TokenPair tokenPair = authService.issueToken(tokenVerifier);
+
+		return ResponseEntity.ok(ApiResponse.onSuccess(tokenPair));
 	}
 }
