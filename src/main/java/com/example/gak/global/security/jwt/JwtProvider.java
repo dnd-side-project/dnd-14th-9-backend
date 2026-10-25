@@ -37,7 +37,8 @@ public class JwtProvider {
 		return createToken(
 			memberId,
 			now,
-			ACCESS_TOKEN_EXPIRATION_TIME
+			ACCESS_TOKEN_EXPIRATION_TIME,
+			"ACCESS"
 		);
 	}
 
@@ -45,7 +46,8 @@ public class JwtProvider {
 		return createToken(
 			memberId,
 			now,
-			REFRESH_TOKEN_EXPIRATION_TIME
+			REFRESH_TOKEN_EXPIRATION_TIME,
+			"REFRESH"
 		);
 	}
 
@@ -62,13 +64,21 @@ public class JwtProvider {
 		return Duration.between(now, expirationInstant);
 	}
 
+	public boolean isRefreshToken(String token) {
+		return "REFRESH".equals(
+			parseClaims(token).get("tokenType", String.class)
+		);
+	}
+
 	private String createToken(
 		Long memberId,
 		Instant now,
-		Duration ttl
+		Duration ttl,
+		String tokenType
 	) {
 		return Jwts.builder()
 			.subject(memberId.toString())
+			.claim("tokenType", tokenType)
 			.issuedAt(Date.from(now))
 			.expiration(Date.from(now.plus(ttl)))
 			.signWith(secretKey)

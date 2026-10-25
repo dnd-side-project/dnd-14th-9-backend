@@ -31,6 +31,9 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH401_5", "존재하지 않는 Refresh 토큰입니다."),
 	REFRESH_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "AUTH401_6", "Refresh 토큰이 전달되지 않았습니다."),
 	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH401_7", "Refresh 토큰 정보가 일치하지 않습니다."),
+	CODE_MEMBER_ID_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401_8", "Code 혹은 MemberId 정보가 만료되었습니다."),
+	INVALID_CODE(HttpStatus.UNAUTHORIZED, "AUTH401_9", "Code 검증에 실패했습니다."),
+	INVALID_REFRESH_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH401_10", "Refresh 토큰으로만 토큰 갱신을 할 수 있습니다."),
 
 	// AWS S3 관련
 	S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AWS500_1", "S3 업로드에 실패했습니다."),
