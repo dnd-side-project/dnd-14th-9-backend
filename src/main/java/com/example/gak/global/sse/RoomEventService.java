@@ -39,6 +39,7 @@ public class RoomEventService {
 
 		if (memberId != null) {
 			String memberKey = sessionId + ":" + memberId;
+			String connId = PresenceService.newConnectionId();
 
 			SseEmitter previous = latestEmitterByMember.put(memberKey, emitter);
 			if (previous != null && previous != emitter) {
@@ -47,15 +48,12 @@ public class RoomEventService {
 				previous.complete();
 			}
 
-			presenceService.onConnect(sessionId, memberId);
+			presenceService.onConnect(sessionId, memberId, connId);
 
 			Runnable onDisconnect = () -> {
 				removeRoomEmitter(sessionId, emitter);
-				boolean wasCurrent = latestEmitterByMember.remove(memberKey, emitter);
-				if (!wasCurrent) {
-					return;
-				}
-				presenceService.onDisconnect(sessionId, memberId);
+				latestEmitterByMember.remove(memberKey, emitter);
+				presenceService.onDisconnect(sessionId, memberId, connId);
 			};
 			emitter.onCompletion(onDisconnect);
 			emitter.onTimeout(onDisconnect);

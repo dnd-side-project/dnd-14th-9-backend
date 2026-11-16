@@ -26,8 +26,6 @@ public class SseService {
 	private final Map<Long, List<SseEmitter>> reactionEmitters = new ConcurrentHashMap<>();
 	private final Map<String, List<SseEmitter>> memberReactionEmitters = new ConcurrentHashMap<>();
 
-	// session:member 별 "현재 유효한" status emitter. 새 구독이 들어오면 이전 emitter를 대체하고,
-	// 대체된 emitter의 뒤늦은 disconnect 콜백은 presence 판정에서 무시하기 위해 사용한다.
 	private final Map<String, SseEmitter> latestStatusEmitterByMember = new ConcurrentHashMap<>();
 
 	public SseEmitter subscribeWaiting(Long sessionId) {
@@ -128,6 +126,7 @@ public class SseService {
 
 		if (memberId != null) {
 			String memberKey = sessionId + ":" + memberId;
+			String connId = PresenceService.newConnectionId();
 
 			SseEmitter previous = latestStatusEmitterByMember.put(memberKey, emitter);
 			if (previous != null && previous != emitter) {
@@ -138,22 +137,17 @@ public class SseService {
 			}
 
 			int liveCount = sessionStatusEmitters.get(sessionId).size();
-			log.info("[presence-debug] subscribe: emitter={}, session={}, member={}, 현재 해당 session의 총 emitter 수={}",
-				emitterId, sessionId, memberId, liveCount);
+			log.info("[presence-debug] subscribe: emitter={}, conn={}, session={}, member={}, 현재 해당 session의 총 emitter 수={}",
+				emitterId, connId, sessionId, memberId, liveCount);
 
-			presenceService.onConnect(sessionId, memberId);
+			presenceService.onConnect(sessionId, memberId, connId);
 
 			Runnable onDisconnect = () -> {
 				removeSessionStatusEmitter(sessionId, emitter);
-				boolean wasCurrent = latestStatusEmitterByMember.remove(memberKey, emitter);
-				if (!wasCurrent) {
-					log.info("[presence-debug] disconnect 콜백 무시 (이미 새 연결로 대체됨): emitter={}, session={}, member={}",
-						emitterId, sessionId, memberId);
-					return;
-				}
-				log.info("[presence-debug] disconnect 콜백 발동: emitter={}, session={}, member={}",
-					emitterId, sessionId, memberId);
-				presenceService.onDisconnect(sessionId, memberId);
+				boolean wasLocalCurrent = latestStatusEmitterByMember.remove(memberKey, emitter);
+				log.info("[presence-debug] disconnect 콜백 발동: emitter={}, conn={}, session={}, member={}, 로컬 최신 여부={}",
+					emitterId, connId, sessionId, memberId, wasLocalCurrent);
+				presenceService.onDisconnect(sessionId, memberId, connId);
 			};
 			emitter.onCompletion(onDisconnect);
 			emitter.onTimeout(onDisconnect);
